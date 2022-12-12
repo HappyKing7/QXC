@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="1:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/1_jar</output-path>
+    <root id="archive" name="1.jar">
+      <element id="module-output" name="1" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/jxl-2.6.12.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/alibaba/easyexcel/1.0.1/easyexcel-1.0.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
