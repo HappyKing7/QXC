@@ -105,6 +105,14 @@ public class UpdateWindow {
 			}
 		});
 
+		choiceTimes.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				Choice choice = (Choice) e.getItemSelectable();
+				timesJF.setText(String.valueOf(TimesEnum.getValByLabel(choice.getSelectedItem())));
+			}
+		});
+
 		choiceType.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -119,7 +127,7 @@ public class UpdateWindow {
 				Ticket ticket = globalVariable.tickets.getTicketList().get(Integer.valueOf(ticketsNo));
 				ticket.setSerialNumber(serialNumberJF.getText());
 				ticket.setGroupNum(ticket.getSerialNumber().split(" ").length);
-				ticket.setUnitPrice(Integer.valueOf(priceJF.getText()));
+				ticket.setUnitPrice(Integer.valueOf(priceJF.getText())*Integer.valueOf(timesJF.getText()));
 				ticket.setType(typeJF.getText());
 				ticket.setTotalPrice(ticket.getUnitPrice() * ticket.getGroupNum());
 				frame.dispose();
