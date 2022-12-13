@@ -1,3 +1,9 @@
+import Bean.ShowSummary;
+import Bean.ShowSummaryList;
+import Bean.Ticket;
+import Bean.TicketList;
+import Start.Function;
+import Start.JPanelInit;
 import jxl.read.biff.BiffException;
 import jxl.write.WriteException;
 
@@ -12,6 +18,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import Enum.TypeEnum;
 
 public class demo {
 	private static Function function = new Function();
@@ -168,12 +176,12 @@ public class demo {
 
 		Choice choiceType = new Choice();
 		choiceType.select(ticket.getType());
-		for(TypeEnum typeEnum:TypeEnum.values()){
+		for(TypeEnum typeEnum: TypeEnum.values()){
 			choiceType.add(typeEnum.getLabel());
 			choiceType.setFont(updateFont);
 		}
 		JPanel serialNumberPanel=jPanelInit.initJPanel("序列号",serialNumberJF);
-		JPanel typePanel=jPanelInit.initJPanel("类型","单价",choiceType,priceJF);
+		//JPanel typePanel=jPanelInit.initJPanel("类型","单价",choiceType,priceJF);
 		JPanel updatePanel=new JPanel();
 		Button update = new Button("修改");
 		updatePanel.setFont(updateFont);
@@ -182,7 +190,7 @@ public class demo {
 		//添加控件
 		Frame frame=new Frame("修改序列号");
 		jPanel.add(serialNumberPanel);
-		jPanel.add(typePanel);
+		//jPanel.add(typePanel);
 		jPanel.add(updatePanel);
 
 		//设置布局
@@ -307,7 +315,7 @@ public class demo {
 		resultJF.setEnabled(false);
 
 		Choice choiceType = new Choice();
-		for(TypeEnum typeEnum:TypeEnum.values()){
+		for(TypeEnum typeEnum: TypeEnum.values()){
 			choiceType.add(typeEnum.getLabel());
 			choiceType.setFont(mainFont);
 		}
@@ -322,7 +330,7 @@ public class demo {
 		confirm.setFont(mainFont);
 		sdSerialNumberPanel.add(confirm);
 
-		JPanel typePanel=jPanelInit.initJPanel("类型","单价",choiceType,priceJF);
+		//JPanel typePanel=jPanelInit.initJPanel("类型","单价",choiceType,priceJF);
 		JPanel resultPanel=jPanelInit.initJPanel("结果",resultJF);
 
 		JPanel buttonPanel=new JPanel();
@@ -336,7 +344,7 @@ public class demo {
 		JFrame frame=new JFrame("添加序列号");
 		jPanel.add(ztSerialNumberPanel);
 		jPanel.add(sdSerialNumberPanel);
-		jPanel.add(typePanel);
+		//jPanel.add(typePanel);
 		jPanel.add(resultPanel);
 		frame.add(buttonPanel);
 
@@ -381,8 +389,8 @@ public class demo {
 					String serialNumber = ztSerialNumberJF.getText();
 					String inputPrice = priceJF.getText();
 					String type = typeJF.getText();
-					String output = function.getNumber(tickets,alllistNo,ticketsNo,serialNumber,type,inputPrice);;
-					resultJF.setText(output);
+/*					String output = function.getNumber(tickets,alllistNo,ticketsNo,serialNumber,type,inputPrice);;
+					resultJF.setText(output);*/
 				}
 			}
 		});
@@ -393,12 +401,12 @@ public class demo {
 				String serialNumber = sdSerialNumberJF.getText();
 				String inputPrice = priceJF.getText();
 				String type = typeJF.getText();
-				String output = function.getNumber(tickets,alllistNo,ticketsNo,serialNumber,type,inputPrice);
+/*				String output = function.getNumber(tickets,alllistNo,ticketsNo,serialNumber,type,inputPrice);
 				if(output.equals("fail")){
 					warmWindow("请输入有效数字");
 				}else {
 					resultJF.setText(output);
-				}
+				}*/
 			}
 		});
 
