@@ -4,12 +4,37 @@ import javax.swing.*;
 import java.awt.*;
 
 public class JPanelInit {
-	public JPanel initJPanel(String lable, JTextField jTextField){
+	public JPanel addSpace(JPanel panel,int num){
+		for (int i = 0; i < num; i++) {
+			panel.add(new Label());
+		}
+		return panel;
+	}
+	public JPanel initJPanel(JPanel panel, String lable, JTextField jTextField){
 		Font font = new Font("宋体",Font.BOLD,25);
-		JPanel panel = new JPanel();
 		JLabel jLabel = new JLabel(lable);
 		jLabel.setFont(font);
 		panel.add(jLabel);
+		panel.add(jTextField);
+		return panel;
+	}
+
+	public JPanel iniJPanel(JPanel panel,String choiceLabel,Choice choiceInfo){
+		Font font = new Font("宋体",Font.BOLD,25);
+		JLabel timesChoiceJLabel = new JLabel(choiceLabel);
+		timesChoiceJLabel.setFont(font);
+		if(!choiceLabel.equals("")){
+			panel.add(timesChoiceJLabel);
+		}
+		panel.add(choiceInfo);
+		return panel;
+	}
+
+	public JPanel iniJPanel(JPanel panel,String label, JTextField jTextField){
+		Font font = new Font("宋体",Font.BOLD,25);
+		JLabel priceJLabel = new JLabel(label);
+		priceJLabel.setFont(font);
+		panel.add(priceJLabel);
 		panel.add(jTextField);
 		return panel;
 	}

@@ -44,13 +44,15 @@ public class Function {
 		return numberList.size();
 	}
 
-	public String getNumber(TicketList tickets, AtomicInteger alllistNo, AtomicInteger ticketsNo, String serialNumber, String type, String inputPrice, String times){
+	public String getNumber(TicketList tickets, AtomicInteger alllistNo, AtomicInteger ticketsNo, String serialNumber,
+							String type, String typeTwo, String inputPrice, String times, String functionType){
 		if (serialNumber.equals("") || !pattern.matcher(inputPrice).matches() || !pattern.matcher(times).matches()){
 			return "fail";
 		}
 
 		List<String> numberList = new ArrayList<>();
 		String number = "";
+
 		for (int i = 0; i < serialNumber.length(); i++) {
 			if (Character.isDigit(serialNumber.charAt(i))) {
 				number = number + serialNumber.charAt(i);
@@ -66,10 +68,40 @@ public class Function {
 			}
 		}
 
+		if (functionType.equals("组合")) {
+			int j = 0;
+			List<String> addOneNum = new ArrayList<>();
+			List<String> addTwoNum = new ArrayList<>();
+			while (j + 1 < numberList.size()) {
+				if (j == 0) {
+					String oneString = numberList.get(j);
+					String twoString = numberList.get(j + 1);
+					for (int k = 0; k < oneString.length(); k++) {
+						for (int l = 0; l < twoString.length(); l++) {
+							addOneNum.add(String.valueOf(oneString.charAt(k)) + String.valueOf(twoString.charAt(l)));
+						}
+					}
+				} else {
+					String thirdString = numberList.get(j + 1);
+					for (int k = 0; k < addOneNum.size(); k++) {
+						for (int l = 0; l < thirdString.length(); l++) {
+							addTwoNum.add(addOneNum.get(k) + String.valueOf(thirdString.charAt(l)));
+						}
+					}
+					addOneNum.clear();
+					addOneNum.addAll(addTwoNum);
+					addTwoNum.clear();
+				}
+				j = j + 1;
+			}
+			numberList = addOneNum;
+		}
+
 		serialNumber = "";
 		for (int j = 0; j < numberList.size(); j++) {
 			serialNumber = serialNumber + numberList.get(j) + " ";
 		}
+
 		int group = numberList.size();
 		Integer price = Integer.valueOf(inputPrice) * Integer.valueOf(times);
 
@@ -81,6 +113,7 @@ public class Function {
 		ticket.setGroupNum(group);
 		ticket.setTimes(Integer.valueOf(times));
 		ticket.setType(type);
+		ticket.setTypeTwo(typeTwo);
 		ticket.setUnitPrice(price);
 		ticket.setTotalPrice(group*price);
 
@@ -96,12 +129,21 @@ public class Function {
 	}
 
 	public String showSummaryWithNumber(Ticket ticket){
-		String output = ticket.getSerialNumber();
+		String output = "";
+		if(ticket.getSerialNumber().length() <= 145){
+			output = ticket.getSerialNumber();
+		}else{
+			output = ticket.getSerialNumber().substring(0,145);
+			output = output + "(...)";
+		}
+
 		output = output + "  ";
 		output = output + "(";
 		output = output + ticket.getGroupNum()+"组";
 		output = output + ",";
 		output = output + "单价"+ticket.getUnitPrice();
+		output = output + ",";
+		output = output + ticket.getTypeTwo();
 		output = output + ",";
 		output = output + ticket.getType();
 		output = output + ",";
@@ -114,6 +156,8 @@ public class Function {
 		String output = ticket.getGroupNum()+"组";
 		output = output + ",";
 		output = output + "单价"+ticket.getUnitPrice();
+		output = output + ",";
+		output = output + ticket.getTypeTwo();
 		output = output + ",";
 		output = output + ticket.getType();
 		output = output + ",";

@@ -45,6 +45,15 @@ public class UpdateWindow {
 			choiceTimes.add(timesEnum.getLabel());
 			choiceTimes.setFont(fontEnum.mainFont);
 		}
+		//类别
+		JTextField typeTwoJF=new JTextField(TypeTwoEnum.TICAI.getLabel(),10);
+		typeTwoJF.setFont(fontEnum.mainFont);
+		typeTwoJF.setVisible(false);
+		Choice choiceTypeTwo = new Choice();
+		for(TypeTwoEnum typeTwoEnumEnum: TypeTwoEnum.values()){
+			choiceTypeTwo.add(typeTwoEnumEnum.getLabel());
+			choiceTypeTwo.setFont(fontEnum.mainFont);
+		}
 		//类型
 		JTextField typeJF=new JTextField(ticket.getType(),10);
 		typeJF.setFont(fontEnum.updateFont);
@@ -63,11 +72,17 @@ public class UpdateWindow {
 		resultJF.setEnabled(false);
 
 		//第一行 序列号 + 组数
-		JPanel serialNumberPanel=jPanelInit.initJPanel("序列号",serialNumberJF);
+		JPanel serialNumberPanel=jPanelInit.initJPanel(new JPanel(),"序列号",serialNumberJF);
 		serialNumberPanel.add(groupNumberJF);
-		//第二行 单价 + 倍数 + 类型
-		JPanel priceAndTypePanel=jPanelInit.initJPanel("类型","单价","倍数",
-				choicePrice,choiceType,choiceTimes,priceJF);
+		//第二行 单价 + 倍数 + 类别 + 类型
+		JPanel priceAndTypePanel=jPanelInit.iniJPanel(new JPanel(),"单价",priceJF);
+		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"",choicePrice);
+		priceAndTypePanel=jPanelInit.addSpace(priceAndTypePanel,2);
+		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"倍数",choiceTimes);
+		priceAndTypePanel=jPanelInit.addSpace(priceAndTypePanel,2);
+		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"类别",choiceTypeTwo);
+		priceAndTypePanel=jPanelInit.addSpace(priceAndTypePanel,2);
+		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"类型",choiceType);
 		//第三行 按钮
 		JPanel updatePanel=new JPanel();
 		Button update = new Button("修改");
@@ -113,6 +128,14 @@ public class UpdateWindow {
 			}
 		});
 
+		choiceTypeTwo.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				Choice choice = (Choice) e.getItemSelectable();
+				typeTwoJF.setText(choice.getSelectedItem());
+			}
+		});
+
 		choiceType.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -128,6 +151,7 @@ public class UpdateWindow {
 				ticket.setSerialNumber(serialNumberJF.getText());
 				ticket.setGroupNum(ticket.getSerialNumber().split(" ").length);
 				ticket.setUnitPrice(Integer.valueOf(priceJF.getText())*Integer.valueOf(timesJF.getText()));
+				ticket.setTypeTwo(typeTwoJF.getText());
 				ticket.setType(typeJF.getText());
 				ticket.setTotalPrice(ticket.getUnitPrice() * ticket.getGroupNum());
 				frame.dispose();

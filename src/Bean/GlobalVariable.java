@@ -12,6 +12,8 @@ public class GlobalVariable {
 	public String selectNo = "";
 	public String filePath = "";
 	public String selectPrice = "";
+	public String inputSerialNumber = "";
+	public String functionType ="非组合";
 
 	public Frame getOneFrame() {
 		return oneFrame;
@@ -75,5 +77,13 @@ public class GlobalVariable {
 
 	public void setSelectPrice(String selectPrice) {
 		this.selectPrice = selectPrice;
+	}
+
+	public String getFunctionType() {
+		return functionType;
+	}
+
+	public void setFunctionType(String functionType) {
+		this.functionType = functionType;
 	}
 }

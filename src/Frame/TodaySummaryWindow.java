@@ -12,7 +12,7 @@ import java.util.List;
 
 public class TodaySummaryWindow {
 	private static FontEnum fontEnum = new FontEnum();
-	private static Function function = new Function();
+
 	static void showTodaySummary(List<ShowSummaryList> showSummaryLists, GlobalVariable globalVariable){
 		Frame frame = new Frame();
 		JPanel panel =  new JPanel(new GridLayout(showSummaryLists.get(0).getSize(),1));
@@ -26,7 +26,12 @@ public class TodaySummaryWindow {
 				if(j==0){
 					JLabel noLabel = new JLabel(ssl.getNo());
 					noLabel.setFont(fontEnum.todaySummaryFont);
-					JLabel firstSerialNumberLabel = new JLabel(ss.getSerialNumber());
+					JLabel firstSerialNumberLabel = new JLabel();
+					if(ss.getSerialNumber().length()<= 30){
+						firstSerialNumberLabel.setText(ss.getSerialNumber());
+					}else {
+						firstSerialNumberLabel.setText(ss.getSerialNumber().substring(0,30)+"(...) ");
+					}
 					firstSerialNumberLabel.setFont(fontEnum.todaySummaryFont);
 					JLabel firstDetailLabel = new JLabel(ss.getDetail());
 					firstDetailLabel.setFont(fontEnum.todaySummaryFont);
@@ -45,7 +50,12 @@ public class TodaySummaryWindow {
 						resultPanel.add(emptyLabel0);
 					}
 				}else {
-					JLabel serialNumberLabel = new JLabel(ss.getSerialNumber());
+					JLabel serialNumberLabel = new JLabel();
+					if(ss.getSerialNumber().length()<= 30){
+						serialNumberLabel.setText(ss.getSerialNumber());
+					}else {
+						serialNumberLabel.setText(ss.getSerialNumber().substring(0,30)+"(...) ");
+					}
 					serialNumberLabel.setFont(fontEnum.todaySummaryFont);
 					JLabel detailLabel = new JLabel(ss.getDetail());
 					detailLabel.setFont(fontEnum.todaySummaryFont);

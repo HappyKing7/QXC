@@ -5,6 +5,7 @@ public class Ticket {
 	private String serialNumber;
 	private Integer groupNum;
 	private String type;
+	private String typeTwo;
 	private Integer unitPrice;
 	private Integer times;
 
@@ -40,6 +41,14 @@ public class Ticket {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getTypeTwo() {
+		return typeTwo;
+	}
+
+	public void setTypeTwo(String typeTwo) {
+		this.typeTwo = typeTwo;
 	}
 
 	public Integer getUnitPrice() {
