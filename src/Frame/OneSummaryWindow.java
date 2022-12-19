@@ -19,32 +19,40 @@ public class OneSummaryWindow {
 	private static MainWindow mainWindow = new MainWindow();
 	private static WarmWindow warmWindow = new WarmWindow();
 	private static UpdateWindow updateWindow = new UpdateWindow();
+	private JPanel showOneSummaryJPanel = new JPanel();
 
-	public JPanel showOneSummaryFrame(JPanel showOneSummaryPanel, GlobalVariable globalVariable){
+	public JPanel showOneSummaryFrame(JPanel showOneSummaryPanel, JPanel titlePanel,GlobalVariable globalVariable){
+		showOneSummaryJPanel = showOneSummaryPanel;
 		showOneSummaryPanel.removeAll();
-		JPanel panel = new JPanel(new GridLayout(globalVariable.tickets.getTicketList().size()+2,1));
+		JPanel panel = new JPanel(new GridLayout(globalVariable.tickets.getTicketList().size()+2,2));
 		ButtonGroup btnGroup = new ButtonGroup();
-		int totalPrice = 0;
+		float totalPrice = 0;
 		for (int i = 0; i < globalVariable.tickets.getTicketList().size(); i++) {
 			JPanel resultPanel = new JPanel();
-			JLabel resultLabel = new JLabel(function.showSummaryWithNumber(globalVariable.tickets.getTicketList().get(i)));
+			String[] output = function.showSummaryWithNumber(globalVariable.tickets.getTicketList().get(i)).split("-");
+			JLabel resultNumberLabel = new JLabel(output[0]);
+			JLabel resultInfoLabel = new JLabel(output[1]);
 			totalPrice = totalPrice + globalVariable.tickets.getTicketList().get(i).getTotalPrice();
-			resultLabel.setFont(fontEnum.oneSummaryFont);
-			JRadioButton resultButton = new JRadioButton(String.valueOf(i));
+			resultNumberLabel.setFont(fontEnum.oneSummaryFont);
+			resultInfoLabel.setFont(fontEnum.oneSummaryFont);
+			JRadioButton resultButton = new JRadioButton(String.valueOf(i+1));
 			resultButton.setFont(fontEnum.oneSummaryFont);
 			resultButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					globalVariable.selectNo = resultButton.getText();
+					globalVariable.selectNo = String.valueOf(Integer.valueOf(resultButton.getText()) - 1);
 				}
 			});
 			btnGroup.add(resultButton);
 			resultPanel.add(resultButton);
-			resultPanel.add(resultLabel);
+			resultPanel.add(new JPanel());
+			resultPanel.add(resultNumberLabel);
+			resultPanel.add(new JPanel());
+			resultPanel.add(resultInfoLabel);
 			panel.add(resultPanel);
 		}
 		JPanel totalPricePanel = new JPanel();
-		JLabel totalPriceLabel = new JLabel("总共"+String.valueOf(totalPrice)+"元");
+		JLabel totalPriceLabel = new JLabel("总共"+String.format("%.2f", Float.valueOf(totalPrice))+"元");
 		totalPriceLabel.setFont(fontEnum.oneSummaryFont);
 		totalPricePanel.add(totalPriceLabel);
 		panel.add(totalPricePanel);
@@ -68,7 +76,7 @@ public class OneSummaryWindow {
 				if(globalVariable.selectNo.equals("")){
 					warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);
 				}else{
-					updateWindow.showUpdateFrame(globalVariable.selectNo,globalVariable);
+					updateWindow.showUpdateFrame(globalVariable.selectNo,globalVariable,showOneSummaryPanel,titlePanel);
 				}
 			}
 		});
@@ -81,11 +89,15 @@ public class OneSummaryWindow {
 				}else {
 					Ticket removeTicket = globalVariable.tickets.getTicketList().get(Integer.valueOf(globalVariable.selectNo));
 					globalVariable.tickets.getTicketList().remove(removeTicket);
+					showOneSummaryJPanel = showOneSummaryFrame(showOneSummaryJPanel,titlePanel,globalVariable);
+
 					if(globalVariable.tickets.getTicketList().size() == 0){
-						mainWindow.showMainFrame(ModeTypeEnum.CREATE.getVal(),globalVariable);
-					}else{
-						mainWindow.showMainFrame(ModeTypeEnum.UPDATE.getVal(),globalVariable);
+						showOneSummaryJPanel.removeAll();
+						showOneSummaryJPanel.revalidate();
 					}
+					showOneSummaryJPanel.repaint();
+					globalVariable.mainFrame.revalidate();
+					globalVariable.mainFrame.repaint();
 				}
 			}
 		});
@@ -101,7 +113,12 @@ public class OneSummaryWindow {
 						globalVariable.ticketsNo.set(0);
 						globalVariable.tickets = new TicketList();
 						globalVariable.selectPrice = "";
-						mainWindow.showMainFrame(ModeTypeEnum.CREATE.getVal(),globalVariable);
+						titlePanel.setVisible(false);
+						showOneSummaryJPanel.removeAll();
+						showOneSummaryJPanel.revalidate();
+						showOneSummaryJPanel.repaint();
+						globalVariable.mainFrame.revalidate();
+						//mainWindow.showMainFrame(ModeTypeEnum.CREATE.getVal(),globalVariable);
 					}
 				} catch (FileNotFoundException fileNotFoundException) {
 					fileNotFoundException.printStackTrace();

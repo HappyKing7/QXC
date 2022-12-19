@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 public class Function {
 	private static Pattern pattern = Pattern.compile("-?[0-9]+(\\\\.[0-9]+)?");
 
-	public int getNumber(String serialNumber){
+	public int getNumber(String serialNumber,String functionType){
 		List<String> numberList = new ArrayList<>();
 		String number = "";
 		for (int i = 0; i < serialNumber.length(); i++) {
@@ -41,12 +41,20 @@ public class Function {
 			}
 		}
 
+		if(functionType.equals("组合")){
+			int groupNum = 1;
+			for(String num : numberList){
+				groupNum = groupNum * num.length();
+			}
+			return groupNum;
+		}
+
 		return numberList.size();
 	}
 
 	public String getNumber(TicketList tickets, AtomicInteger alllistNo, AtomicInteger ticketsNo, String serialNumber,
 							String type, String typeTwo, String inputPrice, String times, String functionType){
-		if (serialNumber.equals("") || !pattern.matcher(inputPrice).matches() || !pattern.matcher(times).matches()){
+		if (serialNumber.equals("") || !pattern.matcher(times).matches()){
 			return "fail";
 		}
 
@@ -103,7 +111,7 @@ public class Function {
 		}
 
 		int group = numberList.size();
-		Integer price = Integer.valueOf(inputPrice) * Integer.valueOf(times);
+		float price = Float.valueOf(inputPrice) * Integer.valueOf(times);
 
 		tickets.setId(alllistNo.getAndIncrement());
 
@@ -128,16 +136,28 @@ public class Function {
 		return showSummaryWithNumber(ticket);
 	}
 
+	public String numberWrap(String serialNumber,int num){
+		String output = "<html>";
+		String[] serialNumbers = serialNumber.split(" ");
+		for (int i = 0; i < serialNumbers.length; i++) {
+			output = output + serialNumbers[i] + " ";
+			if(((i+1) % num) == 0){
+				output = output + "<br>";
+			}
+		}
+		output = output + "</html>";
+		return output;
+	}
+
 	public String showSummaryWithNumber(Ticket ticket){
-		String output = "";
+		String output = ticket.getSerialNumber();
 		if(ticket.getSerialNumber().length() <= 145){
 			output = ticket.getSerialNumber();
 		}else{
-			output = ticket.getSerialNumber().substring(0,145);
-			output = output + "(...)";
+			output = numberWrap(output,10);
 		}
 
-		output = output + "  ";
+		output = output + "-";
 		output = output + "(";
 		output = output + ticket.getGroupNum()+"组";
 		output = output + ",";
@@ -149,6 +169,7 @@ public class Function {
 		output = output + ",";
 		output = output + "总"+ticket.getTotalPrice()+"元";
 		output = output + ")";
+
 		return output;
 	}
 
@@ -176,7 +197,7 @@ public class Function {
 		WritableSheet sheet = workbook.createSheet("汇总", 0);
 		Label l0 = new Label(0, 0, "序列1");
 		sheet.addCell(l0);
-		int totalPrice = 0;
+		float totalPrice = 0;
 		for (int i = 0; i < tickets.getTicketList().size(); i++) {
 			Ticket ticket = tickets.getTicketList().get(i);
 			Label l1 = new Label(1, i, ticket.getSerialNumber());
@@ -219,7 +240,7 @@ public class Function {
 		WritableSheet writableSheet = workbook.getSheet(0);
 		Label l0 = new Label(0,sheetRow+1,"序列"+String.valueOf(Integer.valueOf(numberNo)+1));
 		writableSheet.addCell(l0);
-		int totalPrice = 0;
+		float totalPrice = 0;
 		int ticketsNo = 0;
 		for (int i = sheetRow+1; i < sheetRow + 1 + tickets.getTicketList().size(); i++) {
 			Ticket ticket = tickets.getTicketList().get(ticketsNo);
@@ -232,7 +253,7 @@ public class Function {
 		}
 		Label l3 = new Label(3,sheetRow+1,"总共"+String.valueOf(totalPrice)+"元");
 		String totalMoney =  readSheet.getCell(5,0).getContents().replace("总计","").replace("元","");
-		totalMoney = String.valueOf(Integer.valueOf(totalMoney) + Integer.valueOf(totalPrice));
+		totalMoney = String.valueOf((Float.valueOf(totalMoney) + totalPrice));
 
 		Label l4 = new Label(5,0,"总计"+String.valueOf(totalMoney)+"元");
 		writableSheet.addCell(l3);

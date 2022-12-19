@@ -2,8 +2,7 @@ package Enum;
 
 public enum PriceEnum {
 	TOW(2),
-	Ten(10),
-	Hundred(100);
+	Ten(10);
 
 	private final int val;
 

@@ -6,10 +6,9 @@ public class Ticket {
 	private Integer groupNum;
 	private String type;
 	private String typeTwo;
-	private Integer unitPrice;
+	private float unitPrice;
 	private Integer times;
-
-	private Integer totalPrice;
+	private float totalPrice;
 
 	public Integer getId() {
 		return Id;
@@ -51,11 +50,11 @@ public class Ticket {
 		this.typeTwo = typeTwo;
 	}
 
-	public Integer getUnitPrice() {
+	public float getUnitPrice() {
 		return unitPrice;
 	}
 
-	public void setUnitPrice(Integer unitPrice) {
+	public void setUnitPrice(float unitPrice) {
 		this.unitPrice = unitPrice;
 	}
 
@@ -67,11 +66,11 @@ public class Ticket {
 		this.times = times;
 	}
 
-	public Integer getTotalPrice() {
+	public float getTotalPrice() {
 		return totalPrice;
 	}
 
-	public void setTotalPrice(Integer totalPrice) {
+	public void setTotalPrice(float totalPrice) {
 		this.totalPrice = totalPrice;
 	}
 }

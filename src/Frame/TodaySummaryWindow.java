@@ -12,13 +12,18 @@ import java.util.List;
 
 public class TodaySummaryWindow {
 	private static FontEnum fontEnum = new FontEnum();
+	private static Function function = new Function();
 
-	static void showTodaySummary(List<ShowSummaryList> showSummaryLists, GlobalVariable globalVariable){
-		Frame frame = new Frame();
-		JPanel panel =  new JPanel(new GridLayout(showSummaryLists.get(0).getSize(),1));
+	static void showTodaySummary(List<ShowSummaryList> showSummaryLists, String nowDate, GlobalVariable globalVariable){
+		Frame frame = new Frame("今日汇总");
+		JLabel title = new JLabel(nowDate+"数据",JLabel.CENTER);
+		title.setFont(fontEnum.todaySummaryTitleFont);
+		JPanel panel =  new JPanel();
 		for (int i = 0; i < showSummaryLists.size(); i++) {
 			ShowSummaryList ssl = showSummaryLists.get(i);
 			JPanel resultPanel = new JPanel(new GridLayout(ssl.getShowSummaryList().size(),5));
+			BoxLayout layout=new BoxLayout(resultPanel, BoxLayout.Y_AXIS);
+
 			JLabel firstTotalMoneyLabel = new JLabel(ssl.getTotalMoney());
 			firstTotalMoneyLabel.setFont(fontEnum.todaySummaryFont);
 			for (int j = 0; j < ssl.getShowSummaryList().size(); j++) {
@@ -30,7 +35,7 @@ public class TodaySummaryWindow {
 					if(ss.getSerialNumber().length()<= 30){
 						firstSerialNumberLabel.setText(ss.getSerialNumber());
 					}else {
-						firstSerialNumberLabel.setText(ss.getSerialNumber().substring(0,30)+"(...) ");
+						firstSerialNumberLabel.setText(function.numberWrap(ss.getSerialNumber(),5));
 					}
 					firstSerialNumberLabel.setFont(fontEnum.todaySummaryFont);
 					JLabel firstDetailLabel = new JLabel(ss.getDetail());
@@ -54,7 +59,7 @@ public class TodaySummaryWindow {
 					if(ss.getSerialNumber().length()<= 30){
 						serialNumberLabel.setText(ss.getSerialNumber());
 					}else {
-						serialNumberLabel.setText(ss.getSerialNumber().substring(0,30)+"(...) ");
+						serialNumberLabel.setText(function.numberWrap(ss.getSerialNumber(),10));
 					}
 					serialNumberLabel.setFont(fontEnum.todaySummaryFont);
 					JLabel detailLabel = new JLabel(ss.getDetail());
@@ -74,13 +79,20 @@ public class TodaySummaryWindow {
 				}
 				panel.add(resultPanel);
 			}
+			panel.add(new JLabel(" "));
 		}
+		BoxLayout layout=new BoxLayout(panel, BoxLayout.Y_AXIS);
+		panel.setLayout(layout);
 		JScrollPane jScrollPane = new JScrollPane(panel);
 		frame.add(jScrollPane,BorderLayout.CENTER);
-		Toolkit kit = Toolkit.getDefaultToolkit();
-		Dimension screenSize = kit.getScreenSize();
-		frame.setBounds((screenSize.width - 1250) / 2, (screenSize.height - 800) / 2, 1250, 800);
+		frame.add(title,BorderLayout.NORTH);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setBounds((screenSize.width - 1500) / 2, (screenSize.height - 800) / 2, 1500, 800);
 		frame.setVisible(true);
+/*		Rectangle bounds = new Rectangle(screenSize);
+		frame.setBounds(bounds);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		frame.setVisible(true);*/
 
 		//注册监听器
 		frame.addWindowListener(new WindowAdapter() {

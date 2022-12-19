@@ -15,10 +15,12 @@ public class UpdateWindow {
 	private static Function function = new Function();
 	private static JPanelInit jPanelInit = new JPanelInit();
 	private static MainWindow mainWindow = new MainWindow();
+	private static OneSummaryWindow oneSummaryWindow = new OneSummaryWindow();
+	private JPanel showOneSummaryJPanel = new JPanel();
 
-	static void showUpdateFrame(String ticketsNo, GlobalVariable globalVariable){
+	public void showUpdateFrame(String ticketsNo, GlobalVariable globalVariable,JPanel showOneSummaryPanel,JPanel titlePanel){
 		Ticket ticket = globalVariable.tickets.getTicketList().get(Integer.valueOf(ticketsNo));
-
+		showOneSummaryJPanel = showOneSummaryPanel;
 		JPanel jPanel = new JPanel();
 		jPanel.setLayout(new GridLayout(3,1));
 		//序列号
@@ -34,6 +36,22 @@ public class UpdateWindow {
 		for(PriceEnum priceEnum: PriceEnum.values()){
 			choicePrice.add(String.valueOf(priceEnum.getVal()));
 			choicePrice.setFont(fontEnum.mainFont);
+		}
+
+		JPanel pricePanel = new JPanel();
+		ButtonGroup priceGroup = new ButtonGroup();
+		for (PriceEnum priceEnum : PriceEnum.values()) {
+			JRadioButton priceButton = new JRadioButton(String.valueOf(priceEnum.getVal()));
+			priceButton.setFont(fontEnum.mainButtonFont);
+			priceButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					priceJF.setText(priceButton.getText());
+					globalVariable.selectPrice = priceButton.getText();
+				}
+			});
+			priceGroup.add(priceButton);
+			pricePanel.add(priceButton);
 		}
 
 		JTextField timesJF=new JTextField("1",10);
@@ -75,12 +93,13 @@ public class UpdateWindow {
 		JPanel serialNumberPanel=jPanelInit.initJPanel(new JPanel(),"序列号",serialNumberJF);
 		serialNumberPanel.add(groupNumberJF);
 		//第二行 单价 + 倍数 + 类别 + 类型
-		JPanel priceAndTypePanel=jPanelInit.iniJPanel(new JPanel(),"单价",priceJF);
-		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"",choicePrice);
+		JPanel priceAndTypePanel=jPanelInit.iniJPanel(new JPanel(),"类别",choiceTypeTwo);
 		priceAndTypePanel=jPanelInit.addSpace(priceAndTypePanel,2);
+		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"单价");
+		priceAndTypePanel.add(pricePanel);
+		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"",priceJF);
+		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"元");
 		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"倍数",choiceTimes);
-		priceAndTypePanel=jPanelInit.addSpace(priceAndTypePanel,2);
-		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"类别",choiceTypeTwo);
 		priceAndTypePanel=jPanelInit.addSpace(priceAndTypePanel,2);
 		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"类型",choiceType);
 		//第三行 按钮
@@ -96,9 +115,8 @@ public class UpdateWindow {
 		jPanel.add(updatePanel);
 
 		//设置布局
-		Toolkit kit = Toolkit.getDefaultToolkit();
-		Dimension screenSize = kit.getScreenSize();
-		frame.setBounds((screenSize.width - 1000) / 2, (screenSize.height - 200) / 2, 1000, 170);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setBounds((screenSize.width - 1000) / 2, (screenSize.height - 200) / 2, 1000, 200);
 		frame.add(jPanel,BorderLayout.NORTH);
 		frame.add(new JPanel(),BorderLayout.CENTER);
 		frame.setVisible(true);
@@ -150,12 +168,14 @@ public class UpdateWindow {
 				Ticket ticket = globalVariable.tickets.getTicketList().get(Integer.valueOf(ticketsNo));
 				ticket.setSerialNumber(serialNumberJF.getText());
 				ticket.setGroupNum(ticket.getSerialNumber().split(" ").length);
-				ticket.setUnitPrice(Integer.valueOf(priceJF.getText())*Integer.valueOf(timesJF.getText()));
+				ticket.setUnitPrice(Float.valueOf(priceJF.getText())*Integer.valueOf(timesJF.getText()));
 				ticket.setTypeTwo(typeTwoJF.getText());
 				ticket.setType(typeJF.getText());
 				ticket.setTotalPrice(ticket.getUnitPrice() * ticket.getGroupNum());
 				frame.dispose();
-				mainWindow.showMainFrame(ModeTypeEnum.UPDATE.getVal(),globalVariable);
+				showOneSummaryJPanel = oneSummaryWindow.showOneSummaryFrame(showOneSummaryJPanel,titlePanel,globalVariable);
+				globalVariable.mainFrame.revalidate();
+				//mainWindow.showMainFrame(ModeTypeEnum.UPDATE.getVal(),globalVariable);
 			}
 		});
 
@@ -163,7 +183,7 @@ public class UpdateWindow {
 			@Override
 			public void caretUpdate(CaretEvent e) {
 				if(!serialNumberJF.equals("")){
-					int groupNumber = function.getNumber(serialNumberJF.getText());
+					int groupNumber = function.getNumber(serialNumberJF.getText(),FunctionType.FEIZUHE.getLabel());
 					groupNumberJF.setText(String.valueOf(groupNumber));
 				}
 			}
