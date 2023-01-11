@@ -1,6 +1,7 @@
 package Start;
 
 import Bean.*;
+import Enum.*;
 
 import jxl.Sheet;
 import jxl.Workbook;
@@ -9,6 +10,8 @@ import jxl.write.Label;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
+
+import javax.swing.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,9 +26,10 @@ import java.util.regex.Pattern;
 public class Function {
 	private static Pattern pattern = Pattern.compile("-?[0-9]+(\\\\.[0-9]+)?");
 
-	public int getNumber(String serialNumber,String functionType){
+	public List<String> getNumber(String serialNumber,String functionType){
 		List<String> numberList = new ArrayList<>();
 		String number = "";
+
 		for (int i = 0; i < serialNumber.length(); i++) {
 			if (Character.isDigit(serialNumber.charAt(i))) {
 				number = number + serialNumber.charAt(i);
@@ -46,10 +50,12 @@ public class Function {
 			for(String num : numberList){
 				groupNum = groupNum * num.length();
 			}
-			return groupNum;
+			numberList.add(String.valueOf(groupNum));
+			return numberList;
 		}
 
-		return numberList.size();
+		numberList.add(String.valueOf(numberList.size()));
+		return numberList;
 	}
 
 	public String getNumber(TicketList tickets, AtomicInteger alllistNo, AtomicInteger ticketsNo, String serialNumber,
@@ -61,22 +67,44 @@ public class Function {
 		List<String> numberList = new ArrayList<>();
 		String number = "";
 
-		for (int i = 0; i < serialNumber.length(); i++) {
-			if (Character.isDigit(serialNumber.charAt(i))) {
-				number = number + serialNumber.charAt(i);
-			}else{
-				if (!number.equals("")){
-					numberList.add(number);
-					number = "";
-				}
+		if(functionType.equals(FunctionType.DINGWEI.getLabel())){
+			String[] serialNumbers = null;
+			if(serialNumber.contains(" ")){
+				serialNumbers = serialNumber.split(" ");
+			}else if(serialNumber.contains(",")){
+				serialNumbers = serialNumber.split(",");
+			}else if(serialNumber.contains(".")){
+				serialNumbers = serialNumber.split(".");
+			}else if(serialNumber.contains("，")){
+				serialNumbers = serialNumber.split("，");
+			}else if(serialNumber.contains("。")){
+				serialNumbers = serialNumber.split("。");
+			}else {
+				serialNumbers = serialNumber.split(" ");
 			}
+			for (int i = 0; i < serialNumbers.length; i++) {
+				String oneSerialNumber = serialNumbers[i];
+				oneSerialNumber = oneSerialNumber.replaceAll("[^\\d]", "*");
+				numberList.add(oneSerialNumber);
+			}
+		}else {
+			for (int i = 0; i < serialNumber.length(); i++) {
+				if (Character.isDigit(serialNumber.charAt(i))) {
+					number = number + serialNumber.charAt(i);
+				}else{
+					if (!number.equals("")){
+						numberList.add(number);
+						number = "";
+					}
+				}
 
-			if(i==serialNumber.length()-1 && !number.equals("")){
-				numberList.add(number);
+				if(i==serialNumber.length()-1 && !number.equals("")){
+					numberList.add(number);
+				}
 			}
 		}
 
-		if (functionType.equals("组合")) {
+		if (functionType.equals(FunctionType.ZUHE.getLabel())) {
 			int j = 0;
 			List<String> addOneNum = new ArrayList<>();
 			List<String> addTwoNum = new ArrayList<>();
@@ -207,9 +235,11 @@ public class Function {
 			sheet.addCell(l2);
 		}
 		Label l3 = new Label(3,0,"总共"+String.valueOf(totalPrice)+"元");
-		Label l4 = new Label(5,0,"总计"+String.valueOf(totalPrice)+"元");
+		Label l4 = new Label(4,0,"备注："+ tickets.getNote());
+		Label l6 = new Label(6,0,"总计"+String.valueOf(totalPrice)+"元");
 		sheet.addCell(l3);
 		sheet.addCell(l4);
+		sheet.addCell(l6);
 
 		workbook.write();
 		workbook.close();
@@ -252,12 +282,14 @@ public class Function {
 			ticketsNo = ticketsNo + 1;
 		}
 		Label l3 = new Label(3,sheetRow+1,"总共"+String.valueOf(totalPrice)+"元");
-		String totalMoney =  readSheet.getCell(5,0).getContents().replace("总计","").replace("元","");
+		Label l4 = new Label(4,sheetRow+1,"备注："+ tickets.getNote());
+		String totalMoney =  readSheet.getCell(6,0).getContents().replace("总计","").replace("元","");
 		totalMoney = String.valueOf((Float.valueOf(totalMoney) + totalPrice));
 
-		Label l4 = new Label(5,0,"总计"+String.valueOf(totalMoney)+"元");
+		Label l6 = new Label(6,0,"总计"+String.valueOf(totalMoney)+"元");
 		writableSheet.addCell(l3);
 		writableSheet.addCell(l4);
+		writableSheet.addCell(l6);
 
 		workbook.write();
 		workbook.close();
@@ -271,11 +303,20 @@ public class Function {
 		return lines.get(i);
 	}
 
-	public String sumbit(String filePath,TicketList tickets) throws IOException, WriteException, BiffException {
+	public String sumbit(String filePath,TicketList tickets,String fileName) throws IOException, WriteException, BiffException {
 		SimpleDateFormat sf= new SimpleDateFormat("yyyy-MM-dd");
 		Date date = new Date();
 		String nowDate= sf.format(date);
-		filePath =filePath + nowDate +".xlsx";
+
+		if(fileName.equals("")){
+			filePath =filePath + nowDate + ".xlsx";
+		}else {
+			filePath =filePath + nowDate + " " + fileName + ".xlsx";
+		}
+
+		if (tickets.getNote() == null){
+			tickets.setNote("");
+		}
 		File file = new File(filePath);
 		if(file.exists()&&file.isFile()){
 			Workbook wrb = Workbook.getWorkbook(file);
@@ -294,8 +335,8 @@ public class Function {
 		return "成功";
 	}
 
-	public List<ShowSummaryList> readTodayExcel(String filePath, String todayDate){
-		String path = filePath + todayDate +".xlsx";
+	public List<ShowSummaryList> readTodayExcel(String filePath, String fileName){
+		String path = filePath + fileName +".xlsx";
 		Workbook wrb = null;
 		try {
 			wrb = Workbook.getWorkbook(new File(path));
@@ -308,6 +349,7 @@ public class Function {
 		List<ShowSummary> showSummaries = new ArrayList<>();
 		String serialNo = "";
 		String totalPrices = "" ;
+		String excelNote = "" ;
 		Integer size = 0;
 		for (int i = 0; i < sheet.getRows(); i++) {
 			ShowSummary showSummary = new ShowSummary();
@@ -315,6 +357,7 @@ public class Function {
 			String serialNumber = sheet.getCell(1, i).getContents().trim();
 			String detail = sheet.getCell(2, i).getContents().trim();
 			String totalPrice = sheet.getCell(3, i).getContents().trim();
+			String note = sheet.getCell(4, i).getContents().trim();
 
 			if(!no.equals("")) {
 				serialNo = no;
@@ -322,29 +365,54 @@ public class Function {
 			if(!totalPrice.equals("")){
 				totalPrices = totalPrice;
 			}
+			if(!note.equals("")) {
+				excelNote = note;
+			}
 
-			if(!serialNumber.equals(""))
+			if(!detail.equals(""))
 			{
 				showSummary.setSerialNumber(serialNumber);
 				showSummary.setDetail(detail);
 				showSummaries.add(showSummary);
 			}
 
-			if(serialNumber.equals("") || i==(sheet.getRows()-1)){
+			if(detail.equals("") || i==(sheet.getRows()-1)){
 				ShowSummaryList summaryList = new ShowSummaryList();
 				summaryList.setNo(serialNo);
 				summaryList.setShowSummaryList(showSummaries);
 				summaryList.setTotalPrice(totalPrices);
+				summaryList.setNote(excelNote);
 				showSummaryList.add(summaryList);
 				showSummaries = new ArrayList<>();
 				serialNo = "";
+				totalPrices = "";
+				excelNote = "";
 				size = size + 1;
 				continue;
 			}
 		}
 
 		showSummaryList.get(0).setSize(sheet.getRows() - size + 1);
-		showSummaryList.get(0).setTotalMoney(sheet.getCell(5, 0).getContents().trim());
+		showSummaryList.get(0).setTotalMoney(sheet.getCell(6, 0).getContents().trim());
 		return showSummaryList;
+	}
+
+	public void setPrice(GlobalVariable globalVariable,String firstNumber, List<JRadioButton> priceList,JTextField priceJF){
+		String price = null;
+		for(JRadioButton jRadioButton : priceList){
+			if(firstNumber.length() == 3){
+				if (jRadioButton.getText().equals(String.valueOf(PriceEnum.TOW.getVal()))){
+					jRadioButton.setSelected(true);
+					price = jRadioButton.getText();
+				}
+			}else {
+				if (jRadioButton.getText().equals(String.valueOf(PriceEnum.TEN.getVal()))){
+					jRadioButton.setSelected(true);
+					price = jRadioButton.getText();
+				}
+			}
+		}
+		priceJF.setText(price);
+		globalVariable.selectPrice = price;
 	}
 }

@@ -7,6 +7,7 @@ import java.util.List;
 public class TicketList {
 	private Integer Id;
 	private List<Ticket> ticketList;
+	private String note;
 
 	public Integer getId() {
 		return Id;
@@ -22,5 +23,13 @@ public class TicketList {
 
 	public void setTicketList(List<Ticket> ticketList) {
 		this.ticketList = ticketList;
+	}
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 }

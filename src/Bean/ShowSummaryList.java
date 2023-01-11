@@ -10,6 +10,7 @@ public class ShowSummaryList {
 	private String totalPrice;
 	private Integer size;
 	private String totalMoney;
+	private String note="";
 
 	public String getNo() {
 		return no;
@@ -49,5 +50,13 @@ public class ShowSummaryList {
 
 	public void setTotalMoney(String totalMoney) {
 		this.totalMoney = totalMoney;
+	}
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 }

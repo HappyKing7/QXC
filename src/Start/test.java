@@ -6,8 +6,8 @@ import Enum.*;
 import Frame.*;
 
 public class test {
-	private static MainWindow mainWindow = new MainWindow();
-	private static Function function = new Function();
+	private static final MainWindow mainWindow = new MainWindow();
+	private static final Function function = new Function();
 
 	public static void main(String[] args) throws IOException {
 		GlobalVariable globalVariable = new GlobalVariable();
@@ -33,3 +33,5 @@ public class test {
 
 //123 456 789
 //123 456 789 137 347
+
+//*4* 11x

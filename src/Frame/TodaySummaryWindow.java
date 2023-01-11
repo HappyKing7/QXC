@@ -14,22 +14,21 @@ public class TodaySummaryWindow {
 	private static FontEnum fontEnum = new FontEnum();
 	private static Function function = new Function();
 
-	static void showTodaySummary(List<ShowSummaryList> showSummaryLists, String nowDate, GlobalVariable globalVariable){
+	static void showTodaySummary(List<ShowSummaryList> showSummaryLists, String fileName, GlobalVariable globalVariable){
 		Frame frame = new Frame("今日汇总");
-		JLabel title = new JLabel(nowDate+"数据",JLabel.CENTER);
+		JLabel title = new JLabel(fileName+"数据",JLabel.CENTER);
 		title.setFont(fontEnum.todaySummaryTitleFont);
 		JPanel panel =  new JPanel();
 		for (int i = 0; i < showSummaryLists.size(); i++) {
 			ShowSummaryList ssl = showSummaryLists.get(i);
-			JPanel resultPanel = new JPanel(new GridLayout(ssl.getShowSummaryList().size(),5));
-			BoxLayout layout=new BoxLayout(resultPanel, BoxLayout.Y_AXIS);
+			JPanel resultPanel = new JPanel(new GridLayout(ssl.getShowSummaryList().size(),7));
 
 			JLabel firstTotalMoneyLabel = new JLabel(ssl.getTotalMoney());
 			firstTotalMoneyLabel.setFont(fontEnum.todaySummaryFont);
 			for (int j = 0; j < ssl.getShowSummaryList().size(); j++) {
 				ShowSummary ss = ssl.getShowSummaryList().get(j);
 				if(j==0){
-					JLabel noLabel = new JLabel(ssl.getNo());
+					JLabel noLabel = new JLabel(ssl.getNo() + "     " + ssl.getTotalPrice());
 					noLabel.setFont(fontEnum.todaySummaryFont);
 					JLabel firstSerialNumberLabel = new JLabel();
 					if(ss.getSerialNumber().length()<= 30){
@@ -40,42 +39,42 @@ public class TodaySummaryWindow {
 					firstSerialNumberLabel.setFont(fontEnum.todaySummaryFont);
 					JLabel firstDetailLabel = new JLabel(ss.getDetail());
 					firstDetailLabel.setFont(fontEnum.todaySummaryFont);
-					JLabel firstTotalPriceLabel = new JLabel(ssl.getTotalPrice());
-					firstTotalPriceLabel.setFont(fontEnum.todaySummaryFont);
+/*					JLabel firstTotalPriceLabel = new JLabel(ssl.getTotalPrice());
+					firstTotalPriceLabel.setFont(fontEnum.todaySummaryFont);*/
+					JLabel firstNoteLabel = new JLabel(ssl.getNote());
+					firstNoteLabel.setFont(fontEnum.todaySummaryFont);
 
 					resultPanel.add(noLabel);
 					resultPanel.add(firstSerialNumberLabel);
+					resultPanel.add(new JLabel());
 					resultPanel.add(firstDetailLabel);
-					resultPanel.add(firstTotalPriceLabel);
+					resultPanel.add(new JLabel());
+					resultPanel.add(firstNoteLabel);
+					//resultPanel.add(firstTotalPriceLabel);
 					if(i==0){
 						resultPanel.add(firstTotalMoneyLabel);
 					}else{
-						JLabel emptyLabel0 = new JLabel();
-						emptyLabel0.setFont(fontEnum.todaySummaryFont);
-						resultPanel.add(emptyLabel0);
+						resultPanel.add(new JLabel());
 					}
 				}else {
 					JLabel serialNumberLabel = new JLabel();
 					if(ss.getSerialNumber().length()<= 30){
 						serialNumberLabel.setText(ss.getSerialNumber());
 					}else {
-						serialNumberLabel.setText(function.numberWrap(ss.getSerialNumber(),10));
+						serialNumberLabel.setText(function.numberWrap(ss.getSerialNumber(),5));
 					}
 					serialNumberLabel.setFont(fontEnum.todaySummaryFont);
 					JLabel detailLabel = new JLabel(ss.getDetail());
 					detailLabel.setFont(fontEnum.todaySummaryFont);
-					JLabel emptyLabel1 = new JLabel();
-					emptyLabel1.setFont(fontEnum.todaySummaryFont);
-					JLabel emptyLabel2 = new JLabel();
-					emptyLabel2.setFont(fontEnum.todaySummaryFont);
-					JLabel emptyLabel3 = new JLabel();
-					emptyLabel2.setFont(fontEnum.todaySummaryFont);
 
-					resultPanel.add(emptyLabel1);
+					resultPanel.add(new JLabel());
 					resultPanel.add(serialNumberLabel);
+					resultPanel.add(new JLabel());
 					resultPanel.add(detailLabel);
-					resultPanel.add(emptyLabel2);
-					resultPanel.add(emptyLabel3);
+					//resultPanel.add(new JLabel());
+					resultPanel.add(new JLabel());
+					resultPanel.add(new JLabel());
+					resultPanel.add(new JLabel());
 				}
 				panel.add(resultPanel);
 			}
@@ -87,12 +86,12 @@ public class TodaySummaryWindow {
 		frame.add(jScrollPane,BorderLayout.CENTER);
 		frame.add(title,BorderLayout.NORTH);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setBounds((screenSize.width - 1500) / 2, (screenSize.height - 800) / 2, 1500, 800);
-		frame.setVisible(true);
-/*		Rectangle bounds = new Rectangle(screenSize);
+		/*frame.setBounds((screenSize.width - 1500) / 2, (screenSize.height - 800) / 2, 1500, 800);
+		frame.setVisible(true);*/
+		Rectangle bounds = new Rectangle(screenSize);
 		frame.setBounds(bounds);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		frame.setVisible(true);*/
+		frame.setVisible(true);
 
 		//注册监听器
 		frame.addWindowListener(new WindowAdapter() {

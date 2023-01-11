@@ -10,6 +10,16 @@ public class JPanelInit {
 		}
 		return panel;
 	}
+
+	public JPanel initJPanel(JPanel panel, String lable, JTextArea jTextArea){
+		Font font = new Font("宋体",Font.BOLD,25);
+		JLabel jLabel = new JLabel(lable);
+		jLabel.setFont(font);
+		panel.add(jLabel);
+		panel.add(jTextArea);
+		return panel;
+	}
+
 	public JPanel initJPanel(JPanel panel, String lable, JTextField jTextField){
 		Font font = new Font("宋体",Font.BOLD,25);
 		JLabel jLabel = new JLabel(lable);
@@ -27,6 +37,17 @@ public class JPanelInit {
 			panel.add(timesChoiceJLabel);
 		}
 		panel.add(choiceInfo);
+		return panel;
+	}
+
+	public JPanel iniJPanel(JPanel panel,String choiceLabel,JComboBox jComboBox){
+		Font font = new Font("宋体",Font.BOLD,25);
+		JLabel timesChoiceJLabel = new JLabel(choiceLabel);
+		timesChoiceJLabel.setFont(font);
+		if(!choiceLabel.equals("")){
+			panel.add(timesChoiceJLabel);
+		}
+		panel.add(jComboBox);
 		return panel;
 	}
 

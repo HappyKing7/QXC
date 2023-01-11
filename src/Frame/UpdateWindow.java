@@ -9,6 +9,7 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 
 public class UpdateWindow {
 	private static FontEnum fontEnum = new FontEnum();
@@ -173,7 +174,7 @@ public class UpdateWindow {
 				ticket.setType(typeJF.getText());
 				ticket.setTotalPrice(ticket.getUnitPrice() * ticket.getGroupNum());
 				frame.dispose();
-				showOneSummaryJPanel = oneSummaryWindow.showOneSummaryFrame(showOneSummaryJPanel,titlePanel,globalVariable);
+				showOneSummaryJPanel = oneSummaryWindow.showOneSummaryFrame(showOneSummaryJPanel,globalVariable);
 				globalVariable.mainFrame.revalidate();
 				//mainWindow.showMainFrame(ModeTypeEnum.UPDATE.getVal(),globalVariable);
 			}
@@ -183,7 +184,8 @@ public class UpdateWindow {
 			@Override
 			public void caretUpdate(CaretEvent e) {
 				if(!serialNumberJF.equals("")){
-					int groupNumber = function.getNumber(serialNumberJF.getText(),FunctionType.FEIZUHE.getLabel());
+					List<String> groupNumberList = function.getNumber(serialNumberJF.getText(),globalVariable.functionType);
+					int groupNumber = Integer.valueOf(groupNumberList.get(groupNumberList.size()-1));
 					groupNumberJF.setText(String.valueOf(groupNumber));
 				}
 			}

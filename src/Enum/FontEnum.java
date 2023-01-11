@@ -11,4 +11,5 @@ public class FontEnum {
 	public Font updateFont = new Font("",Font.PLAIN,20);
 	public Font todaySummaryFont = new Font("",Font.PLAIN,20);
 	public Font todaySummaryTitleFont = new Font("",Font.PLAIN,25);
+	public Font tableFont = new Font("",Font.PLAIN,20);
 }

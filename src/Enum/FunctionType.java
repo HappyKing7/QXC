@@ -2,7 +2,8 @@ package Enum;
 
 public enum FunctionType {
 	ZUHE("组合", 0),
-	FEIZUHE("非组合", 1);
+	FEIZUHE("非组合", 1),
+	DINGWEI("定位", 2);
 
 	private String label;
 	private final int val;
