@@ -1,84 +1,103 @@
 package Enum;
 
-public enum TypeEnum {
-	ZHIXUAN("直选", 1),
-	ZUXUAN("组选", 2),
-	SF("双飞",3),
-	ZL("组六", 4),
-	ZS("组三", 5),
-	DD("独胆", 6),
-	SFZL("双飞组六", 7),
-	SFZS("双飞组三", 8),
-	YMDW("一码定位", 9),
-	EMDW("二码定位", 10),
-	BZQB("豹子全包", 11),
-	ZLSM("组六四码", 12),
-	ZLWM("组六五码", 13),
-	ZLLM("组六六码", 14),
-	ZLQIM("组六七码", 15),
-	ZLBM("组六八码", 16),
-	ZLJM("组六九码", 17),
-	ZLQB("组六全包", 18),
-	ZSEM("组三二码", 19),
-	ZSSANM("组三三码", 20),
-	ZSSIM("组三四码", 21),
-	ZSWM("组三五码", 22),
-	ZSLM("组三六码", 23),
-	ZSQIM("组三七码", 24),
-	ZSBM("组三八码", 25),
-	ZSJM("组三九码", 26),
-	ZSQB("组三全包", 27),
-	KD("跨度", 28),
-	KD0("跨度0", 29),
-	KD1("跨度1",30),
-	KD2("跨度2", 31),
-	KD3("跨度3",32),
-	KD4("跨度4",33),
-	KD5("跨度5",34),
-	KD6("跨度6",35),
-	KD7("跨度7",36),
-	KD8("跨度8",37),
-	KD9("跨度9",38),
-	HZ("和值",38),
-	HZ0("和值0",39),
-	HZ1("和值1",40),
-	HZ2("和值2",41),
-	HZ3("和值3",42),
-	HZ4("和值4",43),
-	HZ5("和值5",44),
-	HZ6("和值6",45),
-	HZ7("和值7",46),
-	HZ8("和值8",47),
-	HZ9("和值9",48),
-	HZ10("和值10",49),
-	HZ11("和值11",50),
-	HZ12("和值12",51),
-	HZ13("和值13",52),
-	HZ14("和值14",53),
-	HZ15("和值15",54),
-	HZ16("和值16",55),
-	HZ17("和值17",56),
-	HZ18("和值18",57),
-	HZ19("和值19",58),
-	HZ20("和值20",59),
-	HZ21("和值21",60),
-	HZ22("和值22",61),
-	HZ23("和值23",62),
-	HZ24("和值24",63),
-	HZ25("和值25",64),
-	HZ26("和值26",65),
-	HZ27("和值27",66),
-	FS("复式",67),
-	FSSANM("复式三码", 68),
-	FSSIM("复式四码", 69),
-	FSWM("复式五码", 70),
-	FSLM("复式六码", 71),
-	FSQIM("复式七码", 72),
-	FSBM("复式八码", 73),
-	FSJM("复式九码", 74);
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
+public enum TypeEnum {
+	ALL("全选", 0),
+	ZHIXUAN("直选", 0),
+	ZUXUAN("组选", 0),
+	SF("双飞",0),
+	ZL("组六", 0),
+	ZS("组三", 0),
+	DD("独胆", 0),
+	DZ("对子", 0),
+	SFZL("双飞组六", 0),
+	SFZS("双飞组三", 0),
+	YMDW("一码定位", 0),
+	EMDW("二码定位", 0),
+	BZQB("豹子全包",0),
+	ZLSM("组六四码",0),
+	ZLWM("组六五码",0),
+	ZLLM("组六六码",0),
+	ZLQIM("组六七码", 0),
+	ZLBM("组六八码", 0),
+	ZLJM("组六九码", 0),
+	ZLQB("组六全包", 0),
+	ZSEM("组三二码", 0),
+	ZSSANM("组三三码", 0),
+	ZSSIM("组三四码", 0),
+	ZSWM("组三五码", 0),
+	ZSLM("组三六码", 0),
+	ZSQIM("组三七码", 0),
+	ZSBM("组三八码", 0),
+	ZSJM("组三九码", 0),
+	ZSQB("组三全包", 0),
+	KD("跨度", 0),
+	KD0("跨度0", 0),
+	KD1("跨度1",0),
+	KD2("跨度2", 0),
+	KD3("跨度3",0),
+	KD4("跨度4",0),
+	KD5("跨度5",0),
+	KD6("跨度6",0),
+	KD7("跨度7",0),
+	KD8("跨度8",0),
+	KD9("跨度9",0),
+	HZ("和值",0),
+	HZ0("和值0",0),
+	HZ1("和值1",0),
+	HZ2("和值2",0),
+	HZ3("和值3",0),
+	HZ4("和值4",0),
+	HZ5("和值5",0),
+	HZ6("和值6",0),
+	HZ7("和值7",0),
+	HZ8("和值8",0),
+	HZ9("和值9",0),
+	HZ10("和值10",0),
+	HZ11("和值11",0),
+	HZ12("和值12",0),
+	HZ13("和值13",0),
+	HZ14("和值14",0),
+	HZ15("和值15",0),
+	HZ16("和值16",0),
+	HZ17("和值17",0),
+	HZ18("和值18",0),
+	HZ19("和值19",0),
+	HZ20("和值20",0),
+	HZ21("和值21",0),
+	HZ22("和值22",0),
+	HZ23("和值23",0),
+	HZ24("和值24",0),
+	HZ25("和值25",0),
+	HZ26("和值26",0),
+	HZ27("和值27",0),
+	FS("复式",0),
+	FSSANM("复式三码", 0),
+	FSSIM("复式四码", 0),
+	FSWM("复式五码", 0),
+	FSLM("复式六码", 0),
+	FSQIM("复式七码", 0),
+	FSBM("复式八码", 0),
+	FSJM("复式九码", 0);
+
+	private static final Map<Integer,TypeEnum> ENUM_MAP = new HashMap<>();
 	private String label;
-	private final int val;
+	private int val;
+
+	static {
+		int no = 1;
+		for(TypeEnum typeEnum:TypeEnum.values()) {
+			typeEnum.setVal(no);
+			no = no + 1;
+		}
+
+		for (TypeEnum typeEnum : TypeEnum.values()) {
+			ENUM_MAP.put(typeEnum.getVal(),typeEnum);
+		}
+	}
 
 	TypeEnum(String label,int val) {
 		this.val = val;
@@ -91,5 +110,24 @@ public enum TypeEnum {
 
 	public String getLabel() {
 		return label;
+	}
+
+	public void setVal(int val) {
+		this.val = val;
+	}
+
+	public static TypeEnum getEnumByVal(int val) {
+		if (Objects.isNull(val)) {
+			return null;
+		}
+		return ENUM_MAP.get(val);
+	}
+
+	public static String getLabelByVal(int val) {
+		TypeEnum typeEnum = getEnumByVal(val);
+		if (Objects.isNull(typeEnum)) {
+			return null;
+		}
+		return typeEnum.getLabel();
 	}
 }

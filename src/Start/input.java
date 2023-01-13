@@ -5,7 +5,7 @@ import java.io.IOException;
 import Enum.*;
 import Frame.*;
 
-public class test {
+public class input {
 	private static final MainWindow mainWindow = new MainWindow();
 	private static final Function function = new Function();
 

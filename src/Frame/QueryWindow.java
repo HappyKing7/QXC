@@ -6,18 +6,22 @@ import javax.swing.table.*;
 import Bean.*;
 import Enum.*;
 import Start.*;
+import Start.ComponentInit;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class QueryWindow {
 	private final FontEnum fontEnum = new FontEnum();
-	private final JPanelInit jPanelInit = new JPanelInit();
+	private final ComponentInit componentInit = new ComponentInit();
 	private final Function function = new Function();
 	private final QueryFunction queryFunction = new QueryFunction();
+	private static WarmWindow warmWindow = new WarmWindow();
 
 	public void showQueryWindow(GlobalVariable globalVariable){
 		JFrame jFrame = new JFrame("中奖查询系统");
@@ -34,51 +38,49 @@ public class QueryWindow {
 		JTextField typeTwoJF=new JTextField(TypeTwoEnum.TICAI.getLabel(),10);
 		typeTwoJF.setFont(fontEnum.mainFont);
 		typeTwoJF.setVisible(false);
-		JComboBox typeTwoComboBox = new JComboBox();
-		for(TypeTwoEnum typeTwoEnumEnum: TypeTwoEnum.values()){
-			typeTwoComboBox.addItem(typeTwoEnumEnum.getLabel());
-			typeTwoComboBox.setFont(fontEnum.mainFont);
+		JPanel typeTwoPanel = new JPanel();
+		List<JRadioButton> typeTwoList = new ArrayList<>();
+		ButtonGroup typeTwoGroup = new ButtonGroup();
+		for(TypeTwoEnum typeTwoEnum: TypeTwoEnum.values()){
+			JRadioButton typeTwoButton = new JRadioButton(typeTwoEnum.getLabel());
+			typeTwoButton.setFont(fontEnum.mainButtonFont);
+			typeTwoButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					typeTwoJF.setText(typeTwoButton.getText());
+				}
+			});
+			if(typeTwoButton.getText().equals(TypeTwoEnum.TICAI.getLabel())){
+				typeTwoButton.setSelected(true);
+			}
+			typeTwoList.add(typeTwoButton);
+			typeTwoGroup.add(typeTwoButton);
+			typeTwoPanel.add(typeTwoButton);
 		}
 
 		//类型
-		JTextField typeJF=new JTextField(TypeEnum.ZHIXUAN.getLabel(),10);
+		JTextField typeJF=new JTextField(TypeEnum.ALL.getLabel(),10);
 		typeJF.setFont(fontEnum.mainFont);
 		typeJF.setVisible(false);
 		JComboBox typeComboBox = new JComboBox();
 		for(TypeEnum typeEnum: TypeEnum.values()){
-			if(typeEnum.getLabel().contains(TypeEnum.ZL.getLabel()) && typeEnum.getLabel().length()>2){
-				if(!typeEnum.getLabel().contains("全包"))
-					continue;
-			}
-			if(typeEnum.getLabel().contains(TypeEnum.ZS.getLabel()) && typeEnum.getLabel().length()>2){
-				if(!typeEnum.getLabel().contains("全包"))
-					continue;
-			}
-			if(typeEnum.getLabel().contains(TypeEnum.KD.getLabel()) && typeEnum.getLabel().length()>2){
-				continue;
-			}
-			if(typeEnum.getLabel().contains(TypeEnum.KD.getLabel()) && typeEnum.getLabel().length()>2){
-				continue;
-			}
-			if(typeEnum.getLabel().contains(TypeEnum.HZ.getLabel()) && typeEnum.getLabel().length()>2){
-				continue;
-			}
-			if(typeEnum.getLabel().contains(TypeEnum.FS.getLabel()) && typeEnum.getLabel().length()>2){
+			if(queryFunction.filterType(typeEnum.getLabel())){
 				continue;
 			}
 			typeComboBox.addItem(typeEnum.getLabel());
 			typeComboBox.setFont(fontEnum.mainFont);
 		}
-		typeComboBox.setSelectedItem(TypeEnum.ZHIXUAN.getLabel());
+		typeComboBox.setSelectedItem(TypeEnum.ALL.getLabel());
 
 		//中奖号码
 		JLabel zhongJiangNumberTitle=new JLabel("中奖号码");
 		zhongJiangNumberTitle.setFont(fontEnum.oneSummaryPlainFont);
 
-		String[] columnNames = {"序列号","中奖号码","详情"};
+		String[] columnNames = {"序列号","详情","中奖号码","中奖金额"};
 		String[][] tableData =  new String[0][0];
 
 		DefaultTableModel defaultTableModel = new DefaultTableModel(tableData,columnNames);
+		//JTable jTable = new JTable(defaultTableModel);
 		JTable jTable = new JTable(defaultTableModel){
 			public boolean isCellEditable(int row, int column){
 				return false;
@@ -89,7 +91,7 @@ public class QueryWindow {
 		JTableHeader jTableHeader = jTable.getTableHeader();
 		jTableHeader.setFont(fontEnum.tableFont);
 
-		int[] width={150,1300,500};
+		int[] width={110,500,900,900};
 		TableColumnModel tableColumnModel = jTable.getColumnModel();
 		for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
 			TableColumn tableColumn = tableColumnModel.getColumn(i);
@@ -118,16 +120,16 @@ public class QueryWindow {
 		northJPanel.setLayout(layout);
 
 		//第一行 文件名
-		JPanel fileNamePanel = jPanelInit.iniJPanel(new JPanel(),"文件名",fileNameJF);
+		JPanel fileNamePanel = componentInit.iniJPanel(new JPanel(),"文件名",fileNameJF);
 		northJPanel.add(fileNamePanel);
 
 		//第二行 开奖号码+类别
-		JPanel kaiJiangAndTypePanel = jPanelInit.iniJPanel(new JPanel(),"类别",typeTwoComboBox);
-		kaiJiangAndTypePanel = jPanelInit.addSpace(kaiJiangAndTypePanel,1);
-		kaiJiangAndTypePanel = jPanelInit.iniJPanel(kaiJiangAndTypePanel,"类型",typeComboBox);
-		kaiJiangAndTypePanel = jPanelInit.addSpace(kaiJiangAndTypePanel,1);
-		kaiJiangAndTypePanel = jPanelInit.initJPanel(kaiJiangAndTypePanel,"开奖号码",kaiJiangNumberJF);
-		kaiJiangAndTypePanel = jPanelInit.addSpace(kaiJiangAndTypePanel,2);
+		JPanel kaiJiangAndTypePanel = componentInit.iniJPanel(new JPanel(),"类别",typeTwoPanel);
+		kaiJiangAndTypePanel = componentInit.addSpace(kaiJiangAndTypePanel,1);
+		kaiJiangAndTypePanel = componentInit.iniJPanel(kaiJiangAndTypePanel,"类型",typeComboBox);
+		kaiJiangAndTypePanel = componentInit.addSpace(kaiJiangAndTypePanel,1);
+		kaiJiangAndTypePanel = componentInit.initJPanel(kaiJiangAndTypePanel,"开奖号码",kaiJiangNumberJF);
+		kaiJiangAndTypePanel = componentInit.addSpace(kaiJiangAndTypePanel,2);
 		kaiJiangAndTypePanel.add(buttonPanel);
 		northJPanel.add(kaiJiangAndTypePanel);
 
@@ -145,27 +147,14 @@ public class QueryWindow {
 
 		//窗口设置
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		jFrame.setBounds((screenSize.width - 1500) / 2, (screenSize.height - 800) / 2, 1500, 800);
+		jFrame.setBounds((screenSize.width - 1700) / 2, (screenSize.height - 800) / 2, 1700, 800);
 		jFrame.setVisible(true);
 
 		//注册监听器
 		jFrame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				jFrame.dispose();
-			}
-		});
-
-		typeTwoComboBox.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				typeTwoJF.setText(typeTwoComboBox.getSelectedItem().toString());
-			}
-		});
-		typeTwoComboBox.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				typeTwoComboBox.setPopupVisible(true);
+				System.exit(0);
 			}
 		});
 
@@ -185,32 +174,67 @@ public class QueryWindow {
 		confirmButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(kaiJiangNumberJF.getText().length()<3){
+					warmWindow.warmWindow("请输入正确的开奖号码",fontEnum.warmInfoFont);
+					return;
+				}
+				//获取打奖和赔率的excel数据
 				SimpleDateFormat sf= new SimpleDateFormat("yyyy-MM-dd");
 				Date date = new Date();
 				String fileName = sf.format(date);
 				if(!fileNameJF.getText().equals("")){
-					fileName = fileNameJF.getText();
+					fileName = fileName + " " + fileNameJF.getText();
 				}
 				List<ShowSummaryList> showSummaryLists = function.readTodayExcel(globalVariable.filePath,fileName);
-				String[][] tableData = queryFunction.findTypeTwoAndType(kaiJiangNumberJF.getText(),
-						typeTwoJF.getText(),typeJF.getText(),showSummaryLists);
 
+				//校验文件是否存在
+				if(showSummaryLists == null) {
+					warmWindow.warmWindow(globalVariable.filePath + fileName + ".xlsx不存在"
+							,fontEnum.warmInfoFont);
+					return;
+				}
+				Map<String,Float> peiLvMap = queryFunction.readPeiLvExcel(globalVariable.filePath);
+				if(peiLvMap == null) {
+					warmWindow.warmWindow(globalVariable.filePath + "赔率.xlsx不存在"
+							,fontEnum.warmInfoFont);
+					return;
+				}
+
+				//获取中奖号码
+				List<ZhongJiang> zhongJiangNumberList = new ArrayList<>();
+				if(typeJF.getText().equals(TypeEnum.ALL.getLabel())){
+					for(TypeEnum typeEnum : TypeEnum.values()){
+						zhongJiangNumberList = queryFunction.findTypeTwoAndType(kaiJiangNumberJF.getText(),
+								typeTwoJF.getText(),typeEnum.getLabel(),AllFlagEnum.ALL.getVal(),
+								showSummaryLists,zhongJiangNumberList,peiLvMap);
+					}
+					//zhongJiangNumberList = zhongJiangNumberList.stream().sorted(Comparator.comparing(ZhongJiang ::getSortNo)).collect(Collectors.toList());
+				}else {
+					zhongJiangNumberList = queryFunction.findTypeTwoAndType(kaiJiangNumberJF.getText(),
+							typeTwoJF.getText(),typeJF.getText(),AllFlagEnum.NOTALL.getVal(),
+							showSummaryLists,zhongJiangNumberList,peiLvMap);
+				}
+
+				String[][] tableData = queryFunction.transformTableData(zhongJiangNumberList);
 				defaultTableModel.setDataVector(tableData,columnNames);
+
+				//自动换行
+				jTable.setDefaultRenderer(Object.class, tcr);
+				for (int i = 0; i < tableData.length; i++) {
+					if(tableData[i][2].length() >= 110){
+						jTable.setDefaultRenderer(Object.class, new TableCellTextAreaRenderer());
+						break;
+					}
+				}
 
 				//列宽
 				TableColumnModel tableColumnModel = jTable.getColumnModel();
 				for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
 					TableColumn tableColumn = tableColumnModel.getColumn(i);
 					tableColumn.setPreferredWidth(width[i]);
-				}
-
-				//自动换行
-				jTable.setDefaultRenderer(Object.class, tcr);
-				for (int i = 0; i < tableData.length; i++) {
-					if(tableData[i][1].length() >= 110){
-						jTable.setDefaultRenderer(Object.class, new TableCellTextAreaRenderer());
-						break;
-					}
+					/*if( i == 3){
+						tableColumn.setCellRenderer(new TableColumnTextAreaRenderer());
+					}*/
 				}
 			}
 		});
@@ -220,37 +244,68 @@ public class QueryWindow {
 			public void actionPerformed(ActionEvent e) {
 				kaiJiangNumberJF.setText("");
 				typeTwoJF.setText(TypeTwoEnum.TICAI.getLabel());
-				typeTwoComboBox.setSelectedItem(TypeTwoEnum.TICAI.getLabel());
-				typeJF.setText(TypeEnum.ZHIXUAN.getLabel());
-				typeComboBox.setSelectedItem(TypeEnum.ZHIXUAN.getLabel());
+				for (JRadioButton jRadioButton : typeTwoList){
+					if (jRadioButton.getText().equals(TypeTwoEnum.TICAI.getLabel())){
+						jRadioButton.setSelected(true);
+					}
+				}
+				typeJF.setText(TypeEnum.ALL.getLabel());
+				typeComboBox.setSelectedItem(TypeEnum.ALL.getLabel());
 			}
 		});
 	}
 
-	//jTable换行
-	class TableCellTextAreaRenderer extends JTextArea implements TableCellRenderer {
-		public TableCellTextAreaRenderer() {
-			setLineWrap(true);
-			setWrapStyleWord(true);
+	class TableColumnTextAreaRenderer extends JLabel implements TableCellRenderer {
+		public TableColumnTextAreaRenderer() {
 			setFont(fontEnum.tableFont);
+			setHorizontalAlignment(JLabel.CENTER);
+			setVerticalAlignment(JLabel.TOP);
 		}
 
 		public Component getTableCellRendererComponent(JTable table, Object value,
 													   boolean isSelected, boolean hasFocus, int row, int column) {
-			//147
 			for (int i = 0; i < table.getColumnCount(); i++) {
 				setText("" + table.getValueAt(row, i));
 			}
 
-			if(value.toString().length() >= 110){
-				int times = 0;
-				int length = value.toString().length();
-				while(length > 0){
-					length = length/10;
-					times++;
+			setText(value == null ? "" : value.toString());
+			return this;
+		}
+	}
+
+	//jTable换行
+	class TableCellTextAreaRenderer extends JLabel implements TableCellRenderer {
+		public TableCellTextAreaRenderer() {
+			setFont(fontEnum.tableFont);
+			setHorizontalAlignment(JLabel.CENTER);
+			setVerticalAlignment(JLabel.CENTER);
+		}
+
+		public Component getTableCellRendererComponent(JTable table, Object value,
+																boolean isSelected, boolean hasFocus, int row, int column) {
+			for (int i = 0; i < table.getColumnCount(); i++) {
+				setText("" + table.getValueAt(row, i));
+			}
+
+			int count = value.toString().split("<br>").length -1;
+			if(count != 0){
+				if(count <= 10){
+					table.setRowHeight(row,(count*35));
 				}
-				times = times - 1;
-				table.setRowHeight(row,value.toString().length()/times);
+				if(count > 10 && count <= 1000){
+					table.setRowHeight(row,(count*31));
+				}
+				if(count > 1000){
+					table.setRowHeight(row,(count*25));
+				}
+
+/*				if(count > 100){
+					String s = value.toString().split(" ")[0].replace("<html>","")
+							.split("<")[0];
+					if(s.length() >= 9){
+						table.setRowHeight(row,(count*25));
+					}
+				}*/
 			}
 
 			setText(value == null ? "" : value.toString());

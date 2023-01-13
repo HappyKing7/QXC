@@ -17,7 +17,10 @@ public class OneSummaryWindow {
 	public JPanel showOneSummaryFrame(JPanel showOneSummaryPanel,GlobalVariable globalVariable){
 		showOneSummaryJPanel = showOneSummaryPanel;
 		showOneSummaryPanel.removeAll();
-		JPanel panel = new JPanel(new GridLayout(globalVariable.tickets.getTicketList().size()+2,2));
+		//JPanel panel = new JPanel(new GridLayout(globalVariable.tickets.getTicketList().size()+2,2));
+		JPanel panel =  new JPanel();
+		BoxLayout layout=new BoxLayout(panel, BoxLayout.Y_AXIS);
+		panel.setLayout(layout);
 		ButtonGroup btnGroup = new ButtonGroup();
 		float totalPrice = 0;
 		for (int i = 0; i < globalVariable.tickets.getTicketList().size(); i++) {

@@ -66,7 +66,7 @@ public enum TimesEnum {
 		return STATUS_3_ENUM_MAP.get(val);
 	}
 
-	public static String getValByVal(int val) {
+	public static String getLabelByVal(int val) {
 		TimesEnum timesEnum = getEnumByVal(val);
 		if (Objects.isNull(timesEnum)) {
 			return null;

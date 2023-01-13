@@ -3,7 +3,7 @@ package Start;
 import javax.swing.*;
 import java.awt.*;
 
-public class JPanelInit {
+public class ComponentInit {
 	public JPanel addSpace(JPanel panel,int num){
 		for (int i = 0; i < num; i++) {
 			panel.add(new Label());
@@ -51,6 +51,17 @@ public class JPanelInit {
 		return panel;
 	}
 
+	public JPanel iniJPanel(JPanel panel,String choiceLabel,JPanel addPanel){
+		Font font = new Font("宋体",Font.BOLD,25);
+		JLabel timesChoiceJLabel = new JLabel(choiceLabel);
+		timesChoiceJLabel.setFont(font);
+		if(!choiceLabel.equals("")){
+			panel.add(timesChoiceJLabel);
+		}
+		panel.add(addPanel);
+		return panel;
+	}
+
 	public JPanel iniJPanel(JPanel panel,String label, JTextField jTextField){
 		Font font = new Font("宋体",Font.BOLD,25);
 		JLabel priceJLabel = new JLabel(label);
@@ -95,5 +106,14 @@ public class JPanelInit {
 		panel.add(typeChoice);
 
 		return panel;
+	}
+
+	public JButton jButtonInit(JButton jButton,String label){
+		jButton.setText(label);
+		jButton.setFont(new Font("",Font.PLAIN,20));
+		jButton.setBorder(BorderFactory.createRaisedBevelBorder());
+		jButton.setContentAreaFilled(false);
+		jButton.setPreferredSize(new Dimension(label.length()*30,jButton.getPreferredSize().height));
+		return jButton;
 	}
 }

@@ -3,18 +3,20 @@ package Frame;
 import Enum.*;
 import Start.*;
 import Bean.*;
+import Start.ComponentInit;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateWindow {
 	private static FontEnum fontEnum = new FontEnum();
 	private static Function function = new Function();
-	private static JPanelInit jPanelInit = new JPanelInit();
+	private static ComponentInit componentInit = new ComponentInit();
 	private static MainWindow mainWindow = new MainWindow();
 	private static OneSummaryWindow oneSummaryWindow = new OneSummaryWindow();
 	private JPanel showOneSummaryJPanel = new JPanel();
@@ -24,20 +26,16 @@ public class UpdateWindow {
 		showOneSummaryJPanel = showOneSummaryPanel;
 		JPanel jPanel = new JPanel();
 		jPanel.setLayout(new GridLayout(3,1));
+
 		//序列号
 		JTextField serialNumberJF=new JTextField(ticket.getSerialNumber(),50);
 		serialNumberJF.setFont(fontEnum.updateFont);
 		JTextField groupNumberJF=new JTextField(String.valueOf(ticket.getGroupNum()),5);
 		groupNumberJF.setFont(fontEnum.mainFont);
+
 		//单价
 		JTextField priceJF=new JTextField(String.valueOf(ticket.getUnitPrice()),10);
 		priceJF.setFont(fontEnum.updateFont);
-
-		Choice choicePrice = new Choice();
-		for(PriceEnum priceEnum: PriceEnum.values()){
-			choicePrice.add(String.valueOf(priceEnum.getVal()));
-			choicePrice.setFont(fontEnum.mainFont);
-		}
 
 		JPanel pricePanel = new JPanel();
 		ButtonGroup priceGroup = new ButtonGroup();
@@ -55,54 +53,84 @@ public class UpdateWindow {
 			pricePanel.add(priceButton);
 		}
 
+		//倍数
 		JTextField timesJF=new JTextField("1",10);
 		timesJF.setFont(fontEnum.mainFont);
 		timesJF.setVisible(false);
 
-		Choice choiceTimes = new Choice();
+		JComboBox timesComboBox = new JComboBox();
 		for(TimesEnum timesEnum: TimesEnum.values()){
-			choiceTimes.add(timesEnum.getLabel());
-			choiceTimes.setFont(fontEnum.mainFont);
+			timesComboBox.addItem(timesEnum.getLabel());
+			timesComboBox.setFont(fontEnum.mainFont);
 		}
+
 		//类别
-		JTextField typeTwoJF=new JTextField(TypeTwoEnum.TICAI.getLabel(),10);
+		JTextField typeTwoJF=new JTextField(ticket.getTypeTwo(),10);
 		typeTwoJF.setFont(fontEnum.mainFont);
 		typeTwoJF.setVisible(false);
-		Choice choiceTypeTwo = new Choice();
-		for(TypeTwoEnum typeTwoEnumEnum: TypeTwoEnum.values()){
-			choiceTypeTwo.add(typeTwoEnumEnum.getLabel());
-			choiceTypeTwo.setFont(fontEnum.mainFont);
+
+		JPanel typeTwoPanel = new JPanel();
+		List<JRadioButton> typeTwoList = new ArrayList<>();
+		ButtonGroup typeTwoGroup = new ButtonGroup();
+		for(TypeTwoEnum typeTwoEnum: TypeTwoEnum.values()){
+			JRadioButton typeTwoButton = new JRadioButton(typeTwoEnum.getLabel());
+			typeTwoButton.setFont(fontEnum.mainButtonFont);
+			typeTwoButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					typeTwoJF.setText(typeTwoButton.getText());
+				}
+			});
+			if(typeTwoButton.getText().equals(ticket.getTypeTwo())){
+				typeTwoButton.setSelected(true);
+			}
+			typeTwoList.add(typeTwoButton);
+			typeTwoGroup.add(typeTwoButton);
+			typeTwoPanel.add(typeTwoButton);
 		}
+
 		//类型
 		JTextField typeJF=new JTextField(ticket.getType(),10);
 		typeJF.setFont(fontEnum.updateFont);
 		typeJF.setVisible(false);
 
-		Choice choiceType = new Choice();
-		choiceType.select(ticket.getType());
+		JComboBox typeComboBox = new JComboBox();
 		for(TypeEnum typeEnum: TypeEnum.values()){
-			choiceType.add(typeEnum.getLabel());
-			choiceType.setFont(fontEnum.updateFont);
+			if(typeEnum.getLabel().equals(TypeEnum.ALL.getLabel())){
+				continue;
+			}
+			if(typeEnum.getLabel().equals(TypeEnum.KD.getLabel())){
+				continue;
+			}
+			if(typeEnum.getLabel().equals(TypeEnum.HZ.getLabel())){
+				continue;
+			}
+			if(typeEnum.getLabel().equals(TypeEnum.FS.getLabel())){
+				continue;
+			}
+			typeComboBox.addItem(typeEnum.getLabel());
+			typeComboBox.setFont(fontEnum.mainFont);
 		}
-		choiceType.select(ticket.getType());
+		typeComboBox.setSelectedItem(ticket.getType());
+
 		//结果
 		JTextField resultJF=new JTextField(30);
 		resultJF.setDisabledTextColor(Color.BLACK);
 		resultJF.setEnabled(false);
 
 		//第一行 序列号 + 组数
-		JPanel serialNumberPanel=jPanelInit.initJPanel(new JPanel(),"序列号",serialNumberJF);
+		JPanel serialNumberPanel= componentInit.initJPanel(new JPanel(),"序列号",serialNumberJF);
 		serialNumberPanel.add(groupNumberJF);
 		//第二行 单价 + 倍数 + 类别 + 类型
-		JPanel priceAndTypePanel=jPanelInit.iniJPanel(new JPanel(),"类别",choiceTypeTwo);
-		priceAndTypePanel=jPanelInit.addSpace(priceAndTypePanel,2);
-		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"单价");
+		JPanel priceAndTypePanel= componentInit.iniJPanel(new JPanel(),"类别",typeTwoPanel);
+		priceAndTypePanel= componentInit.addSpace(priceAndTypePanel,2);
+		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"单价");
 		priceAndTypePanel.add(pricePanel);
-		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"",priceJF);
-		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"元");
-		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"倍数",choiceTimes);
-		priceAndTypePanel=jPanelInit.addSpace(priceAndTypePanel,2);
-		priceAndTypePanel=jPanelInit.iniJPanel(priceAndTypePanel,"类型",choiceType);
+		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"",priceJF);
+		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"元");
+		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"倍数",timesComboBox);
+		priceAndTypePanel= componentInit.addSpace(priceAndTypePanel,2);
+		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"类型",typeComboBox);
 		//第三行 按钮
 		JPanel updatePanel=new JPanel();
 		Button update = new Button("修改");
@@ -130,36 +158,29 @@ public class UpdateWindow {
 			}
 		});
 
-		choicePrice.addItemListener(new ItemListener() {
+		timesComboBox.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				Choice choice = (Choice) e.getItemSelectable();
-				priceJF.setText(choice.getSelectedItem());
-				globalVariable.selectPrice = choice.getSelectedItem();
+				timesJF.setText(timesComboBox.getSelectedItem().toString().replace("倍",""));
+			}
+		});
+		timesComboBox.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				timesComboBox.setPopupVisible(true);
 			}
 		});
 
-		choiceTimes.addItemListener(new ItemListener() {
+		typeComboBox.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				Choice choice = (Choice) e.getItemSelectable();
-				timesJF.setText(String.valueOf(TimesEnum.getValByLabel(choice.getSelectedItem())));
+				typeJF.setText(typeComboBox.getSelectedItem().toString());
 			}
 		});
-
-		choiceTypeTwo.addItemListener(new ItemListener() {
+		typeComboBox.addMouseListener(new MouseAdapter() {
 			@Override
-			public void itemStateChanged(ItemEvent e) {
-				Choice choice = (Choice) e.getItemSelectable();
-				typeTwoJF.setText(choice.getSelectedItem());
-			}
-		});
-
-		choiceType.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				Choice choice = (Choice) e.getItemSelectable();
-				typeJF.setText(choice.getSelectedItem());
+			public void mouseEntered(MouseEvent e) {
+				typeComboBox.setPopupVisible(true);
 			}
 		});
 

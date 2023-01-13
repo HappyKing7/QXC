@@ -2,7 +2,7 @@ package Frame;
 
 import Bean.*;
 import Enum.*;
-import Start.*;
+import Start.ComponentInit;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +13,7 @@ import java.awt.event.WindowEvent;
 
 public class NoteWindow {
 	private static FontEnum fontEnum = new FontEnum();
-	private static JPanelInit jPanelInit = new JPanelInit();
+	private static ComponentInit componentInit = new ComponentInit();
 
 	public void showNoteWindow(GlobalVariable globalVariable){
 		//备注
@@ -23,7 +23,7 @@ public class NoteWindow {
 		Button noteButton = new Button("添加备注");
 		noteButton.setFont(fontEnum.mainButtonFont);
 
-		JPanel jPanel = jPanelInit.iniJPanel(new JPanel(),"备注",noteJF);
+		JPanel jPanel = componentInit.iniJPanel(new JPanel(),"备注",noteJF);
 		jPanel.add(noteButton);
 
 		Frame noteFrame = new Frame("备注");
