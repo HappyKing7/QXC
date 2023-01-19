@@ -28,11 +28,11 @@ public class QueryWindow {
 		JFrame jFrame = new JFrame("中奖查询系统");
 
 		//excel文件名
-		JTextField fileNameJF=new JTextField(80);
+		JTextField fileNameJF=new JTextField(30);
 		fileNameJF.setFont(fontEnum.mainFont);
 
 		//开奖号码
-		JTextField kaiJiangNumberJF=new JTextField(30);
+		JTextField kaiJiangNumberJF=new JTextField(10);
 		kaiJiangNumberJF.setFont(fontEnum.mainFont);
 
 		//类别
