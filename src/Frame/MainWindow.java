@@ -1,9 +1,9 @@
 package Frame;
 
 import Enum.*;
-import Start.*;
+import Function.InputFunction;
 import Bean.*;
-import Start.ComponentInit;
+import Function.ComponentInit;
 import jxl.read.biff.BiffException;
 import jxl.write.WriteException;
 
@@ -23,7 +23,7 @@ import java.util.List;
 public class MainWindow {
 	private static FontEnum fontEnum = new FontEnum();
 	private static ComponentInit componentInit = new ComponentInit();
-	private static Function function = new Function();
+	private static InputFunction inputFunction = new InputFunction();
 	private static WarmWindow warmWindow = new WarmWindow();
 	private static OneSummaryWindow oneSummaryWindow = new OneSummaryWindow();
 	private static SummaryWindow summaryWindow = new SummaryWindow();
@@ -118,7 +118,7 @@ public class MainWindow {
 				public void actionPerformed(ActionEvent e) {
 					globalVariable.functionType = functionButton.getText();
 					if(!sdSerialNumberJTA.getText().equals("")){
-						List<String> groupNumberList = function.getNumber(sdSerialNumberJTA.getText(),globalVariable.functionType);
+						List<String> groupNumberList = inputFunction.getNumber(sdSerialNumberJTA.getText(),globalVariable.functionType);
 						int groupNumber = Integer.valueOf(groupNumberList.get(groupNumberList.size()-1));
 						groupNumberJF.setText(String.valueOf(groupNumber));
 						globalVariable.inputSerialNumber = sdSerialNumberJTA.getText();
@@ -169,18 +169,8 @@ public class MainWindow {
 
 		JComboBox typeComboBox = new JComboBox();
 		for(TypeEnum typeEnum: TypeEnum.values()){
-			if(typeEnum.getLabel().equals(TypeEnum.ALL.getLabel())){
+			if(inputFunction.filterTpye(typeEnum.getLabel()))
 				continue;
-			}
-			if(typeEnum.getLabel().equals(TypeEnum.KD.getLabel())){
-				continue;
-			}
-			if(typeEnum.getLabel().equals(TypeEnum.HZ.getLabel())){
-				continue;
-			}
-			if(typeEnum.getLabel().equals(TypeEnum.FS.getLabel())){
-				continue;
-			}
 			typeComboBox.addItem(typeEnum.getLabel());
 			typeComboBox.setFont(fontEnum.mainFont);
 		}
@@ -499,7 +489,7 @@ public class MainWindow {
 				String times = timesJF.getText();
 				String type = typeJF.getText();
 				String typeTwo = typeTwoJF.getText();
-				String output = function.getNumber(globalVariable.tickets,globalVariable.alllistNo,globalVariable.ticketsNo,
+				String output = inputFunction.getNumber(globalVariable.tickets,globalVariable.alllistNo,globalVariable.ticketsNo,
 						serialNumber,type,typeTwo,inputPrice,times,globalVariable.functionType);
 				if(output == null || output.equals("fail")){
 					warmWindow.warmWindow("请输入有效数字",fontEnum.warmInfoFont);
@@ -529,7 +519,7 @@ public class MainWindow {
 				}else {
 					fileName = sf.format(date) + " " + titleJF.getText();
 				}
-				List<ShowSummaryList> showSummaryLists = function.readTodayExcel(globalVariable.filePath,fileName);
+				List<ShowSummaryList> showSummaryLists = inputFunction.readTodayExcel(globalVariable.filePath,fileName);
 				if(showSummaryLists == null) {
 					warmWindow.warmWindow("没有名为" + fileName +"的汇总文件",fontEnum.warmInfoFont);
 				}else{
@@ -550,8 +540,8 @@ public class MainWindow {
 							break;
 						}
 					}
-					List<String> groupNumberList = function.getNumber(sdSerialNumberJTA.getText(),globalVariable.functionType);
-					function.setPrice(globalVariable,groupNumberList.get(0),priceList,priceJF);
+					List<String> groupNumberList = inputFunction.getNumber(sdSerialNumberJTA.getText(),globalVariable.functionType);
+					inputFunction.setPrice(globalVariable,groupNumberList.get(0),priceList,priceJF);
 					int groupNumber = Integer.valueOf(groupNumberList.get(groupNumberList.size()-1));
 					groupNumberJF.setText(String.valueOf(groupNumber));
 					globalVariable.inputSerialNumber = sdSerialNumberJTA.getText();
@@ -603,7 +593,7 @@ public class MainWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					String result = function.sumbit(globalVariable.filePath,globalVariable.tickets,titleJF.getText());
+					String result = inputFunction.sumbit(globalVariable.filePath,globalVariable.tickets,titleJF.getText());
 					if(!result.equals("成功")){
 						warmWindow.warmWindow(result,fontEnum.warmInfoFont);
 					}else{

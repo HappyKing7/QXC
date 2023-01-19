@@ -1,40 +1,52 @@
 package Frame;
 
 import Enum.*;
-import Function.InputFunction;
+import Function.*;
 import Bean.*;
-import Function.ComponentInit;
+import jxl.read.biff.BiffException;
+import jxl.write.WriteException;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateWindow {
+public class UpdateExcelWindow {
 	private static FontEnum fontEnum = new FontEnum();
+	private static WarmWindow warmWindow = new WarmWindow();
 	private static InputFunction inputFunction = new InputFunction();
+	private static SummaryWindow summaryWindow = new SummaryWindow();
 	private static ComponentInit componentInit = new ComponentInit();
-	private static MainWindow mainWindow = new MainWindow();
-	private static OneSummaryWindow oneSummaryWindow = new OneSummaryWindow();
-	private JPanel showOneSummaryJPanel = new JPanel();
+	private static UpdateExcelFunction updateExcelFunction = new UpdateExcelFunction();
 
-	public void showUpdateFrame(String ticketsNo, GlobalVariable globalVariable,JPanel showOneSummaryPanel,JPanel titlePanel){
-		Ticket ticket = globalVariable.tickets.getTicketList().get(Integer.valueOf(ticketsNo));
-		showOneSummaryJPanel = showOneSummaryPanel;
+	public void showUpdateExcel(Integer selectOneNo, Integer selectTwoNo, String fileName,
+								List<ShowSummaryList> showSummaryLists, GlobalVariable globalVariable,Frame summaryFrame){
+		ShowSummaryList fssl = showSummaryLists.get(0);
+		ShowSummaryList ssl = showSummaryLists.get(selectOneNo);
+		ShowSummary ss = ssl.getShowSummaryList().get(selectTwoNo);
+
+		String no = ssl.getNo();
+		String totalMoney = ssl.getTotalMoney();
+		String totalPrice = ssl.getTotalPrice();
+		String note = ssl.getNote();
+		String[] details = ss.getDetail().split(",");
+		String serialNumber = ss.getSerialNumber();
+
 		JPanel jPanel = new JPanel();
-		jPanel.setLayout(new GridLayout(3,1));
+		jPanel.setLayout(new GridLayout(4,1));
 
 		//序列号
-		JTextField serialNumberJF=new JTextField(ticket.getSerialNumber(),50);
+		JTextField serialNumberJF=new JTextField(serialNumber,50);
 		serialNumberJF.setFont(fontEnum.updateFont);
-		JTextField groupNumberJF=new JTextField(String.valueOf(ticket.getGroupNum()),5);
+		JTextField groupNumberJF=new JTextField(details[0].replace("组",""),5);
 		groupNumberJF.setFont(fontEnum.mainFont);
 
 		//单价
-		JTextField priceJF=new JTextField(String.valueOf(ticket.getUnitPrice()),10);
+		JTextField priceJF=new JTextField(String.valueOf(details[1].replace("单价","")),10);
 		priceJF.setFont(fontEnum.updateFont);
 
 		JPanel pricePanel = new JPanel();
@@ -65,7 +77,7 @@ public class UpdateWindow {
 		}
 
 		//类别
-		JTextField typeTwoJF=new JTextField(ticket.getTypeTwo(),10);
+		JTextField typeTwoJF=new JTextField(details[2],10);
 		typeTwoJF.setFont(fontEnum.mainFont);
 		typeTwoJF.setVisible(false);
 
@@ -81,7 +93,7 @@ public class UpdateWindow {
 					typeTwoJF.setText(typeTwoButton.getText());
 				}
 			});
-			if(typeTwoButton.getText().equals(ticket.getTypeTwo())){
+			if(typeTwoButton.getText().equals(details[2])){
 				typeTwoButton.setSelected(true);
 			}
 			typeTwoList.add(typeTwoButton);
@@ -90,7 +102,7 @@ public class UpdateWindow {
 		}
 
 		//类型
-		JTextField typeJF=new JTextField(ticket.getType(),10);
+		JTextField typeJF=new JTextField(details[3],10);
 		typeJF.setFont(fontEnum.updateFont);
 		typeJF.setVisible(false);
 
@@ -101,12 +113,11 @@ public class UpdateWindow {
 			typeComboBox.addItem(typeEnum.getLabel());
 			typeComboBox.setFont(fontEnum.mainFont);
 		}
-		typeComboBox.setSelectedItem(ticket.getType());
+		typeComboBox.setSelectedItem(details[3]);
 
-		//结果
-		JTextField resultJF=new JTextField(30);
-		resultJF.setDisabledTextColor(Color.BLACK);
-		resultJF.setEnabled(false);
+		//备注
+		JTextField noteJF=new JTextField(note.replace("备注：",""),30);
+		noteJF.setFont(fontEnum.updateFont);
 
 		//第一行 序列号 + 组数
 		JPanel serialNumberPanel= componentInit.initJPanel(new JPanel(),"序列号",serialNumberJF);
@@ -121,7 +132,9 @@ public class UpdateWindow {
 		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"倍数",timesComboBox);
 		priceAndTypePanel= componentInit.addSpace(priceAndTypePanel,2);
 		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"类型",typeComboBox);
-		//第三行 按钮
+		//第三行 备注
+		JPanel notePanel = componentInit.iniJPanel(new JPanel(),"备注",noteJF);
+		//第四行 按钮
 		JPanel updatePanel=new JPanel();
 		Button update = new Button("修改");
 		updatePanel.setFont(fontEnum.updateFont);
@@ -130,12 +143,18 @@ public class UpdateWindow {
 		//添加控件
 		Frame frame=new Frame("修改序列号");
 		jPanel.add(serialNumberPanel);
+		if(selectTwoNo == 0){
+			jPanel.add(notePanel);
+		}
 		jPanel.add(priceAndTypePanel);
 		jPanel.add(updatePanel);
 
 		//设置布局
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setBounds((screenSize.width - 1000) / 2, (screenSize.height - 200) / 2, 1000, 200);
+		if(selectTwoNo == 0)
+			frame.setBounds((screenSize.width - 1000) / 2, (screenSize.height - 500) / 2, 1000, 300);
+		else
+			frame.setBounds((screenSize.width - 1000) / 2, (screenSize.height - 200) / 2, 1000, 200);
 		frame.add(jPanel,BorderLayout.NORTH);
 		frame.add(new JPanel(),BorderLayout.CENTER);
 		frame.setVisible(true);
@@ -177,17 +196,46 @@ public class UpdateWindow {
 		update.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Ticket ticket = globalVariable.tickets.getTicketList().get(Integer.valueOf(ticketsNo));
-				ticket.setSerialNumber(serialNumberJF.getText());
-				ticket.setGroupNum(ticket.getSerialNumber().split(" ").length);
-				ticket.setUnitPrice(Float.valueOf(priceJF.getText())*Integer.valueOf(timesJF.getText()));
-				ticket.setTypeTwo(typeTwoJF.getText());
-				ticket.setType(typeJF.getText());
-				ticket.setTotalPrice(ticket.getUnitPrice() * ticket.getGroupNum());
+				float oldDetailPrice = inputFunction.moneyRemoveChinese(details[4],"总","元");
+				float oldTotalPrice = inputFunction.moneyRemoveChinese(ssl.getTotalPrice(),"总共","元");
+				float oldTotalMoney = inputFunction.moneyRemoveChinese(fssl.getTotalMoney(),"总计","元");
+				float updateUnitPrice = Float.parseFloat(priceJF.getText())*Integer.valueOf(timesJF.getText());
+				float updateTotalPrice = updateUnitPrice * Integer.valueOf(groupNumberJF.getText());
+
+				ssl.setNote("备注：" + noteJF.getText());
+				ssl.setTotalPrice(inputFunction.moneyAddChinese(String.format("%.2f",oldTotalPrice - oldDetailPrice + updateTotalPrice),"总共","元"));
+				fssl.setTotalMoney(inputFunction.moneyAddChinese(String.format("%.2f",oldTotalMoney - oldDetailPrice + updateTotalPrice),"总计","元"));
+
+				ss.setSerialNumber(serialNumberJF.getText());
+				ss.setDetail(groupNumberJF.getText() + "组" + "," + "单价" + updateUnitPrice + "," +
+						typeTwoJF.getText() + "," + typeJF.getText() + "," + inputFunction.moneyAddChinese(String.format("%.2f",updateTotalPrice),"总","元"));
+
+				UpdateExcel updateExcel = new UpdateExcel();
+				updateExcel.setNo(no);
+				updateExcel.setTowNo(selectTwoNo);
+				updateExcel.setTotalPrice(ssl.getTotalPrice());
+				updateExcel.setTotalMoney(fssl.getTotalMoney());
+				updateExcel.setNote(ssl.getNote());
+				updateExcel.setSs(ss);
+				globalVariable.updateExcelMap.put(no,updateExcel);
+
+				try {
+					String filePath = globalVariable.filePath+ "/" + fileName + ".xlsx";
+					String result = updateExcelFunction.updateExcel(filePath,globalVariable);
+					if(!result.equals("success")){
+						warmWindow.warmWindow(result,fontEnum.warmInfoFont);
+						return;
+					}
+				} catch (BiffException biffException) {
+					biffException.printStackTrace();
+				} catch (IOException ioException) {
+					ioException.printStackTrace();
+				} catch (WriteException writeException) {
+					writeException.printStackTrace();
+				}
 				frame.dispose();
-				showOneSummaryJPanel = oneSummaryWindow.showOneSummaryFrame(showOneSummaryJPanel,globalVariable);
-				globalVariable.mainFrame.revalidate();
-				//mainWindow.showMainFrame(ModeTypeEnum.UPDATE.getVal(),globalVariable);
+				summaryFrame.dispose();
+				summaryWindow.showSummary(showSummaryLists,fileName,globalVariable);
 			}
 		});
 

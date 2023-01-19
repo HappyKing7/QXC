@@ -1,6 +1,10 @@
 package Bean;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.awt.*;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GlobalVariable {
@@ -14,6 +18,7 @@ public class GlobalVariable {
 	public String selectPrice = "";
 	public String inputSerialNumber = "";
 	public String functionType ="非组合";
+	public Map<String,UpdateExcel> updateExcelMap = new HashMap<>();
 
 	public Frame getOneFrame() {
 		return oneFrame;

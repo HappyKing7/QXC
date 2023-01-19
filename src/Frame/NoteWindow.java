@@ -2,7 +2,7 @@ package Frame;
 
 import Bean.*;
 import Enum.*;
-import Start.ComponentInit;
+import Function.ComponentInit;
 
 import javax.swing.*;
 import java.awt.*;

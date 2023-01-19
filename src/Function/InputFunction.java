@@ -1,4 +1,4 @@
-package Start;
+package Function;
 
 import Bean.*;
 import Enum.*;
@@ -23,9 +23,32 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-public class Function {
+public class InputFunction {
 	private static Pattern pattern = Pattern.compile("-?[0-9]+(\\\\.[0-9]+)?");
 
+	public Boolean filterTpye(String type){
+		if(type.equals(TypeEnum.ALL.getLabel())){
+			return true;
+		}
+		if(type.contains(TypeEnum.ZL.getLabel()) && type.length()>2){
+			if(!type.contains("全包"))
+				return true;
+		}
+		if(type.contains(TypeEnum.ZS.getLabel()) && type.length()>2){
+			if(!type.contains("全包"))
+				return true;
+		}
+		if(type.contains(TypeEnum.KD.getLabel()) && type.length()>2){
+			return true;
+		}
+		if(type.contains(TypeEnum.HZ.getLabel()) && type.length()>2){
+			return true;
+		}
+		if(type.contains(TypeEnum.FS.getLabel()) && type.length()>2){
+			return true;
+		}
+		return false;
+	}
 	public List<String> getNumber(String serialNumber,String functionType){
 		List<String> numberList = new ArrayList<>();
 		String number = "";
@@ -148,7 +171,7 @@ public class Function {
 		ticket.setSerialNumber(serialNumber);
 		ticket.setGroupNum(group);
 		ticket.setTimes(Integer.valueOf(times));
-		ticket.setType(type);
+		ticket.setType(getType(type,serialNumber));
 		ticket.setTypeTwo(typeTwo);
 		ticket.setUnitPrice(price);
 		ticket.setTotalPrice(group*price);
@@ -164,9 +187,9 @@ public class Function {
 		return showSummaryWithNumber(ticket);
 	}
 
-	public String numberWrap(String serialNumber,int num){
+	public String numberWrap(String serialNumber,String splitStr, int num){
 		String output = "<html>";
-		String[] serialNumbers = serialNumber.split(" ");
+		String[] serialNumbers = serialNumber.split(splitStr);
 		for (int i = 0; i < serialNumbers.length; i++) {
 			output = output + serialNumbers[i] + " ";
 			if(((i+1) % num) == 0){
@@ -182,7 +205,7 @@ public class Function {
 		if(ticket.getSerialNumber().length() <= 145){
 			output = ticket.getSerialNumber();
 		}else{
-			output = numberWrap(output,10);
+			output = numberWrap(output," ",10);
 		}
 
 		output = output + "-";
@@ -414,5 +437,46 @@ public class Function {
 		}
 		priceJF.setText(price);
 		globalVariable.selectPrice = price;
+	}
+
+	public String getType(String type,String serialNumber){
+		String number = serialNumber.split(" ")[0];
+		int typeLength = number.split(" ")[0].length();
+
+		if(type.equals(TypeEnum.ZS.getLabel())){
+			if(typeLength==2){
+				if(number.charAt(0) == number.charAt(1)){
+					return TypeEnum.ZSEM.getLabel();
+				}else {
+					return TypeEnum.SFZS.getLabel();
+				}
+			}else if (typeLength==3){
+				if(number.charAt(0) != number.charAt(1) && number.charAt(0) != number.charAt(2)
+						&& number.charAt(1) != number.charAt(2)){
+					return TypeEnum.ZSSANM.getLabel();
+				}else {
+					return TypeEnum.ZS.getLabel();
+				}
+			}else {
+				return TypeEnum.getLabelByVal(19 + typeLength);
+			}
+		}else if (type.equals(TypeEnum.ZL.getLabel())){
+			if(typeLength==2){
+				return TypeEnum.SFZL.getLabel();
+			}else if (typeLength==3){
+				return TypeEnum.ZL.getLabel();
+			}else {
+				return TypeEnum.getLabelByVal(10 + typeLength);
+			}
+		}
+		return type;
+	}
+
+	public Float moneyRemoveChinese(String s,String chinese1,String chinese2){
+		return Float.parseFloat(s.replace(chinese1,"").replace(chinese2,""));
+	}
+
+	public String moneyAddChinese(String s,String chinese1,String chinese2){
+		return chinese1 + s + chinese2;
 	}
 }

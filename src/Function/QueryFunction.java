@@ -1,7 +1,8 @@
-package Start;
+package Function;
 
 import Bean.*;
 import Enum.*;
+import Function.InputFunction;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
@@ -13,8 +14,9 @@ import java.util.*;
 public class QueryFunction {
 	private static Map<String,Float> PEIlV_MAP = new HashMap<>();
 	private String zhongJiangType = "";
+	private String zuXuanType = "";
 	private Set<String> zhongJiangDuplicate = new HashSet<>();
-	private Function function = new Function();
+	private InputFunction inputFunction = new InputFunction();
 
 	public Boolean filterType(String label){
 		if(label.contains(TypeEnum.ZL.getLabel()) && label.length()>2){
@@ -83,6 +85,9 @@ public class QueryFunction {
 									ZS(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
 								}
 							}
+							if(excelType.equals(TypeEnum.SFZS.getLabel())){
+								ZS(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+							}
 						}else if(excelType.equals(TypeEnum.ZUXUAN.getLabel()) && allFlag==AllFlagEnum.NOTALL.getVal()){
 							ZX(number, kaiJiangNumber, summaryLists.getNo(), detail, type, zhongJiangNumberList);
 						}
@@ -92,6 +97,9 @@ public class QueryFunction {
 								if(TypeEnum.getLabelByVal(i).equals(excelType)){
 									ZL(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
 								}
+							}
+							if(excelType.equals(TypeEnum.SFZL.getLabel())){
+								ZL(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
 							}
 						}else if(excelType.equals(TypeEnum.ZUXUAN.getLabel()) && allFlag==AllFlagEnum.NOTALL.getVal()){
 							ZX(number, kaiJiangNumber, summaryLists.getNo(), detail, type, zhongJiangNumberList);
@@ -116,9 +124,28 @@ public class QueryFunction {
 		return zhongJiangNumberList;
 	}
 
+	public String moneyAddBr(String moneyStr,int num){
+		String result = "";
+		int count = moneyStr.split(" [+] ").length -1;
+		if(count >= 6){
+			String[] moneyStrs = moneyStr.split(" [+] ");
+			for (int i = 0; i < moneyStrs.length; i++) {
+				result = result + moneyStrs[i] + " ";
+				if(((i+1) % num) == 0){
+					result = result + "<br>";
+				}
+			}
+			result = result.replace(" "," + ");
+			return result;
+		}
+		return moneyStr;
+
+	}
+
 	public String[][] transformTableData(List<ZhongJiang> zhongJiangNumberList){
-		String[][] tableData = new String[zhongJiangNumberList.size()][4];
+		String[][] tableData = new String[zhongJiangNumberList.size()+1][4];
 		int row = 0;
+		float totalMoney = 0;
 		for (ZhongJiang zhongJiang : zhongJiangNumberList) {
 			tableData[row][0] = zhongJiang.getNo();
 			tableData[row][1] = zhongJiang.getDetail();
@@ -127,14 +154,48 @@ public class QueryFunction {
 				if(!zhongJiang.getMoney().contains("+")){
 					tableData[row][3] = zhongJiang.getMoney() + "</html>";
 				}else {
-					tableData[row][3] = zhongJiang.getMoney() + " = " + zhongJiang.getTotalMoney() + "</html>";
+					tableData[row][3] = moneyAddBr(zhongJiang.getMoney(),6) + " = " + zhongJiang.getTotalMoney() + "</html>";
 				}
 			}else {
 				tableData[row][3] = "赔率异常";
 			}
+			totalMoney = totalMoney +  Float.valueOf(zhongJiang.getTotalMoney());
 			row++;
 		}
+
+		tableData[row][0] = "总金额";
+		tableData[row][1] = "";
+		tableData[row][2] = "";
+		tableData[row][3] = String.format("%.2f", totalMoney);;
 		return tableData;
+	}
+
+	public String moneyRed(String number,String zhongJiangNumber){
+		number = number.replace("<html>","<html> ").replace("</html>"," </html>");
+		String[] numbers =  number.split(" ");
+		String result = "";
+		String redZhongJiangNumber = "<span style='color: red'>" + zhongJiangNumber + "</span>";
+		for (int i = 0; i < numbers.length; i++) {
+			if(numbers[i].equals(zhongJiangNumber)){
+				result = result + " " + redZhongJiangNumber;
+			}else {
+				result = result + " " +  numbers[i];
+			}
+		}
+		return result.trim();
+	}
+
+	public String getPeiLvType(String zhongJiangNumber){
+		if(zuXuanType.equals(TypeEnum.ZS.getLabel())){
+			return TypeEnum.getLabelByVal(19 + zhongJiangNumber.length());
+		}
+
+		if(zuXuanType.equals(TypeEnum.ZL.getLabel())){
+			return TypeEnum.getLabelByVal(10 + zhongJiangNumber.length());
+		}
+
+		zuXuanType = " ";
+		return zhongJiangType;
 	}
 
 	public void addNumber(String number,String no, String detail, String zhongJiangNumber, List<ZhongJiang> zhongJiangNumberList){
@@ -144,16 +205,14 @@ public class QueryFunction {
 		zhongJiang.setDetail(detail);
 
 		Float price = Float.valueOf(detail.split(",")[1].replace("单价",""));
+		//String money = String.format("%.2f", price * PEIlV_MAP.get(getPeiLvType(zhongJiangNumber)));
 		String money = String.format("%.2f", price * PEIlV_MAP.get(zhongJiangType));
 		if(zhongJiangDuplicate.contains(no + " " + number)){
 			zhongJiang = zhongJiangNumberList.get(zhongJiangNumberList.size()-1);
-			zhongJiang.setSerialNumber(zhongJiang.getSerialNumber()
-					.replace(zhongJiangNumber,"<span style='color: red'>" + zhongJiangNumber + "</span>"));
-			if(zhongJiang.getMoney().length() % 60 == 0){
-				zhongJiang.setMoney(zhongJiang.getMoney() + " + "  + money + "<br>");
-			}else {
-				zhongJiang.setMoney(zhongJiang.getMoney() + " + "  + money);
-			}
+			/*zhongJiang.setSerialNumber(zhongJiang.getSerialNumber()
+					.replace(zhongJiangNumber,"<span style='color: red'>" + zhongJiangNumber + "</span>"));*/
+			zhongJiang.setSerialNumber(moneyRed(zhongJiang.getSerialNumber(),zhongJiangNumber));
+			zhongJiang.setMoney(zhongJiang.getMoney() + " + "  + money);
 			zhongJiang.setTotalMoney(String.format("%.2f", Float.valueOf(zhongJiang.getTotalMoney()) + Float.valueOf(money)));
 		}else{
 			zhongJiangDuplicate.add(no + " " + number);
@@ -161,18 +220,20 @@ public class QueryFunction {
 			if(zhongJiangNumber.equals("")){
 				zhongJiang.setSerialNumber(zhongJiangNumber);
 			}else {
-				if(number.length()>110){
-					int numberLength =  number.split(" ")[0].length();
+				if(number.length()>90){
+					int numberLength = number.split(" ")[0].length();
 					if(numberLength < 8){
-						number = function.numberWrap(number,(10-numberLength)*2);
+						number = inputFunction.numberWrap(number," ",(10-numberLength)*2);
 					}else {
-						number = function.numberWrap(number,5);
+						number = inputFunction.numberWrap(number," ",5);
 					}
-					zhongJiang.setSerialNumber(number.replace(zhongJiangNumber,"<span style='color: red'>" +
-							zhongJiangNumber + "</span>"));
+					zhongJiang.setSerialNumber(moneyRed(number,zhongJiangNumber));
+					/*zhongJiang.setSerialNumber(number.replace(zhongJiangNumber,"<span style='color: red'>" +
+							zhongJiangNumber + "</span>"));*/
 				}else {
-					zhongJiang.setSerialNumber("<html>" + number.replace(zhongJiangNumber,"<span style='color: red'>" +
-							zhongJiangNumber + "</span>") + "</html>");
+					/*zhongJiang.setSerialNumber("<html>" + number.replace(zhongJiangNumber,"<span style='color: red'>" +
+							zhongJiangNumber + "</span>") + "</html>");*/
+					zhongJiang.setSerialNumber("<html>" + moneyRed(number,zhongJiangNumber) + "</html>");
 				}
 
 			}
@@ -249,25 +310,47 @@ public class QueryFunction {
 		}
 	}
 
+	public Boolean ifABC(String number){
+		int a = Integer.parseInt(String.valueOf(number.charAt(0)));
+		int b = Integer.parseInt(String.valueOf(number.charAt(1)));
+		int c = Integer.parseInt(String.valueOf(number.charAt(2)));
+		if(a==b || a==c || b==c){
+			return false;
+		}
+		return true;
+	}
+
 	public void ZL(String number, String kaiJiangNumber, String no, String detail, List<ZhongJiang> zhongJiangNumberList){
 		int a = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(0)));
 		int b = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(1)));
 		int c = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(2)));
-		if(a==b || a==c || b==c){
+		if((a==b || a==c || b==c) && !detail.contains("全包")){
 			return;
 		}
 
 		String[] numbers = number.split(" ");
 		for (String s : numbers) {
-			int times = 0;
-			String num = removeDuplicate(s);
-			for (int j = 0; j < num.length(); j++) {
-				if (kaiJiangNumber.contains(String.valueOf(num.charAt(j)))) {
-					times = times + 1;
+			if(s.length() == 2){
+				if(kaiJiangNumber.contains(String.valueOf(s.charAt(0))) &&
+						kaiJiangNumber.contains(String.valueOf(s.charAt(1))) ){
+					zuXuanType = TypeEnum.ZL.getLabel();
+					addNumber(number, no, detail, s, zhongJiangNumberList);
 				}
-			}
-			if (times >= 3) {
-				addNumber(number, no, detail, s, zhongJiangNumberList);
+			}else{
+				int times = 0;
+				String num = removeDuplicate(s);
+				for (int j = 0; j < num.length(); j++) {
+					if (kaiJiangNumber.contains(String.valueOf(num.charAt(j)))) {
+						times = times + 1;
+						if(times == 3){
+							break;
+						}
+					}
+				}
+				if (times == 3) {
+					zuXuanType = TypeEnum.ZL.getLabel();
+					addNumber(number, no, detail, s, zhongJiangNumberList);
+				}
 			}
 		}
 	}
@@ -285,25 +368,77 @@ public class QueryFunction {
 		return result;
 	}
 
+	public Boolean ifABB(String number){
+		int a = Integer.parseInt(String.valueOf(number.charAt(0)));
+		int b = Integer.parseInt(String.valueOf(number.charAt(1)));
+		int c = Integer.parseInt(String.valueOf(number.charAt(2)));
+		if((a!=b && a!=c && b!=c) || (a==b && a==c && b==c)){
+			return false;
+		}
+		return true;
+	}
+
 	public void ZS(String number, String kaiJiangNumber, String no, String detail, List<ZhongJiang> zhongJiangNumberList){
 		int a = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(0)));
 		int b = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(1)));
 		int c = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(2)));
-		if((a!=b && a!=c && b!=c) || (a==b && a==c && b==c)){
+		if(((a!=b && a!=c && b!=c) || (a==b && a==c && b==c)) && !detail.contains("全包")){
 			return;
 		}
 
 		String[] numbers = number.split(" ");
 		for (String s : numbers) {
-			int times = 0;
-			kaiJiangNumber = removeDuplicate(kaiJiangNumber);
-			for (int j = 0; j < kaiJiangNumber.length(); j++) {
-				if (s.contains(String.valueOf(kaiJiangNumber.charAt(j)))) {
-					times = times + 1;
+			if(s.length()==2){
+				String first = String.valueOf(s.charAt(0));
+				String second = String.valueOf(s.charAt(1));
+				if(kaiJiangNumber.contains(first) && kaiJiangNumber.contains(second)){
+					zuXuanType = TypeEnum.ZS.getLabel();
+					addNumber(number, no, detail, s, zhongJiangNumberList);
 				}
-			}
-			if (times == 3 || times == 2) {
-				addNumber(number, no, detail, s, zhongJiangNumberList);
+			}else if (s.length()==3){
+				String first = String.valueOf(s.charAt(0));
+				String second = String.valueOf(s.charAt(1));
+				String third = String.valueOf(s.charAt(2));
+				if(first.equals(second) || first.equals(third) || second.equals(third)){
+					char[] charK = kaiJiangNumber.toCharArray();
+					char[] charS = s.toCharArray();
+					Arrays.sort(charK);
+					Arrays.sort(charS);
+					if(String.valueOf(charK).equals(String.valueOf(charS))){
+						zuXuanType = TypeEnum.ZS.getLabel();
+						addNumber(number, no, detail, s, zhongJiangNumberList);
+					}
+				}else {
+					int times = 0;
+					if(kaiJiangNumber.contains(first)){
+						times = times + 1;
+					}
+					if(kaiJiangNumber.contains(second)){
+						times = times + 1;
+					}
+					if(kaiJiangNumber.contains(third)){
+						times = times + 1;//
+					}
+					if(times == 2){
+						zuXuanType = TypeEnum.ZS.getLabel();
+						addNumber(number, no, detail, s, zhongJiangNumberList);
+					}
+				}
+			}else{
+				int times = 0;
+				kaiJiangNumber = removeDuplicate(kaiJiangNumber);
+				for (int j = 0; j < kaiJiangNumber.length(); j++) {
+					if (s.contains(String.valueOf(kaiJiangNumber.charAt(j)))) {
+						times = times + 1;
+						if(times == 2){
+							break;
+						}
+					}
+				}
+				if (times == 2) {
+					zuXuanType = TypeEnum.ZS.getLabel();
+					addNumber(number, no, detail, s, zhongJiangNumberList);
+				}
 			}
 		}
 	}

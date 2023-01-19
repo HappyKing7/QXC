@@ -1,7 +1,7 @@
 package Frame;
 
 import Enum.*;
-import Start.*;
+import Function.InputFunction;
 import Bean.*;
 
 import javax.swing.*;
@@ -11,7 +11,7 @@ import java.awt.event.ActionListener;
 
 public class OneSummaryWindow {
 	private static FontEnum fontEnum = new FontEnum();
-	private static Function function = new Function();
+	private static InputFunction inputFunction = new InputFunction();
 	private JPanel showOneSummaryJPanel = new JPanel();
 
 	public JPanel showOneSummaryFrame(JPanel showOneSummaryPanel,GlobalVariable globalVariable){
@@ -25,7 +25,7 @@ public class OneSummaryWindow {
 		float totalPrice = 0;
 		for (int i = 0; i < globalVariable.tickets.getTicketList().size(); i++) {
 			JPanel resultPanel = new JPanel();
-			String[] output = function.showSummaryWithNumber(globalVariable.tickets.getTicketList().get(i)).split("-");
+			String[] output = inputFunction.showSummaryWithNumber(globalVariable.tickets.getTicketList().get(i)).split("-");
 			JLabel resultNumberLabel = new JLabel(output[0]);
 			JLabel resultInfoLabel = new JLabel(output[1]);
 			totalPrice = totalPrice + globalVariable.tickets.getTicketList().get(i).getTotalPrice();

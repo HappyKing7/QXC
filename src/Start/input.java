@@ -4,14 +4,15 @@ import Bean.GlobalVariable;
 import java.io.IOException;
 import Enum.*;
 import Frame.*;
+import Function.InputFunction;
 
 public class input {
 	private static final MainWindow mainWindow = new MainWindow();
-	private static final Function function = new Function();
+	private static final InputFunction INPUT_FUNCTION = new InputFunction();
 
 	public static void main(String[] args) throws IOException {
 		GlobalVariable globalVariable = new GlobalVariable();
-		globalVariable.setFilePath(function.readConfig(0));
+		globalVariable.setFilePath(INPUT_FUNCTION.readConfig(0));
 		mainWindow.showMainFrame(ModeTypeEnum.CREATE.getVal(),globalVariable);
 	}
 }

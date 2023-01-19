@@ -5,8 +5,9 @@ import javax.swing.table.*;
 
 import Bean.*;
 import Enum.*;
-import Start.*;
-import Start.ComponentInit;
+import Function.InputFunction;
+import Function.QueryFunction;
+import Function.ComponentInit;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,7 +20,7 @@ import java.util.Map;
 public class QueryWindow {
 	private final FontEnum fontEnum = new FontEnum();
 	private final ComponentInit componentInit = new ComponentInit();
-	private final Function function = new Function();
+	private final InputFunction inputFunction = new InputFunction();
 	private final QueryFunction queryFunction = new QueryFunction();
 	private static WarmWindow warmWindow = new WarmWindow();
 
@@ -185,7 +186,7 @@ public class QueryWindow {
 				if(!fileNameJF.getText().equals("")){
 					fileName = fileName + " " + fileNameJF.getText();
 				}
-				List<ShowSummaryList> showSummaryLists = function.readTodayExcel(globalVariable.filePath,fileName);
+				List<ShowSummaryList> showSummaryLists = inputFunction.readTodayExcel(globalVariable.filePath,fileName);
 
 				//校验文件是否存在
 				if(showSummaryLists == null) {
@@ -221,7 +222,7 @@ public class QueryWindow {
 				//自动换行
 				jTable.setDefaultRenderer(Object.class, tcr);
 				for (int i = 0; i < tableData.length; i++) {
-					if(tableData[i][2].length() >= 110){
+					if(tableData[i][2].length() >= 110 || tableData[i][3].length() >= 100){
 						jTable.setDefaultRenderer(Object.class, new TableCellTextAreaRenderer());
 						break;
 					}
@@ -288,9 +289,9 @@ public class QueryWindow {
 			}
 
 			int count = value.toString().split("<br>").length -1;
-			if(count != 0){
+			if(count != 0 && !value.toString().contains("+")){
 				if(count <= 10){
-					table.setRowHeight(row,(count*35));
+					table.setRowHeight(row,(count*60));
 				}
 				if(count > 10 && count <= 1000){
 					table.setRowHeight(row,(count*31));
@@ -299,13 +300,12 @@ public class QueryWindow {
 					table.setRowHeight(row,(count*25));
 				}
 
-/*				if(count > 100){
+				/*if(count > 100){
 					String s = value.toString().split(" ")[0].replace("<html>","")
 							.split("<")[0];
 					if(s.length() >= 9){
 						table.setRowHeight(row,(count*25));
-					}
-				}*/
+					}}*/
 			}
 
 			setText(value == null ? "" : value.toString());

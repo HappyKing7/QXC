@@ -1,4 +1,4 @@
-package Start;
+package Function;
 
 import javax.swing.*;
 import java.awt.*;
