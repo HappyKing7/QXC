@@ -6,16 +6,12 @@ import Bean.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class OneSummaryWindow {
-	private static FontEnum fontEnum = new FontEnum();
-	private static InputFunction inputFunction = new InputFunction();
-	private JPanel showOneSummaryJPanel = new JPanel();
+	private final FontEnum fontEnum = new FontEnum();
+	private final InputFunction inputFunction = new InputFunction();
 
 	public JPanel showOneSummaryFrame(JPanel showOneSummaryPanel,GlobalVariable globalVariable){
-		showOneSummaryJPanel = showOneSummaryPanel;
 		showOneSummaryPanel.removeAll();
 		//JPanel panel = new JPanel(new GridLayout(globalVariable.tickets.getTicketList().size()+2,2));
 		JPanel panel =  new JPanel();
@@ -33,12 +29,7 @@ public class OneSummaryWindow {
 			resultInfoLabel.setFont(fontEnum.oneSummaryFont);
 			JRadioButton resultButton = new JRadioButton(String.valueOf(i+1));
 			resultButton.setFont(fontEnum.oneSummaryFont);
-			resultButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					globalVariable.selectNo = String.valueOf(Integer.valueOf(resultButton.getText()) - 1);
-				}
-			});
+			resultButton.addActionListener(e -> globalVariable.selectNo = String.valueOf(Integer.parseInt(resultButton.getText()) - 1));
 			btnGroup.add(resultButton);
 			resultPanel.add(resultButton);
 			resultPanel.add(new JPanel());
@@ -48,7 +39,7 @@ public class OneSummaryWindow {
 			panel.add(resultPanel);
 		}
 		JPanel totalPricePanel = new JPanel();
-		JLabel totalPriceLabel = new JLabel("总共"+String.format("%.2f", Float.valueOf(totalPrice))+"元");
+		JLabel totalPriceLabel = new JLabel("总共"+String.format("%.2f", totalPrice)+"元");
 		totalPriceLabel.setFont(fontEnum.oneSummaryFont);
 		totalPricePanel.add(totalPriceLabel);
 		panel.add(totalPricePanel);

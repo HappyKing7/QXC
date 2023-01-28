@@ -10,24 +10,22 @@ import jxl.write.WriteException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.List;
 
 public class SummaryWindow {
-	private static FontEnum fontEnum = new FontEnum();
-	private static WarmWindow warmWindow = new WarmWindow();
-	private static ComponentInit componentInit = new ComponentInit();
-	private static InputFunction inputFunction = new InputFunction();
-	private static UpdateExcelWindow updateExcelWindow = new UpdateExcelWindow();
-	private static UpdateExcelFunction updateExcelFunction = new UpdateExcelFunction();
+	private static final FontEnum fontEnum = new FontEnum();
+	private static final WarmWindow warmWindow = new WarmWindow();
+	private static final ComponentInit componentInit = new ComponentInit();
+	private static final InputFunction inputFunction = new InputFunction();
+	private static final UpdateExcelWindow updateExcelWindow = new UpdateExcelWindow();
+	private static final UpdateExcelFunction updateExcelFunction = new UpdateExcelFunction();
 	private static String selectOneNo = "";
 	private static String selectTwoNo = "";
 
-	static void showSummary(List<ShowSummaryList> showSummaryLists, String fileName, GlobalVariable globalVariable){
+	public void showSummary(List<ShowSummaryList> showSummaryLists, String fileName, GlobalVariable globalVariable){
 		Frame frame = new Frame("汇总");
 		JLabel title = new JLabel(fileName+"数据",JLabel.CENTER);
 		title.setFont(fontEnum.todaySummaryTitleFont);
@@ -41,24 +39,20 @@ public class SummaryWindow {
 
 			JLabel firstTotalMoneyLabel = new JLabel("     " +ssl.getTotalMoney());
 			firstTotalMoneyLabel.setFont(fontEnum.todaySummaryFont);
-			String no = "";
 			for (int j = 0; j < ssl.getShowSummaryList().size(); j++) {
-				JRadioButton selectButton = new JRadioButton(String.valueOf(i) + " " + String.valueOf(j));
+				JRadioButton selectButton = new JRadioButton(i + " " + j);
 				selectButton.setFont(fontEnum.oneSummaryFont);
-				selectButton.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						String[] strings = selectButton.getText().split("     ");
-						selectOneNo = String.valueOf(Integer.valueOf(strings[0].split(" ")[0])-1);
-						selectTwoNo = strings[0].split(" ")[1];
-					}
+				selectButton.addActionListener(e -> {
+					String[] strings = selectButton.getText().split("     ");
+					selectOneNo = String.valueOf(Integer.parseInt(strings[0].split(" ")[0])-1);
+					selectTwoNo = strings[0].split(" ")[1];
 				});
 				btnGroup.add(selectButton);
 
 				ShowSummary ss = ssl.getShowSummaryList().get(j);
 				if(j==0){
 					JLabel noLabel = new JLabel(ssl.getNo() + "     " + ssl.getTotalPrice());
-					selectButton.setText(String.valueOf(i+1)+ " " + String.valueOf(j)
+					selectButton.setText((i + 1) + " " + j
 							+ "     " + ssl.getNo() + "     " + ssl.getTotalPrice());
 					noLabel.setFont(fontEnum.todaySummaryFont);
 					JLabel firstSerialNumberLabel = new JLabel();
@@ -96,7 +90,7 @@ public class SummaryWindow {
 					JLabel detailLabel = new JLabel(ss.getDetail());
 					detailLabel.setFont(fontEnum.todaySummaryFont);
 
-					selectButton.setText(String.valueOf(i+1)+ " " + String.valueOf(j)
+					selectButton.setText((i + 1) + " " + j
 							+ "     " + ssl.getNo());
 					resultPanel.add(selectButton);
 					//resultPanel.add(new JLabel());
@@ -141,54 +135,44 @@ public class SummaryWindow {
 			}
 		});
 
-		update.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(selectOneNo.equals("")){
-					warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);
-				}else {
-					updateExcelWindow.showUpdateExcel(Integer.valueOf(selectOneNo),Integer.valueOf(selectTwoNo),
-							fileName, showSummaryLists,globalVariable,frame);
-					selectOneNo = "";
-					selectTwoNo = "";
-				}
+		update.addActionListener(e -> {
+			if(selectOneNo.equals("")){
+				warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);
+			}else {
+				updateExcelWindow.showUpdateExcel(Integer.valueOf(selectOneNo),Integer.valueOf(selectTwoNo),
+						fileName, showSummaryLists,globalVariable,frame);
+				selectOneNo = "";
+				selectTwoNo = "";
 			}
 		});
 
-		delete.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String filePath = globalVariable.filePath+ "/" + fileName + ".xlsx";
-				try {
-					if(selectOneNo.equals("")){
-						warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);
-					}else {
-						String result = updateExcelFunction.deleteExcel(filePath,Integer.valueOf(selectOneNo),Integer.valueOf(selectTwoNo),
-								showSummaryLists);
-						if(result.contains("success")){
-							if(result.contains("delete")){
-								warmWindow.warmWindow("汇总excel没有数据，已经成功删除",fontEnum.warmInfoFont);
-							}
-							selectOneNo = "";
-							selectTwoNo = "";
-							frame.dispose();
-							List<ShowSummaryList> showSummaryLists = inputFunction.readTodayExcel(globalVariable.filePath,fileName);
-							showSummary(showSummaryLists,fileName,globalVariable);
-						}else {
-							if(result.equals("delete fail"))
-								warmWindow.warmWindow("汇总excel没有数据，删除失败，请手动删除" + fileName + ".xlsx"
-										,fontEnum.warmInfoFont);
-							else
-								warmWindow.warmWindow(result,fontEnum.warmInfoFont);
+		delete.addActionListener(e -> {
+			String filePath = globalVariable.filePath+ "/" + fileName + ".xlsx";
+			try {
+				if(selectOneNo.equals("")){
+					warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);
+				}else {
+					String result = updateExcelFunction.deleteExcel(filePath,Integer.valueOf(selectOneNo),Integer.valueOf(selectTwoNo),
+							showSummaryLists);
+					if(result.contains("success")){
+						if(result.contains("delete")){
+							warmWindow.warmWindow("汇总excel没有数据，已经成功删除",fontEnum.warmInfoFont);
 						}
+						selectOneNo = "";
+						selectTwoNo = "";
+						frame.dispose();
+						List<ShowSummaryList> showSummaryLists1 = inputFunction.readTodayExcel(globalVariable.filePath,fileName);
+						showSummary(showSummaryLists1,fileName,globalVariable);
+					}else {
+						if(result.equals("delete fail"))
+							warmWindow.warmWindow("汇总excel没有数据，删除失败，请手动删除" + fileName + ".xlsx"
+									,fontEnum.warmInfoFont);
+						else
+							warmWindow.warmWindow(result,fontEnum.warmInfoFont);
 					}
-				} catch (BiffException biffException) {
-					biffException.printStackTrace();
-				} catch (IOException ioException) {
-					ioException.printStackTrace();
-				} catch (WriteException writeException) {
-					writeException.printStackTrace();
 				}
+			} catch (BiffException | IOException | WriteException biffException) {
+				biffException.printStackTrace();
 			}
 		});
 	}

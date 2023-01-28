@@ -13,10 +13,10 @@ public enum ZhiXuanAndTimes {
 	ZHIXUANTEN("直选10单","直选","10倍",10);
 
 
-	private String desc;
-	private String type;
-	private String timesDesc;
-	private Integer times;
+	private final String desc;
+	private final String type;
+	private final String timesDesc;
+	private final Integer times;
 
 	ZhiXuanAndTimes(String desc,String type,String timesDesc,Integer times) {
 		this.desc = desc;

@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 public class InputFunction {
-	private static Pattern pattern = Pattern.compile("-?[0-9]+(\\\\.[0-9]+)?");
+	private static final Pattern pattern = Pattern.compile("-?[0-9]+(\\\\.[0-9]+)?");
 
 	public Boolean filterTpye(String type){
 		if(type.equals(TypeEnum.ALL.getLabel())){
@@ -47,24 +47,25 @@ public class InputFunction {
 		if(type.contains(TypeEnum.FS.getLabel()) && type.length()>2){
 			return true;
 		}
+
 		return false;
 	}
 	public List<String> getNumber(String serialNumber,String functionType){
 		List<String> numberList = new ArrayList<>();
-		String number = "";
+		StringBuilder number = new StringBuilder();
 
 		for (int i = 0; i < serialNumber.length(); i++) {
 			if (Character.isDigit(serialNumber.charAt(i))) {
-				number = number + serialNumber.charAt(i);
+				number.append(serialNumber.charAt(i));
 			}else{
-				if (!number.equals("")){
-					numberList.add(number);
-					number = "";
+				if (!number.toString().equals("")){
+					numberList.add(number.toString());
+					number = new StringBuilder();
 				}
 			}
 
-			if(i==serialNumber.length()-1 && !number.equals("")){
-				numberList.add(number);
+			if(i==serialNumber.length()-1 && !number.toString().equals("")){
+				numberList.add(number.toString());
 			}
 		}
 
@@ -88,16 +89,16 @@ public class InputFunction {
 		}
 
 		List<String> numberList = new ArrayList<>();
-		String number = "";
+		StringBuilder number = new StringBuilder();
 
 		if(functionType.equals(FunctionType.DINGWEI.getLabel())){
-			String[] serialNumbers = null;
+			String[] serialNumbers;
 			if(serialNumber.contains(" ")){
 				serialNumbers = serialNumber.split(" ");
 			}else if(serialNumber.contains(",")){
 				serialNumbers = serialNumber.split(",");
 			}else if(serialNumber.contains(".")){
-				serialNumbers = serialNumber.split(".");
+				serialNumbers = serialNumber.split("\\.");
 			}else if(serialNumber.contains("，")){
 				serialNumbers = serialNumber.split("，");
 			}else if(serialNumber.contains("。")){
@@ -105,24 +106,24 @@ public class InputFunction {
 			}else {
 				serialNumbers = serialNumber.split(" ");
 			}
-			for (int i = 0; i < serialNumbers.length; i++) {
-				String oneSerialNumber = serialNumbers[i];
+			for (String s : serialNumbers) {
+				String oneSerialNumber = s;
 				oneSerialNumber = oneSerialNumber.replaceAll("[^\\d]", "*");
 				numberList.add(oneSerialNumber);
 			}
 		}else {
 			for (int i = 0; i < serialNumber.length(); i++) {
 				if (Character.isDigit(serialNumber.charAt(i))) {
-					number = number + serialNumber.charAt(i);
+					number.append(serialNumber.charAt(i));
 				}else{
-					if (!number.equals("")){
-						numberList.add(number);
-						number = "";
+					if (!number.toString().equals("")){
+						numberList.add(number.toString());
+						number = new StringBuilder();
 					}
 				}
 
-				if(i==serialNumber.length()-1 && !number.equals("")){
-					numberList.add(number);
+				if(i==serialNumber.length()-1 && !number.toString().equals("")){
+					numberList.add(number.toString());
 				}
 			}
 		}
@@ -137,14 +138,14 @@ public class InputFunction {
 					String twoString = numberList.get(j + 1);
 					for (int k = 0; k < oneString.length(); k++) {
 						for (int l = 0; l < twoString.length(); l++) {
-							addOneNum.add(String.valueOf(oneString.charAt(k)) + String.valueOf(twoString.charAt(l)));
+							addOneNum.add(oneString.charAt(k) + String.valueOf(twoString.charAt(l)));
 						}
 					}
 				} else {
 					String thirdString = numberList.get(j + 1);
-					for (int k = 0; k < addOneNum.size(); k++) {
+					for (String s : addOneNum) {
 						for (int l = 0; l < thirdString.length(); l++) {
-							addTwoNum.add(addOneNum.get(k) + String.valueOf(thirdString.charAt(l)));
+							addTwoNum.add(s + thirdString.charAt(l));
 						}
 					}
 					addOneNum.clear();
@@ -156,13 +157,14 @@ public class InputFunction {
 			numberList = addOneNum;
 		}
 
-		serialNumber = "";
-		for (int j = 0; j < numberList.size(); j++) {
-			serialNumber = serialNumber + numberList.get(j) + " ";
+		StringBuilder serialNumberBuilder = new StringBuilder();
+		for (String s : numberList) {
+			serialNumberBuilder.append(s).append(" ");
 		}
+		serialNumber = serialNumberBuilder.toString();
 
 		int group = numberList.size();
-		float price = Float.valueOf(inputPrice) * Integer.valueOf(times);
+		float price = Float.parseFloat(inputPrice) * Integer.parseInt(times);
 
 		tickets.setId(alllistNo.getAndIncrement());
 
@@ -188,16 +190,16 @@ public class InputFunction {
 	}
 
 	public String numberWrap(String serialNumber,String splitStr, int num){
-		String output = "<html>";
+		StringBuilder output = new StringBuilder("<html>");
 		String[] serialNumbers = serialNumber.split(splitStr);
 		for (int i = 0; i < serialNumbers.length; i++) {
-			output = output + serialNumbers[i] + " ";
+			output.append(serialNumbers[i]).append(" ");
 			if(((i+1) % num) == 0){
-				output = output + "<br>";
+				output.append("<br>");
 			}
 		}
-		output = output + "</html>";
-		return output;
+		output.append("</html>");
+		return output.toString();
 	}
 
 	public String showSummaryWithNumber(Ticket ticket){
@@ -237,11 +239,6 @@ public class InputFunction {
 		return output;
 	}
 
-	public boolean checkInput(){
-
-		return false;
-	}
-
 	public void createExcel(String filePath,TicketList tickets) throws IOException, WriteException {
 		FileOutputStream os=new FileOutputStream(filePath);
 		WritableWorkbook workbook = Workbook.createWorkbook(os);
@@ -257,9 +254,9 @@ public class InputFunction {
 			sheet.addCell(l1);
 			sheet.addCell(l2);
 		}
-		Label l3 = new Label(3,0,"总共"+String.valueOf(totalPrice)+"元");
+		Label l3 = new Label(3,0,"总共"+ totalPrice +"元");
 		Label l4 = new Label(4,0,"备注："+ tickets.getNote());
-		Label l6 = new Label(6,0,"总计"+String.valueOf(totalPrice)+"元");
+		Label l6 = new Label(6,0,"总计"+ totalPrice +"元");
 		sheet.addCell(l3);
 		sheet.addCell(l4);
 		sheet.addCell(l6);
@@ -283,7 +280,7 @@ public class InputFunction {
 			}
 		}
 
-		WritableWorkbook workbook = null;
+		WritableWorkbook workbook;
 		try {
 			workbook = Workbook.createWorkbook(file, wrb);
 		} catch (IOException e) {
@@ -291,7 +288,7 @@ public class InputFunction {
 			return e.getMessage();
 		}
 		WritableSheet writableSheet = workbook.getSheet(0);
-		Label l0 = new Label(0,sheetRow+1,"序列"+String.valueOf(Integer.valueOf(numberNo)+1));
+		Label l0 = new Label(0,sheetRow+1,"序列"+ (Integer.parseInt(numberNo) + 1));
 		writableSheet.addCell(l0);
 		float totalPrice = 0;
 		int ticketsNo = 0;
@@ -304,12 +301,12 @@ public class InputFunction {
 			writableSheet.addCell(l2);
 			ticketsNo = ticketsNo + 1;
 		}
-		Label l3 = new Label(3,sheetRow+1,"总共"+String.valueOf(totalPrice)+"元");
-		Label l4 = new Label(4,sheetRow+1,"备注："+ tickets.getNote());
+		Label l3 = new Label(3,sheetRow+1,"总共" + totalPrice +"元");
+		Label l4 = new Label(4,sheetRow+1,"备注：" + tickets.getNote());
 		String totalMoney =  readSheet.getCell(6,0).getContents().replace("总计","").replace("元","");
-		totalMoney = String.valueOf((Float.valueOf(totalMoney) + totalPrice));
+		totalMoney = String.valueOf((Float.parseFloat(totalMoney) + totalPrice));
 
-		Label l6 = new Label(6,0,"总计"+String.valueOf(totalMoney)+"元");
+		Label l6 = new Label(6,0,"总计"+ totalMoney + "元");
 		writableSheet.addCell(l3);
 		writableSheet.addCell(l4);
 		writableSheet.addCell(l6);
@@ -334,7 +331,7 @@ public class InputFunction {
 		if(fileName.equals("")){
 			filePath =filePath + nowDate + ".xlsx";
 		}else {
-			filePath =filePath + nowDate + " " + fileName + ".xlsx";
+			filePath =filePath + fileName + ".xlsx";
 		}
 
 		if (tickets.getNote() == null){
@@ -359,8 +356,8 @@ public class InputFunction {
 	}
 
 	public List<ShowSummaryList> readTodayExcel(String filePath, String fileName){
-		String path = filePath + fileName +".xlsx";
-		Workbook wrb = null;
+		String path = filePath + fileName;
+		Workbook wrb;
 		try {
 			wrb = Workbook.getWorkbook(new File(path));
 		} catch (IOException | BiffException e) {
@@ -373,7 +370,7 @@ public class InputFunction {
 		String serialNo = "";
 		String totalPrices = "" ;
 		String excelNote = "" ;
-		Integer size = 0;
+		int size = 0;
 		for (int i = 0; i < sheet.getRows(); i++) {
 			ShowSummary showSummary = new ShowSummary();
 			String no = sheet.getCell(0, i).getContents().trim();
@@ -411,7 +408,6 @@ public class InputFunction {
 				totalPrices = "";
 				excelNote = "";
 				size = size + 1;
-				continue;
 			}
 		}
 

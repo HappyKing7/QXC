@@ -1,6 +1,6 @@
 package Start;
 
-import Bean.ShowSummary;
+import Bean.*;
 
 import javax.swing.*;
 
@@ -15,33 +15,7 @@ import java.util.Map;
 
 public class demo {
 	public static void main(String[] args) {
-		System.out.println(2140-200);
-		List<ShowSummary> list = new ArrayList<>();
-		ShowSummary showSummary = new ShowSummary();
-		Map<String,ShowSummary> map = new HashMap<>();
-
-		showSummary.setDetail("abc");
-		showSummary.setSerialNumber("123");
-		list.add(showSummary);
-		map.put("1",showSummary);
-		
-		showSummary = new ShowSummary();
-		showSummary.setDetail("def");
-		showSummary.setSerialNumber("456");
-		list.add(showSummary);
-		map.put("2",showSummary);
-		
-		showSummary = new ShowSummary();
-		showSummary.setDetail("hgi");
-		showSummary.setSerialNumber("789");
-		list.add(showSummary);
-		map.put("1",showSummary);
-		map.put("3",showSummary);
-
-		for (int i = 0; i < map.size(); i++) {
-			System.out.println(map.get(String.valueOf(i+1)).getSerialNumber());
-		}
-		//demo1();
+		demo1();
 	}
 
 	static void demo1(){

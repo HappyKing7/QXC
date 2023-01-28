@@ -5,7 +5,7 @@ public enum FunctionType {
 	FEIZUHE("非组合", 1),
 	DINGWEI("定位", 2);
 
-	private String label;
+	private final String label;
 	private final int val;
 
 	FunctionType(String label, int val) {

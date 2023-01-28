@@ -4,7 +4,7 @@ public enum AllFlagEnum {
 	ALL("全部", 0),
 	NOTALL("非全部", 1);
 
-	private String label;
+	private final String label;
 	private final int val;
 
 	AllFlagEnum(String label, int val) {

@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ComponentInit {
+	Font font = new Font("宋体",Font.BOLD,25);
+
 	public JPanel addSpace(JPanel panel,int num){
 		for (int i = 0; i < num; i++) {
 			panel.add(new Label());
@@ -12,7 +14,6 @@ public class ComponentInit {
 	}
 
 	public JPanel initJPanel(JPanel panel, String lable, JTextArea jTextArea){
-		Font font = new Font("宋体",Font.BOLD,25);
 		JLabel jLabel = new JLabel(lable);
 		jLabel.setFont(font);
 		panel.add(jLabel);
@@ -21,7 +22,6 @@ public class ComponentInit {
 	}
 
 	public JPanel initJPanel(JPanel panel, String lable, JTextField jTextField){
-		Font font = new Font("宋体",Font.BOLD,25);
 		JLabel jLabel = new JLabel(lable);
 		jLabel.setFont(font);
 		panel.add(jLabel);
@@ -29,7 +29,7 @@ public class ComponentInit {
 		return panel;
 	}
 
-	public JPanel iniJPanel(JPanel panel,String choiceLabel,Choice choiceInfo){
+	/*public JPanel iniJPanel(JPanel panel,String choiceLabel,Choice choiceInfo){
 		Font font = new Font("宋体",Font.BOLD,25);
 		JLabel timesChoiceJLabel = new JLabel(choiceLabel);
 		timesChoiceJLabel.setFont(font);
@@ -38,10 +38,9 @@ public class ComponentInit {
 		}
 		panel.add(choiceInfo);
 		return panel;
-	}
+	}*/
 
-	public JPanel iniJPanel(JPanel panel,String choiceLabel,JComboBox jComboBox){
-		Font font = new Font("宋体",Font.BOLD,25);
+	public JPanel iniJPanel(JPanel panel,String choiceLabel,JComboBox<String> jComboBox){
 		JLabel timesChoiceJLabel = new JLabel(choiceLabel);
 		timesChoiceJLabel.setFont(font);
 		if(!choiceLabel.equals("")){
@@ -52,7 +51,6 @@ public class ComponentInit {
 	}
 
 	public JPanel iniJPanel(JPanel panel,String choiceLabel,JPanel addPanel){
-		Font font = new Font("宋体",Font.BOLD,25);
 		JLabel timesChoiceJLabel = new JLabel(choiceLabel);
 		timesChoiceJLabel.setFont(font);
 		if(!choiceLabel.equals("")){
@@ -63,7 +61,6 @@ public class ComponentInit {
 	}
 
 	public JPanel iniJPanel(JPanel panel,String label, JTextField jTextField){
-		Font font = new Font("宋体",Font.BOLD,25);
 		JLabel priceJLabel = new JLabel(label);
 		priceJLabel.setFont(font);
 		panel.add(priceJLabel);
@@ -72,14 +69,13 @@ public class ComponentInit {
 	}
 
 	public JPanel iniJPanel(JPanel panel,String label){
-		Font font = new Font("宋体",Font.BOLD,25);
 		JLabel priceJLabel = new JLabel(label);
 		priceJLabel.setFont(font);
 		panel.add(priceJLabel);
 		return panel;
 	}
 
-	public JPanel initJPanel(String typeLabel, String priceLabel, String timesLabel,
+	/*public JPanel initJPanel(String typeLabel, String priceLabel, String timesLabel,
 							 Choice priceChoice,Choice typeChoice, Choice timesChoice,
 							 JTextField jTextField){
 		Font font = new Font("宋体",Font.BOLD,25);
@@ -106,7 +102,7 @@ public class ComponentInit {
 		panel.add(typeChoice);
 
 		return panel;
-	}
+	}*/
 
 	public JButton jButtonInit(JButton jButton,String label){
 		jButton.setText(label);

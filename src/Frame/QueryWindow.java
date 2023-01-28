@@ -1,6 +1,7 @@
 package Frame;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.*;
 
 import Bean.*;
@@ -11,18 +12,17 @@ import Function.ComponentInit;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class QueryWindow {
 	private final FontEnum fontEnum = new FontEnum();
 	private final ComponentInit componentInit = new ComponentInit();
 	private final InputFunction inputFunction = new InputFunction();
 	private final QueryFunction queryFunction = new QueryFunction();
-	private static WarmWindow warmWindow = new WarmWindow();
+	private final WarmWindow warmWindow = new WarmWindow();
 
 	public void showQueryWindow(GlobalVariable globalVariable){
 		JFrame jFrame = new JFrame("中奖查询系统");
@@ -30,6 +30,8 @@ public class QueryWindow {
 		//excel文件名
 		JTextField fileNameJF=new JTextField(30);
 		fileNameJF.setFont(fontEnum.mainFont);
+		Button fileSelectButton = new Button("选择文件");
+		fileSelectButton.setFont(fontEnum.mainButtonFont);
 
 		//开奖号码
 		JTextField kaiJiangNumberJF=new JTextField(10);
@@ -45,12 +47,7 @@ public class QueryWindow {
 		for(TypeTwoEnum typeTwoEnum: TypeTwoEnum.values()){
 			JRadioButton typeTwoButton = new JRadioButton(typeTwoEnum.getLabel());
 			typeTwoButton.setFont(fontEnum.mainButtonFont);
-			typeTwoButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					typeTwoJF.setText(typeTwoButton.getText());
-				}
-			});
+			typeTwoButton.addActionListener(e -> typeTwoJF.setText(typeTwoButton.getText()));
 			if(typeTwoButton.getText().equals(TypeTwoEnum.TICAI.getLabel())){
 				typeTwoButton.setSelected(true);
 			}
@@ -63,7 +60,7 @@ public class QueryWindow {
 		JTextField typeJF=new JTextField(TypeEnum.ALL.getLabel(),10);
 		typeJF.setFont(fontEnum.mainFont);
 		typeJF.setVisible(false);
-		JComboBox typeComboBox = new JComboBox();
+		JComboBox<String> typeComboBox = new JComboBox<>();
 		for(TypeEnum typeEnum: TypeEnum.values()){
 			if(queryFunction.filterType(typeEnum.getLabel())){
 				continue;
@@ -122,6 +119,7 @@ public class QueryWindow {
 
 		//第一行 文件名
 		JPanel fileNamePanel = componentInit.iniJPanel(new JPanel(),"文件名",fileNameJF);
+		fileNamePanel.add(fileSelectButton);
 		northJPanel.add(fileNamePanel);
 
 		//第二行 开奖号码+类别
@@ -159,12 +157,30 @@ public class QueryWindow {
 			}
 		});
 
-		typeComboBox.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				typeJF.setText(typeComboBox.getSelectedItem().toString());
-			}
+		fileSelectButton.addActionListener(e -> {
+			FileFilter fileFilter = new FileFilter() {
+				@Override
+				public boolean accept(File f) {
+					String fileName = f.getName();
+					return f.isDirectory() || fileName.endsWith(".xls") || fileName.endsWith(".xlsx");
+				}
+
+				@Override
+				public String getDescription() {
+					return null;
+				}
+			};
+
+			JFileChooser jFileChooser = new JFileChooser(new File(globalVariable.filePath));
+			jFileChooser.addChoosableFileFilter(fileFilter);
+			jFileChooser.setFileFilter(fileFilter);
+			jFileChooser.showOpenDialog(jFileChooser);
+			File selectedFile = jFileChooser.getSelectedFile();
+			if(selectedFile != null)
+				fileNameJF.setText(selectedFile.getName());
 		});
+
+		typeComboBox.addItemListener(e -> typeJF.setText(Objects.requireNonNull(typeComboBox.getSelectedItem()).toString()));
 		typeComboBox.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -172,87 +188,82 @@ public class QueryWindow {
 			}
 		});
 
-		confirmButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(kaiJiangNumberJF.getText().length()<3){
-					warmWindow.warmWindow("请输入正确的开奖号码",fontEnum.warmInfoFont);
-					return;
-				}
-				//获取打奖和赔率的excel数据
-				SimpleDateFormat sf= new SimpleDateFormat("yyyy-MM-dd");
-				Date date = new Date();
-				String fileName = sf.format(date);
-				if(!fileNameJF.getText().equals("")){
-					fileName = fileName + " " + fileNameJF.getText();
-				}
-				List<ShowSummaryList> showSummaryLists = inputFunction.readTodayExcel(globalVariable.filePath,fileName);
+		confirmButton.addActionListener(e -> {
+			if(kaiJiangNumberJF.getText().length()<3){
+				warmWindow.warmWindow("请输入正确的开奖号码",fontEnum.warmInfoFont);
+				return;
+			}
+			//获取打奖和赔率的excel数据
+			SimpleDateFormat sf= new SimpleDateFormat("yyyy-MM-dd");
+			Date date = new Date();
+			String fileName = sf.format(date)+".xlsx";
+			if(!fileNameJF.getText().equals("")){
+				fileName = fileNameJF.getText();
+			}
 
-				//校验文件是否存在
-				if(showSummaryLists == null) {
-					warmWindow.warmWindow(globalVariable.filePath + fileName + ".xlsx不存在"
-							,fontEnum.warmInfoFont);
-					return;
-				}
-				Map<String,Float> peiLvMap = queryFunction.readPeiLvExcel(globalVariable.filePath);
-				if(peiLvMap == null) {
-					warmWindow.warmWindow(globalVariable.filePath + "赔率.xlsx不存在"
-							,fontEnum.warmInfoFont);
-					return;
-				}
+			List<ShowSummaryList> showSummaryLists = inputFunction.readTodayExcel(globalVariable.filePath,fileName);
 
-				//获取中奖号码
-				List<ZhongJiang> zhongJiangNumberList = new ArrayList<>();
-				if(typeJF.getText().equals(TypeEnum.ALL.getLabel())){
-					for(TypeEnum typeEnum : TypeEnum.values()){
-						zhongJiangNumberList = queryFunction.findTypeTwoAndType(kaiJiangNumberJF.getText(),
-								typeTwoJF.getText(),typeEnum.getLabel(),AllFlagEnum.ALL.getVal(),
-								showSummaryLists,zhongJiangNumberList,peiLvMap);
-					}
-					//zhongJiangNumberList = zhongJiangNumberList.stream().sorted(Comparator.comparing(ZhongJiang ::getSortNo)).collect(Collectors.toList());
-				}else {
+			//校验文件是否存在
+			if(showSummaryLists == null) {
+				warmWindow.warmWindow(globalVariable.filePath + fileName + ".xlsx不存在"
+						,fontEnum.warmInfoFont);
+				return;
+			}
+			Map<String,Float> peiLvMap = queryFunction.readPeiLvExcel(globalVariable.filePath);
+			if(peiLvMap == null) {
+				warmWindow.warmWindow(globalVariable.filePath + "赔率.xlsx不存在"
+						,fontEnum.warmInfoFont);
+				return;
+			}
+
+			//获取中奖号码
+			List<ZhongJiang> zhongJiangNumberList = new ArrayList<>();
+			if(typeJF.getText().equals(TypeEnum.ALL.getLabel())){
+				for(TypeEnum typeEnum : TypeEnum.values()){
 					zhongJiangNumberList = queryFunction.findTypeTwoAndType(kaiJiangNumberJF.getText(),
-							typeTwoJF.getText(),typeJF.getText(),AllFlagEnum.NOTALL.getVal(),
+							typeTwoJF.getText(),typeEnum.getLabel(),AllFlagEnum.ALL.getVal(),
 							showSummaryLists,zhongJiangNumberList,peiLvMap);
 				}
+				//zhongJiangNumberList = zhongJiangNumberList.stream().sorted(Comparator.comparing(ZhongJiang ::getSortNo)).collect(Collectors.toList());
+			}else {
+				zhongJiangNumberList = queryFunction.findTypeTwoAndType(kaiJiangNumberJF.getText(),
+						typeTwoJF.getText(),typeJF.getText(),AllFlagEnum.NOTALL.getVal(),
+						showSummaryLists,zhongJiangNumberList,peiLvMap);
+			}
 
-				String[][] tableData = queryFunction.transformTableData(zhongJiangNumberList);
-				defaultTableModel.setDataVector(tableData,columnNames);
+			String[][] tableData1 = queryFunction.transformTableData(zhongJiangNumberList);
+			defaultTableModel.setDataVector(tableData1,columnNames);
 
-				//自动换行
-				jTable.setDefaultRenderer(Object.class, tcr);
-				for (int i = 0; i < tableData.length; i++) {
-					if(tableData[i][2].length() >= 110 || tableData[i][3].length() >= 100){
-						jTable.setDefaultRenderer(Object.class, new TableCellTextAreaRenderer());
-						break;
-					}
+			//自动换行
+			jTable.setDefaultRenderer(Object.class, tcr);
+			for (String[] tableDatum : tableData1) {
+				if (tableDatum[2].length() >= 110 || tableDatum[3].length() >= 100) {
+					jTable.setDefaultRenderer(Object.class, new TableCellTextAreaRenderer());
+					break;
 				}
+			}
 
-				//列宽
-				TableColumnModel tableColumnModel = jTable.getColumnModel();
-				for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
-					TableColumn tableColumn = tableColumnModel.getColumn(i);
-					tableColumn.setPreferredWidth(width[i]);
-					/*if( i == 3){
-						tableColumn.setCellRenderer(new TableColumnTextAreaRenderer());
-					}*/
-				}
+			//列宽
+			TableColumnModel tableColumnModel1 = jTable.getColumnModel();
+			for (int i = 0; i < tableColumnModel1.getColumnCount(); i++) {
+				TableColumn tableColumn = tableColumnModel1.getColumn(i);
+				tableColumn.setPreferredWidth(width[i]);
+				/*if( i == 3){
+					tableColumn.setCellRenderer(new TableColumnTextAreaRenderer());
+				}*/
 			}
 		});
 
-		resetButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				kaiJiangNumberJF.setText("");
-				typeTwoJF.setText(TypeTwoEnum.TICAI.getLabel());
-				for (JRadioButton jRadioButton : typeTwoList){
-					if (jRadioButton.getText().equals(TypeTwoEnum.TICAI.getLabel())){
-						jRadioButton.setSelected(true);
-					}
+		resetButton.addActionListener(e -> {
+			kaiJiangNumberJF.setText("");
+			typeTwoJF.setText(TypeTwoEnum.TICAI.getLabel());
+			for (JRadioButton jRadioButton : typeTwoList){
+				if (jRadioButton.getText().equals(TypeTwoEnum.TICAI.getLabel())){
+					jRadioButton.setSelected(true);
 				}
-				typeJF.setText(TypeEnum.ALL.getLabel());
-				typeComboBox.setSelectedItem(TypeEnum.ALL.getLabel());
 			}
+			typeJF.setText(TypeEnum.ALL.getLabel());
+			typeComboBox.setSelectedItem(TypeEnum.ALL.getLabel());
 		});
 	}
 

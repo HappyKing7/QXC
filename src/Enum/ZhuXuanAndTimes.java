@@ -12,10 +12,10 @@ public enum ZhuXuanAndTimes {
 	ZHUXUANNINE("组选9组","组选","9倍",9),
 	ZHUXUANTEN("组选10组","组选","10倍",10);
 
-	private String desc;
-	private String type;
-	private String timesDesc;
-	private Integer times;
+	private final String desc;
+	private final String type;
+	private final String timesDesc;
+	private final Integer times;
 
 	ZhuXuanAndTimes(String desc,String type,String timesDesc,Integer times) {
 		this.desc = desc;

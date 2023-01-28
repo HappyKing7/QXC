@@ -1,7 +1,5 @@
 package Bean;
 
-import Bean.ShowSummary;
-
 import java.util.List;
 
 public class ShowSummaryList {

@@ -7,21 +7,19 @@ import jxl.read.biff.BiffException;
 import jxl.write.WriteException;
 
 import javax.swing.*;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class UpdateExcelWindow {
-	private static FontEnum fontEnum = new FontEnum();
-	private static WarmWindow warmWindow = new WarmWindow();
-	private static InputFunction inputFunction = new InputFunction();
-	private static SummaryWindow summaryWindow = new SummaryWindow();
-	private static ComponentInit componentInit = new ComponentInit();
-	private static UpdateExcelFunction updateExcelFunction = new UpdateExcelFunction();
+	private final FontEnum fontEnum = new FontEnum();
+	private final WarmWindow warmWindow = new WarmWindow();
+	private final InputFunction inputFunction = new InputFunction();
+	private final SummaryWindow summaryWindow = new SummaryWindow();
+	private final ComponentInit componentInit = new ComponentInit();
+	private final UpdateExcelFunction updateExcelFunction = new UpdateExcelFunction();
 
 	public void showUpdateExcel(Integer selectOneNo, Integer selectTwoNo, String fileName,
 								List<ShowSummaryList> showSummaryLists, GlobalVariable globalVariable,Frame summaryFrame){
@@ -46,7 +44,7 @@ public class UpdateExcelWindow {
 		groupNumberJF.setFont(fontEnum.mainFont);
 
 		//单价
-		JTextField priceJF=new JTextField(String.valueOf(details[1].replace("单价","")),10);
+		JTextField priceJF=new JTextField(details[1].replace("单价", ""),10);
 		priceJF.setFont(fontEnum.updateFont);
 
 		JPanel pricePanel = new JPanel();
@@ -54,12 +52,9 @@ public class UpdateExcelWindow {
 		for (PriceEnum priceEnum : PriceEnum.values()) {
 			JRadioButton priceButton = new JRadioButton(String.valueOf(priceEnum.getVal()));
 			priceButton.setFont(fontEnum.mainButtonFont);
-			priceButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					priceJF.setText(priceButton.getText());
-					globalVariable.selectPrice = priceButton.getText();
-				}
+			priceButton.addActionListener(e -> {
+				priceJF.setText(priceButton.getText());
+				globalVariable.selectPrice = priceButton.getText();
 			});
 			priceGroup.add(priceButton);
 			pricePanel.add(priceButton);
@@ -70,7 +65,7 @@ public class UpdateExcelWindow {
 		timesJF.setFont(fontEnum.mainFont);
 		timesJF.setVisible(false);
 
-		JComboBox timesComboBox = new JComboBox();
+		JComboBox<String> timesComboBox = new JComboBox<>();
 		for(TimesEnum timesEnum: TimesEnum.values()){
 			timesComboBox.addItem(timesEnum.getLabel());
 			timesComboBox.setFont(fontEnum.mainFont);
@@ -82,21 +77,14 @@ public class UpdateExcelWindow {
 		typeTwoJF.setVisible(false);
 
 		JPanel typeTwoPanel = new JPanel();
-		List<JRadioButton> typeTwoList = new ArrayList<>();
 		ButtonGroup typeTwoGroup = new ButtonGroup();
 		for(TypeTwoEnum typeTwoEnum: TypeTwoEnum.values()){
 			JRadioButton typeTwoButton = new JRadioButton(typeTwoEnum.getLabel());
 			typeTwoButton.setFont(fontEnum.mainButtonFont);
-			typeTwoButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					typeTwoJF.setText(typeTwoButton.getText());
-				}
-			});
+			typeTwoButton.addActionListener(e -> typeTwoJF.setText(typeTwoButton.getText()));
 			if(typeTwoButton.getText().equals(details[2])){
 				typeTwoButton.setSelected(true);
 			}
-			typeTwoList.add(typeTwoButton);
 			typeTwoGroup.add(typeTwoButton);
 			typeTwoPanel.add(typeTwoButton);
 		}
@@ -106,7 +94,7 @@ public class UpdateExcelWindow {
 		typeJF.setFont(fontEnum.updateFont);
 		typeJF.setVisible(false);
 
-		JComboBox typeComboBox = new JComboBox();
+		JComboBox<String> typeComboBox = new JComboBox<>();
 		for(TypeEnum typeEnum: TypeEnum.values()){
 			if(inputFunction.filterTpye(typeEnum.getLabel()))
 				continue;
@@ -167,12 +155,7 @@ public class UpdateExcelWindow {
 			}
 		});
 
-		timesComboBox.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				timesJF.setText(timesComboBox.getSelectedItem().toString().replace("倍",""));
-			}
-		});
+		timesComboBox.addItemListener(e -> timesJF.setText(Objects.requireNonNull(timesComboBox.getSelectedItem()).toString().replace("倍","")));
 		timesComboBox.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -180,12 +163,7 @@ public class UpdateExcelWindow {
 			}
 		});
 
-		typeComboBox.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				typeJF.setText(typeComboBox.getSelectedItem().toString());
-			}
-		});
+		typeComboBox.addItemListener(e -> typeJF.setText(Objects.requireNonNull(typeComboBox.getSelectedItem()).toString()));
 		typeComboBox.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -193,60 +171,50 @@ public class UpdateExcelWindow {
 			}
 		});
 
-		update.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				float oldDetailPrice = inputFunction.moneyRemoveChinese(details[4],"总","元");
-				float oldTotalPrice = inputFunction.moneyRemoveChinese(ssl.getTotalPrice(),"总共","元");
-				float oldTotalMoney = inputFunction.moneyRemoveChinese(fssl.getTotalMoney(),"总计","元");
-				float updateUnitPrice = Float.parseFloat(priceJF.getText())*Integer.valueOf(timesJF.getText());
-				float updateTotalPrice = updateUnitPrice * Integer.valueOf(groupNumberJF.getText());
+		update.addActionListener(e -> {
+			float oldDetailPrice = inputFunction.moneyRemoveChinese(details[4],"总","元");
+			float oldTotalPrice = inputFunction.moneyRemoveChinese(ssl.getTotalPrice(),"总共","元");
+			float oldTotalMoney = inputFunction.moneyRemoveChinese(fssl.getTotalMoney(),"总计","元");
+			float updateUnitPrice = Float.parseFloat(priceJF.getText())*Integer.parseInt(timesJF.getText());
+			float updateTotalPrice = updateUnitPrice * Integer.parseInt(groupNumberJF.getText());
 
-				ssl.setNote("备注：" + noteJF.getText());
-				ssl.setTotalPrice(inputFunction.moneyAddChinese(String.format("%.2f",oldTotalPrice - oldDetailPrice + updateTotalPrice),"总共","元"));
-				fssl.setTotalMoney(inputFunction.moneyAddChinese(String.format("%.2f",oldTotalMoney - oldDetailPrice + updateTotalPrice),"总计","元"));
+			ssl.setNote("备注：" + noteJF.getText());
+			ssl.setTotalPrice(inputFunction.moneyAddChinese(String.format("%.2f",oldTotalPrice - oldDetailPrice + updateTotalPrice),"总共","元"));
+			fssl.setTotalMoney(inputFunction.moneyAddChinese(String.format("%.2f",oldTotalMoney - oldDetailPrice + updateTotalPrice),"总计","元"));
 
-				ss.setSerialNumber(serialNumberJF.getText());
-				ss.setDetail(groupNumberJF.getText() + "组" + "," + "单价" + updateUnitPrice + "," +
-						typeTwoJF.getText() + "," + typeJF.getText() + "," + inputFunction.moneyAddChinese(String.format("%.2f",updateTotalPrice),"总","元"));
+			ss.setSerialNumber(serialNumberJF.getText());
+			ss.setDetail(groupNumberJF.getText() + "组" + "," + "单价" + updateUnitPrice + "," +
+					typeTwoJF.getText() + "," + typeJF.getText() + "," + inputFunction.moneyAddChinese(String.format("%.2f",updateTotalPrice),"总","元"));
 
-				UpdateExcel updateExcel = new UpdateExcel();
-				updateExcel.setNo(no);
-				updateExcel.setTowNo(selectTwoNo);
-				updateExcel.setTotalPrice(ssl.getTotalPrice());
-				updateExcel.setTotalMoney(fssl.getTotalMoney());
-				updateExcel.setNote(ssl.getNote());
-				updateExcel.setSs(ss);
-				globalVariable.updateExcelMap.put(no,updateExcel);
+			UpdateExcel updateExcel = new UpdateExcel();
+			updateExcel.setNo(no);
+			updateExcel.setTowNo(selectTwoNo);
+			updateExcel.setTotalPrice(ssl.getTotalPrice());
+			updateExcel.setTotalMoney(fssl.getTotalMoney());
+			updateExcel.setNote(ssl.getNote());
+			updateExcel.setSs(ss);
+			globalVariable.updateExcelMap.put(no,updateExcel);
 
-				try {
-					String filePath = globalVariable.filePath+ "/" + fileName + ".xlsx";
-					String result = updateExcelFunction.updateExcel(filePath,globalVariable);
-					if(!result.equals("success")){
-						warmWindow.warmWindow(result,fontEnum.warmInfoFont);
-						return;
-					}
-				} catch (BiffException biffException) {
-					biffException.printStackTrace();
-				} catch (IOException ioException) {
-					ioException.printStackTrace();
-				} catch (WriteException writeException) {
-					writeException.printStackTrace();
+			try {
+				String filePath = globalVariable.filePath+ "/" + fileName;
+				String result = updateExcelFunction.updateExcel(filePath,globalVariable);
+				if(!result.equals("success")){
+					warmWindow.warmWindow(result,fontEnum.warmInfoFont);
+					return;
 				}
-				frame.dispose();
-				summaryFrame.dispose();
-				summaryWindow.showSummary(showSummaryLists,fileName,globalVariable);
+			} catch (BiffException | IOException | WriteException biffException) {
+				biffException.printStackTrace();
 			}
+			frame.dispose();
+			summaryFrame.dispose();
+			summaryWindow.showSummary(showSummaryLists,fileName,globalVariable);
 		});
 
-		serialNumberJF.addCaretListener(new CaretListener() {
-			@Override
-			public void caretUpdate(CaretEvent e) {
-				if(!serialNumberJF.equals("")){
-					List<String> groupNumberList = inputFunction.getNumber(serialNumberJF.getText(),globalVariable.functionType);
-					int groupNumber = Integer.valueOf(groupNumberList.get(groupNumberList.size()-1));
-					groupNumberJF.setText(String.valueOf(groupNumber));
-				}
+		serialNumberJF.addCaretListener(e -> {
+			if(!serialNumberJF.getText().equals("")){
+				List<String> groupNumberList = inputFunction.getNumber(serialNumberJF.getText(),globalVariable.functionType);
+				int groupNumber = Integer.parseInt(groupNumberList.get(groupNumberList.size()-1));
+				groupNumberJF.setText(String.valueOf(groupNumber));
 			}
 		});
 	}

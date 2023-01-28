@@ -5,7 +5,7 @@ public enum TypeTwoEnum
 	TICAI("体彩", 0),
 	FUCAI("福彩", 1);
 
-	private String label;
+	private final String label;
 	private final int val;
 
 	TypeTwoEnum(String label, int val) {

@@ -8,27 +8,22 @@ import jxl.read.biff.BiffException;
 import jxl.write.WriteException;
 
 import javax.swing.*;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
+import java.util.*;
 import java.util.List;
 
 public class MainWindow {
-	private static FontEnum fontEnum = new FontEnum();
-	private static ComponentInit componentInit = new ComponentInit();
-	private static InputFunction inputFunction = new InputFunction();
-	private static WarmWindow warmWindow = new WarmWindow();
-	private static OneSummaryWindow oneSummaryWindow = new OneSummaryWindow();
-	private static SummaryWindow summaryWindow = new SummaryWindow();
-	private static UpdateWindow updateWindow = new UpdateWindow();
-	private static NoteWindow noteWindow = new NoteWindow();
+	private final FontEnum fontEnum = new FontEnum();
+	private final ComponentInit componentInit = new ComponentInit();
+	private final InputFunction inputFunction = new InputFunction();
+	private final WarmWindow warmWindow = new WarmWindow();
+	private final OneSummaryWindow oneSummaryWindow = new OneSummaryWindow();
+	private final SummaryWindow summaryWindow = new SummaryWindow();
+	private final UpdateWindow updateWindow = new UpdateWindow();
+	private final NoteWindow noteWindow = new NoteWindow();
 	private JPanel showOneSummaryJPanel = new JPanel();
 
 	public void showMainFrame(int mode, GlobalVariable globalVariable){
@@ -80,12 +75,9 @@ public class MainWindow {
 		for (PriceEnum priceEnum : PriceEnum.values()) {
 			JRadioButton priceButton = new JRadioButton(String.valueOf(priceEnum.getVal()));
 			priceButton.setFont(fontEnum.mainButtonFont);
-			priceButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					priceJF.setText(priceButton.getText());
-					globalVariable.selectPrice = priceButton.getText();
-				}
+			priceButton.addActionListener(e -> {
+				priceJF.setText(priceButton.getText());
+				globalVariable.selectPrice = priceButton.getText();
 			});
 			priceGroup.add(priceButton);
 			pricePanel.add(priceButton);
@@ -100,7 +92,7 @@ public class MainWindow {
 		timesJF.setFont(fontEnum.mainFont);
 		//timesJF.setVisible(false);
 
-		JComboBox timesComboBox = new JComboBox();
+		JComboBox<String> timesComboBox = new JComboBox<>();
 		for(TimesEnum timesEnum: TimesEnum.values()){
 			timesComboBox.addItem(timesEnum.getLabel());
 			timesComboBox.setFont(fontEnum.mainFont);
@@ -113,20 +105,17 @@ public class MainWindow {
 		for (FunctionType functionType : FunctionType.values()) {
 			JRadioButton functionButton = new JRadioButton(functionType.getLabel());
 			functionButton.setFont(fontEnum.mainButtonFont);
-			functionButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					globalVariable.functionType = functionButton.getText();
-					if(!sdSerialNumberJTA.getText().equals("")){
-						List<String> groupNumberList = inputFunction.getNumber(sdSerialNumberJTA.getText(),globalVariable.functionType);
-						int groupNumber = Integer.valueOf(groupNumberList.get(groupNumberList.size()-1));
-						groupNumberJF.setText(String.valueOf(groupNumber));
-						globalVariable.inputSerialNumber = sdSerialNumberJTA.getText();
-					}
+			functionButton.addActionListener(e -> {
+				globalVariable.functionType = functionButton.getText();
+				if(!sdSerialNumberJTA.getText().equals("")){
+					List<String> groupNumberList = inputFunction.getNumber(sdSerialNumberJTA.getText(),globalVariable.functionType);
+					int groupNumber = Integer.parseInt(groupNumberList.get(groupNumberList.size()-1));
+					groupNumberJF.setText(String.valueOf(groupNumber));
+					globalVariable.inputSerialNumber = sdSerialNumberJTA.getText();
 				}
 			});
 			//保留输入信息
-			if(globalVariable.functionType == functionType.getLabel()){
+			if(globalVariable.functionType.equals(functionType.getLabel())){
 				functionButton.setSelected(true);
 			}
 			functionList.add(functionButton);
@@ -140,23 +129,16 @@ public class MainWindow {
 		typeTwoJF.setVisible(false);
 
 		JPanel typeTwoPanel = new JPanel();
-		List<JRadioButton> typeTwoList = new ArrayList<>();
 		ButtonGroup typeTwoGroup = new ButtonGroup();
 		for(TypeTwoEnum typeTwoEnum: TypeTwoEnum.values()){
 			JRadioButton typeTwoButton = new JRadioButton(typeTwoEnum.getLabel());
 			typeTwoButton.setFont(fontEnum.mainButtonFont);
-			typeTwoButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					typeTwoJF.setText(typeTwoButton.getText());
-				}
-			});
-			typeTwoList.add(typeTwoButton);
+			typeTwoButton.addActionListener(e -> typeTwoJF.setText(typeTwoButton.getText()));
 			typeTwoGroup.add(typeTwoButton);
 			typeTwoPanel.add(typeTwoButton);
 		}
 
-		JComboBox typeTwoComboBox = new JComboBox();
+		JComboBox<String> typeTwoComboBox = new JComboBox<>();
 		for(TypeTwoEnum typeTwoEnumEnum: TypeTwoEnum.values()){
 			typeTwoComboBox.addItem(typeTwoEnumEnum.getLabel());
 			typeTwoComboBox.setFont(fontEnum.mainFont);
@@ -167,7 +149,7 @@ public class MainWindow {
 		typeJF.setFont(fontEnum.mainFont);
 		typeJF.setVisible(false);
 
-		JComboBox typeComboBox = new JComboBox();
+		JComboBox<String> typeComboBox = new JComboBox<>();
 		for(TypeEnum typeEnum: TypeEnum.values()){
 			if(inputFunction.filterTpye(typeEnum.getLabel()))
 				continue;
@@ -185,15 +167,12 @@ public class MainWindow {
 		for (ZhiXuanAndTimes zhiXuanAndTimes : ZhiXuanAndTimes.values()){
 			Button typeAndTimesButton = new Button(zhiXuanAndTimes.getDesc());
 			typeAndTimesButton.setFont(fontEnum.mainButtonFont);
-			typeAndTimesButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					typeJF.setText(zhiXuanAndTimes.getType());
-					typeComboBox.setSelectedItem(zhiXuanAndTimes.getType());
-					timesComboBox.setSelectedItem(zhiXuanAndTimes.getTimesDesc());
-					timesJF.setText(String.valueOf(zhiXuanAndTimes.getTimes()));
-					confirm.doClick();
-				}
+			typeAndTimesButton.addActionListener(e -> {
+				typeJF.setText(zhiXuanAndTimes.getType());
+				typeComboBox.setSelectedItem(zhiXuanAndTimes.getType());
+				timesComboBox.setSelectedItem(zhiXuanAndTimes.getTimesDesc());
+				timesJF.setText(String.valueOf(zhiXuanAndTimes.getTimes()));
+				confirm.doClick();
 			});
 			zhiXuanAndTimesPanel.add(typeAndTimesButton);
 			zhiXuanAndTimesPanel = componentInit.addSpace(zhiXuanAndTimesPanel,1);
@@ -204,15 +183,12 @@ public class MainWindow {
 		for (ZhuXuanAndTimes zhuXuanAndTimes : ZhuXuanAndTimes.values()){
 			Button typeAndTimesButton = new Button(zhuXuanAndTimes.getDesc());
 			typeAndTimesButton.setFont(fontEnum.mainButtonFont);
-			typeAndTimesButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					typeJF.setText(zhuXuanAndTimes.getType());
-					typeComboBox.setSelectedItem(zhuXuanAndTimes.getType());
-					timesComboBox.setSelectedItem(zhuXuanAndTimes.getTimesDesc());
-					timesJF.setText(String.valueOf(zhuXuanAndTimes.getTimes()));
-					confirm.doClick();
-				}
+			typeAndTimesButton.addActionListener(e -> {
+				typeJF.setText(zhuXuanAndTimes.getType());
+				typeComboBox.setSelectedItem(zhuXuanAndTimes.getType());
+				timesComboBox.setSelectedItem(zhuXuanAndTimes.getTimesDesc());
+				timesJF.setText(String.valueOf(zhuXuanAndTimes.getTimes()));
+				confirm.doClick();
 			});
 			zhuXuanAndTimesPanel.add(typeAndTimesButton);
 			zhuXuanAndTimesPanel = componentInit.addSpace(zhuXuanAndTimesPanel,1);
@@ -223,15 +199,12 @@ public class MainWindow {
 		for (ZhuSanAndTimes zhuSanAndTimes : ZhuSanAndTimes.values()){
 			Button typeAndTimesButton = new Button(zhuSanAndTimes.getDesc());
 			typeAndTimesButton.setFont(fontEnum.mainButtonFont);
-			typeAndTimesButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					typeJF.setText(zhuSanAndTimes.getType());
-					typeComboBox.setSelectedItem(zhuSanAndTimes.getType());
-					timesComboBox.setSelectedItem(zhuSanAndTimes.getTimesDesc());
-					timesJF.setText(String.valueOf(zhuSanAndTimes.getTimes()));
-					confirm.doClick();
-				}
+			typeAndTimesButton.addActionListener(e -> {
+				typeJF.setText(zhuSanAndTimes.getType());
+				typeComboBox.setSelectedItem(zhuSanAndTimes.getType());
+				timesComboBox.setSelectedItem(zhuSanAndTimes.getTimesDesc());
+				timesJF.setText(String.valueOf(zhuSanAndTimes.getTimes()));
+				confirm.doClick();
 			});
 			zhuSanAndTimesPanel.add(typeAndTimesButton);
 			zhuSanAndTimesPanel = componentInit.addSpace(zhuSanAndTimesPanel,1);
@@ -242,15 +215,12 @@ public class MainWindow {
 		for (ZhuLiuAndTimes zhuLiuAndTimes : ZhuLiuAndTimes.values()){
 			Button typeAndTimesButton = new Button(zhuLiuAndTimes.getDesc());
 			typeAndTimesButton.setFont(fontEnum.mainButtonFont);
-			typeAndTimesButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					typeJF.setText(zhuLiuAndTimes.getType());
-					typeComboBox.setSelectedItem(zhuLiuAndTimes.getType());
-					timesComboBox.setSelectedItem(zhuLiuAndTimes.getTimesDesc());
-					timesJF.setText(String.valueOf(zhuLiuAndTimes.getTimes()));
-					confirm.doClick();
-				}
+			typeAndTimesButton.addActionListener(e -> {
+				typeJF.setText(zhuLiuAndTimes.getType());
+				typeComboBox.setSelectedItem(zhuLiuAndTimes.getType());
+				timesComboBox.setSelectedItem(zhuLiuAndTimes.getTimesDesc());
+				timesJF.setText(String.valueOf(zhuLiuAndTimes.getTimes()));
+				confirm.doClick();
 			});
 			zhuLiuAndTimesPanel.add(typeAndTimesButton);
 			zhuLiuAndTimesPanel = componentInit.addSpace(zhuLiuAndTimesPanel,1);
@@ -371,21 +341,13 @@ public class MainWindow {
 			}
 		});
 
-		choicePrice.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				Choice choice = (Choice) e.getItemSelectable();
-				priceJF.setText(choice.getSelectedItem());
-				globalVariable.selectPrice = choice.getSelectedItem();
-			}
+		choicePrice.addItemListener(e -> {
+			Choice choice = (Choice) e.getItemSelectable();
+			priceJF.setText(choice.getSelectedItem());
+			globalVariable.selectPrice = choice.getSelectedItem();
 		});
 
-		timesComboBox.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				timesJF.setText(timesComboBox.getSelectedItem().toString().replace("倍",""));
-			}
-		});
+		timesComboBox.addItemListener(e -> timesJF.setText(Objects.requireNonNull(timesComboBox.getSelectedItem()).toString().replace("倍","")));
 		timesComboBox.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -393,12 +355,7 @@ public class MainWindow {
 			}
 		});
 
-		typeTwoComboBox.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				typeTwoJF.setText(typeTwoComboBox.getSelectedItem().toString());
-			}
-		});
+		typeTwoComboBox.addItemListener(e -> typeTwoJF.setText(Objects.requireNonNull(typeTwoComboBox.getSelectedItem()).toString()));
 		typeTwoComboBox.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -406,12 +363,7 @@ public class MainWindow {
 			}
 		});
 
-		typeComboBox.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				typeJF.setText(typeComboBox.getSelectedItem().toString());
-			}
-		});
+		typeComboBox.addItemListener(e -> typeJF.setText(Objects.requireNonNull(typeComboBox.getSelectedItem()).toString()));
 		typeComboBox.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -419,46 +371,38 @@ public class MainWindow {
 			}
 		});
 
-		reset.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				sdSerialNumberJTA.setText("");
-			}
-		});
+		reset.addActionListener(e -> sdSerialNumberJTA.setText(""));
 
-		clean.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				//globalVariable.tickets = new TicketList();
-				//showOneSummaryJPanel.removeAll();
-				//showOneSummaryJPanel.revalidate();
-				//showOneSummaryJPanel.repaint();
-				globalVariable.mainFrame.revalidate();
-				//titleJF.setText("");
-				sdSerialNumberJTA.setText("");
-				groupNumberJF.setText("");
-				//choiceTypeTwo.select(TypeTwoEnum.TICAI.getLabel());
-				//typeTwoJF.setText(TypeTwoEnum.TICAI.getLabel());
-				choicePrice.select(String.valueOf(PriceEnum.TOW.getVal()));
-				priceJF.setText(String.valueOf(PriceEnum.TOW.getVal()));
-				timesComboBox.setSelectedItem(String.valueOf(TimesEnum.ONE.getLabel()));
-				timesJF.setText(String.valueOf(TimesEnum.ONE.getVal()));
-				typeJF.setText(TypeEnum.ZHIXUAN.getLabel());
-				typeComboBox.setSelectedItem(TypeEnum.ZHIXUAN.getLabel());
-				for (JRadioButton jRadioButton : functionList){
-					if (jRadioButton.getText().equals(FunctionType.FEIZUHE.getLabel())){
-						jRadioButton.setSelected(true);
-					}
+		clean.addActionListener(e -> {
+			//globalVariable.tickets = new TicketList();
+			//showOneSummaryJPanel.removeAll();
+			//showOneSummaryJPanel.revalidate();
+			//showOneSummaryJPanel.repaint();
+			globalVariable.mainFrame.revalidate();
+			//titleJF.setText("");
+			sdSerialNumberJTA.setText("");
+			groupNumberJF.setText("");
+			//choiceTypeTwo.select(TypeTwoEnum.TICAI.getLabel());
+			//typeTwoJF.setText(TypeTwoEnum.TICAI.getLabel());
+			choicePrice.select(String.valueOf(PriceEnum.TOW.getVal()));
+			priceJF.setText(String.valueOf(PriceEnum.TOW.getVal()));
+			timesComboBox.setSelectedItem(String.valueOf(TimesEnum.ONE.getLabel()));
+			timesJF.setText(String.valueOf(TimesEnum.ONE.getVal()));
+			typeJF.setText(TypeEnum.ZHIXUAN.getLabel());
+			typeComboBox.setSelectedItem(TypeEnum.ZHIXUAN.getLabel());
+			for (JRadioButton jRadioButton : functionList){
+				if (jRadioButton.getText().equals(FunctionType.FEIZUHE.getLabel())){
+					jRadioButton.setSelected(true);
 				}
-				for (JRadioButton jRadioButton : priceList){
-					if (jRadioButton.getText().equals(String.valueOf(PriceEnum.TOW.getVal()))){
-						jRadioButton.setSelected(true);
-					}
-				}
-				//titlePanel.setVisible(false);
-				//oneSummaryButtonPanel.setVisible(false);
-				//showMainFrame(ModeTypeEnum.CREATE.getVal(),globalVariable);
 			}
+			for (JRadioButton jRadioButton : priceList){
+				if (jRadioButton.getText().equals(String.valueOf(PriceEnum.TOW.getVal()))){
+					jRadioButton.setSelected(true);
+				}
+			}
+			//titlePanel.setVisible(false);
+			//oneSummaryButtonPanel.setVisible(false);
+			//showMainFrame(ModeTypeEnum.CREATE.getVal(),globalVariable);
 		});
 
 /*		ztSerialNumberJF.addCaretListener(new CaretListener() {
@@ -481,165 +425,137 @@ public class MainWindow {
 			}
 		});*/
 
-		confirm.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String serialNumber = sdSerialNumberJTA.getText();
-				String inputPrice = String.format("%.2f", Float.valueOf(priceJF.getText()));
-				String times = timesJF.getText();
-				String type = typeJF.getText();
-				String typeTwo = typeTwoJF.getText();
-				String output = inputFunction.getNumber(globalVariable.tickets,globalVariable.alllistNo,globalVariable.ticketsNo,
-						serialNumber,type,typeTwo,inputPrice,times,globalVariable.functionType);
-				if(output == null || output.equals("fail")){
-					warmWindow.warmWindow("请输入有效数字",fontEnum.warmInfoFont);
-				}else {
-					resultJF.setText(output);
-					if(globalVariable.tickets.getTicketList() != null){
-						titlePanel.setVisible(true);
-						showOneSummaryJPanel = oneSummaryWindow.showOneSummaryFrame(showOneSummaryJPanel,globalVariable);
-					}
-					oneSummaryButtonPanel.setVisible(true);
-					globalVariable.mainFrame.revalidate();
-					JScrollBar vertical = jScrollPane.getVerticalScrollBar();
-					vertical.setValue(vertical.getMaximum());
-					//showMainFrame(ModeTypeEnum.UPDATE.getVal(),globalVariable);
-				}
-			}
-		});
-
-		showTodaySummary.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				SimpleDateFormat sf= new SimpleDateFormat("yyyy-MM-dd");
-				Date date = new Date();
-				String fileName = null;
-				if(titleJF.getText().equals("")){
-					fileName = sf.format(date);
-				}else {
-					fileName = sf.format(date) + " " + titleJF.getText();
-				}
-				List<ShowSummaryList> showSummaryLists = inputFunction.readTodayExcel(globalVariable.filePath,fileName);
-				if(showSummaryLists == null) {
-					warmWindow.warmWindow("没有名为" + fileName +"的汇总文件",fontEnum.warmInfoFont);
-				}else{
-					summaryWindow.showSummary(showSummaryLists,fileName,globalVariable);
-				}
-			}
-		});
-
-		sdSerialNumberJTA.addCaretListener(new CaretListener() {
-			@Override
-			public void caretUpdate(CaretEvent e) {
-				if(!sdSerialNumberJTA.getText().equals("")){
-					Enumeration<AbstractButton> radioBtns=btnGroup.getElements();
-					while (radioBtns.hasMoreElements()) {
-						AbstractButton btn = radioBtns.nextElement();
-						if(btn.isSelected()){
-							globalVariable.functionType=btn.getText();
-							break;
-						}
-					}
-					List<String> groupNumberList = inputFunction.getNumber(sdSerialNumberJTA.getText(),globalVariable.functionType);
-					inputFunction.setPrice(globalVariable,groupNumberList.get(0),priceList,priceJF);
-					int groupNumber = Integer.valueOf(groupNumberList.get(groupNumberList.size()-1));
-					groupNumberJF.setText(String.valueOf(groupNumber));
-					globalVariable.inputSerialNumber = sdSerialNumberJTA.getText();
-				}
-			}
-		});
-
-		note.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				noteWindow.showNoteWindow(globalVariable);
-			}
-		});
-
-		update.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(globalVariable.selectNo.equals("")){
-					warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);
-				}else{
-					updateWindow.showUpdateFrame(globalVariable.selectNo,globalVariable,showOneSummaryJPanel,titlePanel);
-				}
-			}
-		});
-
-		delete.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(globalVariable.selectNo.equals("")){
-					warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);
-				}else {
-					Ticket removeTicket = globalVariable.tickets.getTicketList().get(Integer.valueOf(globalVariable.selectNo));
-					globalVariable.tickets.getTicketList().remove(removeTicket);
+		confirm.addActionListener(e -> {
+			String serialNumber = sdSerialNumberJTA.getText();
+			String inputPrice = String.format("%.2f", Float.valueOf(priceJF.getText()));
+			String times = timesJF.getText();
+			String type = typeJF.getText();
+			String typeTwo = typeTwoJF.getText();
+			String output = inputFunction.getNumber(globalVariable.tickets,globalVariable.alllistNo,globalVariable.ticketsNo,
+					serialNumber,type,typeTwo,inputPrice,times,globalVariable.functionType);
+			if(output == null || output.equals("fail")){
+				warmWindow.warmWindow("请输入有效数字",fontEnum.warmInfoFont);
+			}else {
+				resultJF.setText(output);
+				if(globalVariable.tickets.getTicketList() != null){
+					titlePanel.setVisible(true);
 					showOneSummaryJPanel = oneSummaryWindow.showOneSummaryFrame(showOneSummaryJPanel,globalVariable);
-
-					if(globalVariable.tickets.getTicketList().size() == 0){
-						titlePanel.setVisible(false);
-						showOneSummaryJPanel.removeAll();
-						showOneSummaryJPanel.revalidate();
-						oneSummaryButtonPanel.setVisible(false);
-					}
-					showOneSummaryJPanel.repaint();
-					globalVariable.mainFrame.revalidate();
 				}
+				oneSummaryButtonPanel.setVisible(true);
+				globalVariable.mainFrame.revalidate();
+				JScrollBar vertical = jScrollPane.getVerticalScrollBar();
+				vertical.setValue(vertical.getMaximum());
+				//showMainFrame(ModeTypeEnum.UPDATE.getVal(),globalVariable);
 			}
 		});
 
-		sumbit.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					String result = inputFunction.sumbit(globalVariable.filePath,globalVariable.tickets,titleJF.getText());
-					if(!result.equals("成功")){
-						warmWindow.warmWindow(result,fontEnum.warmInfoFont);
-					}else{
-						globalVariable.ticketsNo.set(0);
-						globalVariable.tickets = new TicketList();
-						globalVariable.selectPrice = "";
+		showTodaySummary.addActionListener(e -> {
+			SimpleDateFormat sf= new SimpleDateFormat("yyyy-MM-dd");
+			Date date = new Date();
+			String fileName = sf.format(date)+".xlsx";
+			if(!titleJF.getText().equals("")){
+				fileName = sf.format(date) + " " + titleJF.getText()+".xlsx";
+			}
+			List<ShowSummaryList> showSummaryLists = inputFunction.readTodayExcel(globalVariable.filePath,fileName);
+			if(showSummaryLists == null) {
+				warmWindow.warmWindow("没有名为" + fileName +"的汇总文件",fontEnum.warmInfoFont);
+			}else{
+				summaryWindow.showSummary(showSummaryLists,fileName,globalVariable);
+			}
+		});
 
-						sdSerialNumberJTA.setText("");
-						groupNumberJF.setText("");
-						//typeTwoComboBox.setSelectedItem(TypeTwoEnum.TICAI.getLabel());
-						//typeTwoJF.setText(TypeTwoEnum.TICAI.getLabel());
-						priceJF.setText(String.valueOf(PriceEnum.TOW.getVal()));
-						timesComboBox.setSelectedItem(String.valueOf(TimesEnum.ONE.getLabel()));
-						timesJF.setText(String.valueOf(TimesEnum.ONE.getVal()));
-						typeJF.setText(TypeEnum.ZHIXUAN.getLabel());
-						typeComboBox.setSelectedItem(TypeEnum.ZHIXUAN.getLabel());
-						for (JRadioButton jRadioButton : functionList){
-							if (jRadioButton.getText().equals(FunctionType.FEIZUHE.getLabel())){
-								jRadioButton.setSelected(true);
-							}
-						}
-						for (JRadioButton jRadioButton : priceList){
-							if (jRadioButton.getText().equals(String.valueOf(PriceEnum.TOW.getVal()))){
-								jRadioButton.setSelected(true);
-							}
-						}
-
-						showOneSummaryJPanel.removeAll();
-						showOneSummaryJPanel.revalidate();
-						showOneSummaryJPanel.repaint();
-
-						titlePanel.setVisible(false);
-						oneSummaryButtonPanel.setVisible(false);
-
-						globalVariable.mainFrame.revalidate();
-						//mainWindow.showMainFrame(ModeTypeEnum.CREATE.getVal(),globalVariable);
+		sdSerialNumberJTA.addCaretListener(e -> {
+			if(!sdSerialNumberJTA.getText().equals("")){
+				Enumeration<AbstractButton> radioBatons=btnGroup.getElements();
+				while (radioBatons.hasMoreElements()) {
+					AbstractButton btn = radioBatons.nextElement();
+					if(btn.isSelected()){
+						globalVariable.functionType=btn.getText();
+						break;
 					}
-				} catch (FileNotFoundException fileNotFoundException) {
-					fileNotFoundException.printStackTrace();
-				} catch (IOException ioException) {
-					ioException.printStackTrace();
-				} catch (WriteException writeException) {
-					writeException.printStackTrace();
-				} catch (BiffException biffException) {
-					biffException.printStackTrace();
 				}
+				List<String> groupNumberList = inputFunction.getNumber(sdSerialNumberJTA.getText(),globalVariable.functionType);
+				inputFunction.setPrice(globalVariable,groupNumberList.get(0),priceList,priceJF);
+				int groupNumber = Integer.parseInt(groupNumberList.get(groupNumberList.size()-1));
+				groupNumberJF.setText(String.valueOf(groupNumber));
+				globalVariable.inputSerialNumber = sdSerialNumberJTA.getText();
+			}
+		});
+
+		note.addActionListener(e -> noteWindow.showNoteWindow(globalVariable));
+
+		update.addActionListener(e -> {
+			if(globalVariable.selectNo.equals("")){
+				warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);
+			}else{
+				updateWindow.showUpdateFrame(globalVariable.selectNo,globalVariable,showOneSummaryJPanel);
+				globalVariable.selectNo = "";
+			}
+		});
+
+		delete.addActionListener(e -> {
+			if(globalVariable.selectNo.equals("")){
+				warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);
+			}else {
+				Ticket removeTicket = globalVariable.tickets.getTicketList().get(Integer.parseInt(globalVariable.selectNo));
+				globalVariable.tickets.getTicketList().remove(removeTicket);
+				showOneSummaryJPanel = oneSummaryWindow.showOneSummaryFrame(showOneSummaryJPanel,globalVariable);
+
+				if(globalVariable.tickets.getTicketList().size() == 0){
+					titlePanel.setVisible(false);
+					showOneSummaryJPanel.removeAll();
+					showOneSummaryJPanel.revalidate();
+					oneSummaryButtonPanel.setVisible(false);
+				}
+
+				globalVariable.selectNo = "";
+				showOneSummaryJPanel.repaint();
+				globalVariable.mainFrame.revalidate();
+			}
+		});
+
+		sumbit.addActionListener(e -> {
+			try {
+				String result = inputFunction.sumbit(globalVariable.filePath,globalVariable.tickets,titleJF.getText());
+				if(!result.equals("成功")){
+					warmWindow.warmWindow(result,fontEnum.warmInfoFont);
+				}else{
+					globalVariable.ticketsNo.set(0);
+					globalVariable.tickets = new TicketList();
+					globalVariable.selectPrice = "";
+
+					sdSerialNumberJTA.setText("");
+					groupNumberJF.setText("");
+					//typeTwoComboBox.setSelectedItem(TypeTwoEnum.TICAI.getLabel());
+					//typeTwoJF.setText(TypeTwoEnum.TICAI.getLabel());
+					priceJF.setText(String.valueOf(PriceEnum.TOW.getVal()));
+					timesComboBox.setSelectedItem(String.valueOf(TimesEnum.ONE.getLabel()));
+					timesJF.setText(String.valueOf(TimesEnum.ONE.getVal()));
+					typeJF.setText(TypeEnum.ZHIXUAN.getLabel());
+					typeComboBox.setSelectedItem(TypeEnum.ZHIXUAN.getLabel());
+					for (JRadioButton jRadioButton : functionList){
+						if (jRadioButton.getText().equals(FunctionType.FEIZUHE.getLabel())){
+							jRadioButton.setSelected(true);
+						}
+					}
+					for (JRadioButton jRadioButton : priceList){
+						if (jRadioButton.getText().equals(String.valueOf(PriceEnum.TOW.getVal()))){
+							jRadioButton.setSelected(true);
+						}
+					}
+
+					showOneSummaryJPanel.removeAll();
+					showOneSummaryJPanel.revalidate();
+					showOneSummaryJPanel.repaint();
+
+					titlePanel.setVisible(false);
+					oneSummaryButtonPanel.setVisible(false);
+
+					globalVariable.mainFrame.revalidate();
+					//mainWindow.showMainFrame(ModeTypeEnum.CREATE.getVal(),globalVariable);
+				}
+			} catch (IOException | WriteException | BiffException fileNotFoundException) {
+				fileNotFoundException.printStackTrace();
 			}
 		});
 

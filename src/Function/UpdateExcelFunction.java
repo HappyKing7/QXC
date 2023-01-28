@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UpdateExcelFunction {
-	private static InputFunction inputFunction = new InputFunction();
+	private static final InputFunction inputFunction = new InputFunction();
 
 	public String updateExcel(String filePath, GlobalVariable globalVariable) throws BiffException, IOException, WriteException {
 		Map<String,UpdateExcel> updateExcelMap = globalVariable.updateExcelMap;
@@ -24,7 +24,7 @@ public class UpdateExcelFunction {
 		Workbook wrb = Workbook.getWorkbook(file);
 		Sheet readSheet = wrb.getSheet(0);
 
-		WritableWorkbook workbook = null;
+		WritableWorkbook workbook;
 		try {
 			workbook = Workbook.createWorkbook(file, wrb);
 		} catch (IOException e) {
@@ -66,10 +66,10 @@ public class UpdateExcelFunction {
 
 		String no = ssl.getNo();
 		String[] details = ss.getDetail().split(",");
-		String totalMoney = String.format("%.2f",Float.valueOf(inputFunction.moneyRemoveChinese(fssl.getTotalMoney(),"总计","元"))
-				- Float.valueOf(inputFunction.moneyRemoveChinese(details[4],"总","元")));
-		String totalPrice = String.format("%.2f",Float.valueOf(inputFunction.moneyRemoveChinese(ssl.getTotalPrice(),"总共","元"))
-				- Float.valueOf(inputFunction.moneyRemoveChinese(details[4],"总","元")));
+		String totalMoney = String.format("%.2f", inputFunction.moneyRemoveChinese(fssl.getTotalMoney(),"总计","元")
+				- inputFunction.moneyRemoveChinese(details[4],"总","元"));
+		String totalPrice = String.format("%.2f", inputFunction.moneyRemoveChinese(ssl.getTotalPrice(),"总共","元")
+				- inputFunction.moneyRemoveChinese(details[4],"总","元"));
 		String note = ssl.getNote();
 		String serialNumber = ss.getSerialNumber();
 
@@ -78,7 +78,7 @@ public class UpdateExcelFunction {
 		Workbook wrb = Workbook.getWorkbook(file);
 		Sheet readSheet = wrb.getSheet(0);
 
-		WritableWorkbook workbook = null;
+		WritableWorkbook workbook;
 		try {
 			workbook = Workbook.createWorkbook(file, wrb);
 		} catch (IOException e) {
@@ -121,7 +121,7 @@ public class UpdateExcelFunction {
 				if (excelNo.equals(""))
 					continue;
 
-				excelNo = String.valueOf(Integer.valueOf(excelNo.replace("序列",""))-1);
+				excelNo = String.valueOf(Integer.parseInt(excelNo.replace("序列",""))-1);
 				updateExcelDate(writableSheet,0,i,"序列"+excelNo);
 			}
 		}

@@ -4,7 +4,7 @@ public enum ModeTypeEnum {
 	CREATE("创建", 0),
 	UPDATE("刷新", 1);
 
-	private String label;
+	private final String label;
 	private final int val;
 
 	ModeTypeEnum(String label, int val) {

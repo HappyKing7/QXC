@@ -6,14 +6,12 @@ import Function.ComponentInit;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class NoteWindow {
-	private static FontEnum fontEnum = new FontEnum();
-	private static ComponentInit componentInit = new ComponentInit();
+	private final FontEnum fontEnum = new FontEnum();
+	private final ComponentInit componentInit = new ComponentInit();
 
 	public void showNoteWindow(GlobalVariable globalVariable){
 		//备注
@@ -42,12 +40,9 @@ public class NoteWindow {
 			}
 		});
 
-		noteButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				globalVariable.tickets.setNote(noteJF.getText());
-				noteFrame.dispose();
-			}
+		noteButton.addActionListener(e -> {
+			globalVariable.tickets.setNote(noteJF.getText());
+			noteFrame.dispose();
 		});
 	}
 }

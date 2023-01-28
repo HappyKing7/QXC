@@ -16,7 +16,7 @@ public enum TimesEnum {
 	NINE("9倍", 9),
 	TEN("10倍", 10);
 
-	private String label;
+	private final String label;
 	private final int val;
 
 	private static final Map<String,TimesEnum> STATUS_2_ENUM_MAP = new HashMap<>();

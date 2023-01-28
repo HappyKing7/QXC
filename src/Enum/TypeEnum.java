@@ -84,7 +84,7 @@ public enum TypeEnum {
 	FSJM("复式九码", 0);
 
 	private static final Map<Integer,TypeEnum> ENUM_MAP = new HashMap<>();
-	private String label;
+	private final String label;
 	private int val;
 
 	static {

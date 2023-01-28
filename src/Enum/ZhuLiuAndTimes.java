@@ -13,10 +13,10 @@ public enum ZhuLiuAndTimes {
 	ZHULIUTEN("组六10倍","组六","10倍",10);
 
 
-	private String desc;
-	private String type;
-	private String timesDesc;
-	private Integer times;
+	private final String desc;
+	private final String type;
+	private final String timesDesc;
+	private final Integer times;
 
 	ZhuLiuAndTimes(String desc,String type,String timesDesc,Integer times) {
 		this.desc = desc;

@@ -1,7 +1,5 @@
 package Bean;
 
-import Bean.Ticket;
-
 import java.util.List;
 
 public class TicketList {
