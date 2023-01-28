@@ -18,7 +18,7 @@ public class UpdateWindow {
 	private final OneSummaryWindow oneSummaryWindow = new OneSummaryWindow();
 	private JPanel showOneSummaryJPanel = new JPanel();
 
-	public void showUpdateFrame(String ticketsNo, GlobalVariable globalVariable,JPanel showOneSummaryPanel){
+	public JFrame showUpdateFrame(String ticketsNo, GlobalVariable globalVariable,JPanel showOneSummaryPanel){
 		Ticket ticket = globalVariable.tickets.getTicketList().get(Integer.parseInt(ticketsNo));
 		showOneSummaryJPanel = showOneSummaryPanel;
 		JPanel jPanel = new JPanel();
@@ -115,7 +115,7 @@ public class UpdateWindow {
 		updatePanel.add(update);
 
 		//添加控件
-		Frame frame=new Frame("修改序列号");
+		JFrame frame=new JFrame("修改序列号");
 		jPanel.add(serialNumberPanel);
 		jPanel.add(priceAndTypePanel);
 		jPanel.add(updatePanel);
@@ -172,5 +172,7 @@ public class UpdateWindow {
 				groupNumberJF.setText(String.valueOf(groupNumber));
 			}
 		});
+
+		return frame;
 	}
 }

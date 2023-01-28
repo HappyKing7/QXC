@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SummaryWindow {
@@ -25,6 +26,9 @@ public class SummaryWindow {
 	private static String selectOneNo = "";
 	private static String selectTwoNo = "";
 
+	//窗口
+	private JFrame updateJFrame = new JFrame();
+
 	public void showSummary(List<ShowSummaryList> showSummaryLists, String fileName, GlobalVariable globalVariable){
 		Frame frame = new Frame("汇总");
 		JLabel title = new JLabel(fileName+"数据",JLabel.CENTER);
@@ -32,6 +36,7 @@ public class SummaryWindow {
 
 		JPanel panel =  new JPanel();
 		ButtonGroup btnGroup = new ButtonGroup();
+		List<JRadioButton> jRadioButtonList = new ArrayList<>();
 		int selectNo = 1;
 		for (int i = 0; i < showSummaryLists.size(); i++) {
 			ShowSummaryList ssl = showSummaryLists.get(i);
@@ -48,6 +53,7 @@ public class SummaryWindow {
 					selectTwoNo = strings[0].split(" ")[1];
 				});
 				btnGroup.add(selectButton);
+				jRadioButtonList.add(selectButton);
 
 				ShowSummary ss = ssl.getShowSummaryList().get(j);
 				if(j==0){
@@ -131,6 +137,9 @@ public class SummaryWindow {
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
+				for (int i = 0; i < jRadioButtonList.size(); i++) {
+					jRadioButtonList.get(i).setSelected(false);
+				}
 				frame.dispose();
 			}
 		});
@@ -139,7 +148,8 @@ public class SummaryWindow {
 			if(selectOneNo.equals("")){
 				warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);
 			}else {
-				updateExcelWindow.showUpdateExcel(Integer.valueOf(selectOneNo),Integer.valueOf(selectTwoNo),
+				updateJFrame.dispose();
+				updateJFrame = updateExcelWindow.showUpdateExcel(Integer.valueOf(selectOneNo),Integer.valueOf(selectTwoNo),
 						fileName, showSummaryLists,globalVariable,frame);
 				selectOneNo = "";
 				selectTwoNo = "";
@@ -147,7 +157,7 @@ public class SummaryWindow {
 		});
 
 		delete.addActionListener(e -> {
-			String filePath = globalVariable.filePath+ "/" + fileName + ".xlsx";
+			String filePath = globalVariable.filePath+ "/" + fileName;
 			try {
 				if(selectOneNo.equals("")){
 					warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);

@@ -26,6 +26,10 @@ public class MainWindow {
 	private final NoteWindow noteWindow = new NoteWindow();
 	private JPanel showOneSummaryJPanel = new JPanel();
 
+	//窗口
+	private JFrame updateJFrame = new JFrame();
+	private JFrame noteJFrame = new JFrame();
+
 	public void showMainFrame(int mode, GlobalVariable globalVariable){
 		//初始化
 		globalVariable.mainFrame.removeAll();
@@ -482,13 +486,17 @@ public class MainWindow {
 			}
 		});
 
-		note.addActionListener(e -> noteWindow.showNoteWindow(globalVariable));
+		note.addActionListener(e -> {
+			noteJFrame.dispose();
+			noteJFrame = noteWindow.showNoteWindow(globalVariable);
+		});
 
 		update.addActionListener(e -> {
+			updateJFrame.dispose();
 			if(globalVariable.selectNo.equals("")){
 				warmWindow.warmWindow("请先选择一条记录",fontEnum.warmInfoFont);
 			}else{
-				updateWindow.showUpdateFrame(globalVariable.selectNo,globalVariable,showOneSummaryJPanel);
+				updateJFrame = updateWindow.showUpdateFrame(globalVariable.selectNo,globalVariable,showOneSummaryJPanel);
 				globalVariable.selectNo = "";
 			}
 		});

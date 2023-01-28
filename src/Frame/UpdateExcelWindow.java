@@ -21,7 +21,7 @@ public class UpdateExcelWindow {
 	private final ComponentInit componentInit = new ComponentInit();
 	private final UpdateExcelFunction updateExcelFunction = new UpdateExcelFunction();
 
-	public void showUpdateExcel(Integer selectOneNo, Integer selectTwoNo, String fileName,
+	public JFrame showUpdateExcel(Integer selectOneNo, Integer selectTwoNo, String fileName,
 								List<ShowSummaryList> showSummaryLists, GlobalVariable globalVariable,Frame summaryFrame){
 		ShowSummaryList fssl = showSummaryLists.get(0);
 		ShowSummaryList ssl = showSummaryLists.get(selectOneNo);
@@ -129,7 +129,7 @@ public class UpdateExcelWindow {
 		updatePanel.add(update);
 
 		//添加控件
-		Frame frame=new Frame("修改序列号");
+		JFrame frame=new JFrame("修改序列号");
 		jPanel.add(serialNumberPanel);
 		if(selectTwoNo == 0){
 			jPanel.add(notePanel);
@@ -217,5 +217,7 @@ public class UpdateExcelWindow {
 				groupNumberJF.setText(String.valueOf(groupNumber));
 			}
 		});
+
+		return frame;
 	}
 }

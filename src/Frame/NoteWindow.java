@@ -13,7 +13,7 @@ public class NoteWindow {
 	private final FontEnum fontEnum = new FontEnum();
 	private final ComponentInit componentInit = new ComponentInit();
 
-	public void showNoteWindow(GlobalVariable globalVariable){
+	public JFrame showNoteWindow(GlobalVariable globalVariable){
 		//备注
 		JTextField noteJF=new JTextField(globalVariable.tickets.getNote(),70);
 		noteJF.setFont(fontEnum.mainFont);
@@ -24,7 +24,7 @@ public class NoteWindow {
 		JPanel jPanel = componentInit.iniJPanel(new JPanel(),"备注",noteJF);
 		jPanel.add(noteButton);
 
-		Frame noteFrame = new Frame("备注");
+		JFrame noteFrame = new JFrame("备注");
 		noteFrame.add(jPanel);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -44,5 +44,7 @@ public class NoteWindow {
 			globalVariable.tickets.setNote(noteJF.getText());
 			noteFrame.dispose();
 		});
+
+		return noteFrame;
 	}
 }
