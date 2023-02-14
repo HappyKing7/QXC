@@ -16,6 +16,7 @@ import java.util.Objects;
 public class UpdateExcelWindow {
 	private final FontEnum fontEnum = new FontEnum();
 	private final WarmWindow warmWindow = new WarmWindow();
+	private final NoteFunction noteFunction = new NoteFunction();
 	private final InputFunction inputFunction = new InputFunction();
 	private final SummaryWindow summaryWindow = new SummaryWindow();
 	private final ComponentInit componentInit = new ComponentInit();
@@ -122,6 +123,15 @@ public class UpdateExcelWindow {
 		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"类型",typeComboBox);
 		//第三行 备注
 		JPanel notePanel = componentInit.iniJPanel(new JPanel(),"备注",noteJF);
+
+		List<String> noteList = noteFunction.readNoteExcel(globalVariable.filePath);
+		JComboBox<String> noteComboBox = new JComboBox<>();
+		noteComboBox.addItem("快速选择");
+		for (String s : noteList) {
+			noteComboBox.addItem(s);
+			noteComboBox.setFont(fontEnum.mainFont);
+		}
+
 		//第四行 按钮
 		JPanel updatePanel=new JPanel();
 		Button update = new Button("修改");
@@ -132,6 +142,7 @@ public class UpdateExcelWindow {
 		JFrame frame=new JFrame("修改序列号");
 		jPanel.add(serialNumberPanel);
 		if(selectTwoNo == 0){
+			notePanel.add(noteComboBox);
 			jPanel.add(notePanel);
 		}
 		jPanel.add(priceAndTypePanel);
@@ -171,6 +182,14 @@ public class UpdateExcelWindow {
 			}
 		});
 
+		noteComboBox.addItemListener(e -> noteJF.setText(Objects.requireNonNull(noteComboBox.getSelectedItem()).toString()));
+		noteComboBox.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				noteComboBox.setPopupVisible(true);
+			}
+		});
+
 		update.addActionListener(e -> {
 			float oldDetailPrice = inputFunction.moneyRemoveChinese(details[4],"总","元");
 			float oldTotalPrice = inputFunction.moneyRemoveChinese(ssl.getTotalPrice(),"总共","元");
@@ -196,7 +215,7 @@ public class UpdateExcelWindow {
 			globalVariable.updateExcelMap.put(no,updateExcel);
 
 			try {
-				String filePath = globalVariable.filePath+ "/" + fileName;
+				String filePath = globalVariable.filePath+fileName;
 				String result = updateExcelFunction.updateExcel(filePath,globalVariable);
 				if(!result.equals("success")){
 					warmWindow.warmWindow(result,fontEnum.warmInfoFont);

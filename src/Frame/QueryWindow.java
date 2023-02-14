@@ -74,7 +74,7 @@ public class QueryWindow {
 		JLabel zhongJiangNumberTitle=new JLabel("中奖号码");
 		zhongJiangNumberTitle.setFont(fontEnum.oneSummaryPlainFont);
 
-		String[] columnNames = {"序列号","详情","中奖号码","中奖金额"};
+		String[] columnNames = {"序列号","详情","中奖号码","中奖金额","备注"};
 		String[][] tableData =  new String[0][0];
 
 		DefaultTableModel defaultTableModel = new DefaultTableModel(tableData,columnNames);
@@ -89,7 +89,7 @@ public class QueryWindow {
 		JTableHeader jTableHeader = jTable.getTableHeader();
 		jTableHeader.setFont(fontEnum.tableFont);
 
-		int[] width={110,500,900,900};
+		int[] width={110,500,900,700,400};
 		TableColumnModel tableColumnModel = jTable.getColumnModel();
 		for (int i = 0; i < tableColumnModel.getColumnCount(); i++) {
 			TableColumn tableColumn = tableColumnModel.getColumn(i);
@@ -107,9 +107,11 @@ public class QueryWindow {
 		//按钮
 		Button confirmButton = new Button("确定");
 		Button resetButton = new Button("重置");
+		Button copyButton = new Button("复制");
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.add(confirmButton);
 		buttonPanel.add(resetButton);
+		//buttonPanel.add(copyButton);
 		buttonPanel.setFont(fontEnum.mainButtonFont);
 
 		//添加控件
@@ -123,9 +125,9 @@ public class QueryWindow {
 		northJPanel.add(fileNamePanel);
 
 		//第二行 开奖号码+类别
-		JPanel kaiJiangAndTypePanel = componentInit.iniJPanel(new JPanel(),"类别",typeTwoPanel);
+		JPanel kaiJiangAndTypePanel = componentInit.iniJPanel(new JPanel(),"类型",typeComboBox);
 		kaiJiangAndTypePanel = componentInit.addSpace(kaiJiangAndTypePanel,1);
-		kaiJiangAndTypePanel = componentInit.iniJPanel(kaiJiangAndTypePanel,"类型",typeComboBox);
+		kaiJiangAndTypePanel = componentInit.iniJPanel(kaiJiangAndTypePanel,"类别",typeTwoPanel);
 		kaiJiangAndTypePanel = componentInit.addSpace(kaiJiangAndTypePanel,1);
 		kaiJiangAndTypePanel = componentInit.initJPanel(kaiJiangAndTypePanel,"开奖号码",kaiJiangNumberJF);
 		kaiJiangAndTypePanel = componentInit.addSpace(kaiJiangAndTypePanel,2);
@@ -144,9 +146,15 @@ public class QueryWindow {
 		jFrame.add(northJPanel, BorderLayout.NORTH);
 		jFrame.add(jScrollPane, BorderLayout.CENTER);
 
-		//窗口设置
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		jFrame.setBounds((screenSize.width - 1700) / 2, (screenSize.height - 800) / 2, 1700, 800);
+		//窗口设置
+		/*jFrame.setBounds((screenSize.width - 1700) / 2, (screenSize.height - 800) / 2, 1700, 800);
+		jFrame.setVisible(true);*/
+
+		//全屏
+		Rectangle bounds = new Rectangle(screenSize);
+		jFrame.setBounds(bounds);
+		jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		jFrame.setVisible(true);
 
 		//注册监听器
@@ -177,7 +185,7 @@ public class QueryWindow {
 			jFileChooser.showOpenDialog(jFileChooser);
 			File selectedFile = jFileChooser.getSelectedFile();
 			if(selectedFile != null)
-				fileNameJF.setText(selectedFile.getName());
+				fileNameJF.setText(selectedFile.getName().replace(".xlsx",""));
 		});
 
 		typeComboBox.addItemListener(e -> typeJF.setText(Objects.requireNonNull(typeComboBox.getSelectedItem()).toString()));
@@ -198,14 +206,14 @@ public class QueryWindow {
 			Date date = new Date();
 			String fileName = sf.format(date)+".xlsx";
 			if(!fileNameJF.getText().equals("")){
-				fileName = fileNameJF.getText();
+				fileName = fileNameJF.getText()+".xlsx";
 			}
 
 			List<ShowSummaryList> showSummaryLists = inputFunction.readTodayExcel(globalVariable.filePath,fileName);
 
 			//校验文件是否存在
 			if(showSummaryLists == null) {
-				warmWindow.warmWindow(globalVariable.filePath + fileName + ".xlsx不存在"
+				warmWindow.warmWindow(globalVariable.filePath + fileName + "不存在"
 						,fontEnum.warmInfoFont);
 				return;
 			}
@@ -264,6 +272,17 @@ public class QueryWindow {
 			}
 			typeJF.setText(TypeEnum.ALL.getLabel());
 			typeComboBox.setSelectedItem(TypeEnum.ALL.getLabel());
+		});
+
+		copyButton.addActionListener(e -> queryFunction.copyConText(jTable));
+
+		jTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (e.getClickCount() >= 2){
+					queryFunction.copyConText(jTable);
+				}
+			}
 		});
 	}
 

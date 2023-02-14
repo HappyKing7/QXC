@@ -1,6 +1,6 @@
 package Enum;
 
-public enum ZhiXuanAndTimes {
+public enum ZhiXuanAndTimesEnum {
 	ZHIXUANONE("直选1单","直选","1倍",1),
 	ZHIXUANTWO("直选2单","直选","2倍",2),
 	ZHIXUANTHREE("直选3单","直选","3倍",3),
@@ -18,7 +18,7 @@ public enum ZhiXuanAndTimes {
 	private final String timesDesc;
 	private final Integer times;
 
-	ZhiXuanAndTimes(String desc,String type,String timesDesc,Integer times) {
+	ZhiXuanAndTimesEnum(String desc, String type, String timesDesc, Integer times) {
 		this.desc = desc;
 		this.type = type;
 		this.timesDesc = timesDesc;

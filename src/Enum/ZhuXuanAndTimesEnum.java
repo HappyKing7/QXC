@@ -1,6 +1,6 @@
 package Enum;
 
-public enum ZhuXuanAndTimes {
+public enum ZhuXuanAndTimesEnum {
 	ZHUXUANONE("组选1组","组选","1倍",1),
 	ZHUXUANTWO("组选2组","组选","2倍",2),
 	ZHUXUANTHREE("组选3组","组选","3倍",3),
@@ -17,7 +17,7 @@ public enum ZhuXuanAndTimes {
 	private final String timesDesc;
 	private final Integer times;
 
-	ZhuXuanAndTimes(String desc,String type,String timesDesc,Integer times) {
+	ZhuXuanAndTimesEnum(String desc, String type, String timesDesc, Integer times) {
 		this.desc = desc;
 		this.type = type;
 		this.timesDesc = timesDesc;

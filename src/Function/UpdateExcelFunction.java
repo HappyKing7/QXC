@@ -2,7 +2,6 @@ package Function;
 
 import Bean.*;
 import jxl.Sheet;
-import jxl.Workbook;
 import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableSheet;
@@ -16,22 +15,18 @@ import java.util.Map;
 
 public class UpdateExcelFunction {
 	private static final InputFunction inputFunction = new InputFunction();
+	private static final FileFunction fileFunction = new FileFunction();
 
 	public String updateExcel(String filePath, GlobalVariable globalVariable) throws BiffException, IOException, WriteException {
 		Map<String,UpdateExcel> updateExcelMap = globalVariable.updateExcelMap;
-		File file = new File(filePath);
 
-		Workbook wrb = Workbook.getWorkbook(file);
-		Sheet readSheet = wrb.getSheet(0);
-
-		WritableWorkbook workbook;
-		try {
-			workbook = Workbook.createWorkbook(file, wrb);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return e.getMessage();
+		List<Object> resultList = fileFunction.openFile(filePath);
+		if (resultList == null){
+			return fileFunction.fileWarm(filePath);
 		}
-		WritableSheet writableSheet = workbook.getSheet(0);
+		Sheet readSheet = (Sheet) resultList.get(1);
+		WritableWorkbook workbook = (WritableWorkbook) resultList.get(2);
+		WritableSheet writableSheet = (WritableSheet) resultList.get(3);
 
 		for (int i = 0; i < readSheet.getRows(); i++) {
 			String no = readSheet.getCell(0,i).getContents();
@@ -47,8 +42,7 @@ public class UpdateExcelFunction {
 		}
 
 		workbook.write();
-		workbook.close();
-		wrb.close();
+		fileFunction.closeFile(resultList);
 		return "success";
 	}
 
@@ -73,19 +67,12 @@ public class UpdateExcelFunction {
 		String note = ssl.getNote();
 		String serialNumber = ss.getSerialNumber();
 
-		File file = new File(filePath);
-
-		Workbook wrb = Workbook.getWorkbook(file);
-		Sheet readSheet = wrb.getSheet(0);
-
-		WritableWorkbook workbook;
-		try {
-			workbook = Workbook.createWorkbook(file, wrb);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return e.getMessage();
+		List<Object> resultList = fileFunction.openFile(filePath);
+		if (resultList == null){
+			return fileFunction.fileWarm(filePath);
 		}
-		WritableSheet writableSheet = workbook.getSheet(0);
+		Sheet readSheet = (Sheet) resultList.get(1);
+		WritableSheet writableSheet = (WritableSheet) resultList.get(3);
 
 		int changeNoFlag = 0;
 		for (int i = 0; i < readSheet.getRows(); i++) {
@@ -126,10 +113,8 @@ public class UpdateExcelFunction {
 			}
 		}
 
-
-		workbook.write();
-		workbook.close();
-		wrb.close();
+		fileFunction.closeFile(resultList);
+		File file = (File) resultList.get(4);
 
 		if(totalMoney.equals("0.00")){
 			if(file.delete())

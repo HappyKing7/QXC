@@ -8,6 +8,7 @@ public class ZhongJiang {
 	private String zhongJiangNumber;
 	private String money;
 	private String totalMoney = "0";
+	private String note;
 
 	public Integer getSortNo() {
 		return sortNo;
@@ -63,5 +64,13 @@ public class ZhongJiang {
 
 	public void setTotalMoney(String totalMoney) {
 		this.totalMoney = totalMoney;
+	}
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 }

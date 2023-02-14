@@ -29,6 +29,10 @@ public class MainWindow {
 	//窗口
 	private JFrame updateJFrame = new JFrame();
 	private JFrame noteJFrame = new JFrame();
+	private JFrame warmFrame = new JFrame();
+
+	//只能打开一个
+	private Integer autoWarmFlag = 0;
 
 	public void showMainFrame(int mode, GlobalVariable globalVariable){
 		//初始化
@@ -48,6 +52,7 @@ public class MainWindow {
 		//标题
 		JTextField titleJF=new JTextField(30);
 		titleJF.setFont(fontEnum.mainFont);
+		titleJF.setEditable(false);
 
 		//序列号
 /*		JTextField ztSerialNumberJF=new JTextField(50);
@@ -55,6 +60,7 @@ public class MainWindow {
 		JTextArea sdSerialNumberJTA=new JTextArea(6,50);
 		sdSerialNumberJTA.setFont(fontEnum.mainFont);
 		sdSerialNumberJTA.setLineWrap(true);
+		JScrollPane sp = new JScrollPane(sdSerialNumberJTA);
 		JTextField groupNumberJF=new JTextField(5);
 		groupNumberJF.setEditable(false);
 		groupNumberJF.setDisabledTextColor(Color.BLACK);
@@ -103,6 +109,9 @@ public class MainWindow {
 		}
 
 		//功能选择
+		JButton recognitionInfoButton = componentInit.jButtonInit(new JButton(),"<html>自动识别<br>提示信息</html>");
+		recognitionInfoButton.setVisible(false);
+
 		JPanel functionPanel = new JPanel();
 		ButtonGroup btnGroup = new ButtonGroup();
 		List<JRadioButton> functionList = new ArrayList<>();
@@ -117,6 +126,10 @@ public class MainWindow {
 					groupNumberJF.setText(String.valueOf(groupNumber));
 					globalVariable.inputSerialNumber = sdSerialNumberJTA.getText();
 				}
+				if (functionButton.getText().equals(FunctionType.AUTO.getLabel()))
+					recognitionInfoButton.setVisible(true);
+				else
+					recognitionInfoButton.setVisible(false);
 			});
 			//保留输入信息
 			if(globalVariable.functionType.equals(functionType.getLabel())){
@@ -124,7 +137,8 @@ public class MainWindow {
 			}
 			functionList.add(functionButton);
 			btnGroup.add(functionButton);
-			functionPanel.add(functionButton);
+			if (!functionType.getLabel().equals(FunctionType.AUTO.getLabel()))
+				functionPanel.add(functionButton);
 		}
 
 		//类别
@@ -163,12 +177,29 @@ public class MainWindow {
 
 		//功能按钮
 		JButton confirm = componentInit.jButtonInit(new JButton(),"确定");
+		JButton autoRecognition = componentInit.jButtonInit(new JButton(),"自动识别");
 		JButton clean = componentInit.jButtonInit(new JButton(),"清空");
 		JButton showTodaySummary = componentInit.jButtonInit(new JButton(),"查看汇总");
 
+		//全包按钮
+		JPanel quanBaoPanel = new JPanel();
+		for (QuanBaoEnum quanBao : QuanBaoEnum.values()){
+			Button quanBaoButton = new Button(quanBao.getLabel());
+			quanBaoButton.setFont(fontEnum.mainButtonFont);
+			quanBaoButton.addActionListener(e -> {
+				typeJF.setText(quanBao.getLabel());
+				typeComboBox.setSelectedItem(quanBao.getLabel());
+				timesComboBox.setSelectedItem(TimesEnum.ONE.getLabel());
+				timesJF.setText(String.valueOf(TimesEnum.ONE.getVal()));
+				confirm.doClick();
+			});
+			quanBaoPanel.add(quanBaoButton);
+			quanBaoPanel = componentInit.addSpace(quanBaoPanel,2);
+		}
+
 		//直选倍数按钮
 		JPanel zhiXuanAndTimesPanel = new JPanel();
-		for (ZhiXuanAndTimes zhiXuanAndTimes : ZhiXuanAndTimes.values()){
+		for (ZhiXuanAndTimesEnum zhiXuanAndTimes : ZhiXuanAndTimesEnum.values()){
 			Button typeAndTimesButton = new Button(zhiXuanAndTimes.getDesc());
 			typeAndTimesButton.setFont(fontEnum.mainButtonFont);
 			typeAndTimesButton.addActionListener(e -> {
@@ -184,14 +215,14 @@ public class MainWindow {
 
 		//组选倍数按钮
 		JPanel zhuXuanAndTimesPanel = new JPanel();
-		for (ZhuXuanAndTimes zhuXuanAndTimes : ZhuXuanAndTimes.values()){
-			Button typeAndTimesButton = new Button(zhuXuanAndTimes.getDesc());
+		for (ZhuXuanAndTimesEnum zhuXuanAndTimesEnum : ZhuXuanAndTimesEnum.values()){
+			Button typeAndTimesButton = new Button(zhuXuanAndTimesEnum.getDesc());
 			typeAndTimesButton.setFont(fontEnum.mainButtonFont);
 			typeAndTimesButton.addActionListener(e -> {
-				typeJF.setText(zhuXuanAndTimes.getType());
-				typeComboBox.setSelectedItem(zhuXuanAndTimes.getType());
-				timesComboBox.setSelectedItem(zhuXuanAndTimes.getTimesDesc());
-				timesJF.setText(String.valueOf(zhuXuanAndTimes.getTimes()));
+				typeJF.setText(zhuXuanAndTimesEnum.getType());
+				typeComboBox.setSelectedItem(zhuXuanAndTimesEnum.getType());
+				timesComboBox.setSelectedItem(zhuXuanAndTimesEnum.getTimesDesc());
+				timesJF.setText(String.valueOf(zhuXuanAndTimesEnum.getTimes()));
 				confirm.doClick();
 			});
 			zhuXuanAndTimesPanel.add(typeAndTimesButton);
@@ -200,14 +231,14 @@ public class MainWindow {
 
 		//组三倍数按钮
 		JPanel zhuSanAndTimesPanel = new JPanel();
-		for (ZhuSanAndTimes zhuSanAndTimes : ZhuSanAndTimes.values()){
-			Button typeAndTimesButton = new Button(zhuSanAndTimes.getDesc());
+		for (ZhuSanAndTimesEnum zhuSanAndTimesEnum : ZhuSanAndTimesEnum.values()){
+			Button typeAndTimesButton = new Button(zhuSanAndTimesEnum.getDesc());
 			typeAndTimesButton.setFont(fontEnum.mainButtonFont);
 			typeAndTimesButton.addActionListener(e -> {
-				typeJF.setText(zhuSanAndTimes.getType());
-				typeComboBox.setSelectedItem(zhuSanAndTimes.getType());
-				timesComboBox.setSelectedItem(zhuSanAndTimes.getTimesDesc());
-				timesJF.setText(String.valueOf(zhuSanAndTimes.getTimes()));
+				typeJF.setText(zhuSanAndTimesEnum.getType());
+				typeComboBox.setSelectedItem(zhuSanAndTimesEnum.getType());
+				timesComboBox.setSelectedItem(zhuSanAndTimesEnum.getTimesDesc());
+				timesJF.setText(String.valueOf(zhuSanAndTimesEnum.getTimes()));
 				confirm.doClick();
 			});
 			zhuSanAndTimesPanel.add(typeAndTimesButton);
@@ -216,14 +247,14 @@ public class MainWindow {
 
 		//组六陪数按钮
 		JPanel zhuLiuAndTimesPanel = new JPanel();
-		for (ZhuLiuAndTimes zhuLiuAndTimes : ZhuLiuAndTimes.values()){
-			Button typeAndTimesButton = new Button(zhuLiuAndTimes.getDesc());
+		for (ZhuLiuAndTimesEnum zhuLiuAndTimesEnum : ZhuLiuAndTimesEnum.values()){
+			Button typeAndTimesButton = new Button(zhuLiuAndTimesEnum.getDesc());
 			typeAndTimesButton.setFont(fontEnum.mainButtonFont);
 			typeAndTimesButton.addActionListener(e -> {
-				typeJF.setText(zhuLiuAndTimes.getType());
-				typeComboBox.setSelectedItem(zhuLiuAndTimes.getType());
-				timesComboBox.setSelectedItem(zhuLiuAndTimes.getTimesDesc());
-				timesJF.setText(String.valueOf(zhuLiuAndTimes.getTimes()));
+				typeJF.setText(zhuLiuAndTimesEnum.getType());
+				typeComboBox.setSelectedItem(zhuLiuAndTimesEnum.getType());
+				timesComboBox.setSelectedItem(zhuLiuAndTimesEnum.getTimesDesc());
+				timesJF.setText(String.valueOf(zhuLiuAndTimesEnum.getTimes()));
 				confirm.doClick();
 			});
 			zhuLiuAndTimesPanel.add(typeAndTimesButton);
@@ -248,13 +279,14 @@ public class MainWindow {
 		//第二行 功能选择 + 序列号 + 组数显示 + 重置按钮
 		JPanel sdSerialNumberPanel= new JPanel();
 		sdSerialNumberPanel.add(functionPanel);
-		sdSerialNumberPanel	= componentInit.initJPanel(sdSerialNumberPanel,"序列号",sdSerialNumberJTA);
+		sdSerialNumberPanel.add(recognitionInfoButton);
+		sdSerialNumberPanel	= componentInit.initJPanel(sdSerialNumberPanel,"序列号",sp);
 		Button reset = new Button("重置");
 		reset.setFont(fontEnum.mainFont);
 		sdSerialNumberPanel.add(groupNumberJF);
-		sdSerialNumberPanel= componentInit.iniJPanel(sdSerialNumberPanel,"组");
+		sdSerialNumberPanel = componentInit.iniJPanel(sdSerialNumberPanel,"组");
+		sdSerialNumberPanel.add(clean);
 		//sdSerialNumberPanel.add(reset);
-
 		//第三行 单价 + 倍数 + 类型 + 类别
 		JPanel priceAndTypePanel = new JPanel();
 		priceAndTypePanel.add(typeTwoPanel);
@@ -280,7 +312,8 @@ public class MainWindow {
 		//第七行 提交按钮 + 清空按钮 + 查看今日汇总按钮 + 数字组合按钮
 		JPanel buttonPanel=new JPanel();
 		buttonPanel.add(confirm);
-		buttonPanel.add(clean);
+		buttonPanel.add(autoRecognition);
+		//buttonPanel.add(clean);
 		buttonPanel.add(showTodaySummary);
 		buttonPanel.setFont(fontEnum.mainButtonFont);
 
@@ -295,12 +328,14 @@ public class MainWindow {
 		Button update = new Button("修改");
 		Button delete = new Button("删除");
 		Button sumbit = new Button("下单");
+		Button cleanNow = new Button("清空当前数据");
 		JPanel oneSummaryButtonPanel=new JPanel();
 		oneSummaryButtonPanel.setFont(fontEnum.oneSummaryFont);
 		oneSummaryButtonPanel.add(note);
 		oneSummaryButtonPanel.add(update);
 		oneSummaryButtonPanel.add(delete);
 		oneSummaryButtonPanel.add(sumbit);
+		oneSummaryButtonPanel.add(cleanNow);
 		oneSummaryButtonPanel.setVisible(false);
 
 		//插入组件
@@ -308,6 +343,7 @@ public class MainWindow {
 		jPanel.add(titilePanel);
 		jPanel.add(sdSerialNumberPanel);
 		jPanel.add(priceAndTypePanel);
+		jPanel.add(quanBaoPanel);
 		jPanel.add(zhiXuanAndTimesPanel);
 		jPanel.add(zhuXuanAndTimesPanel);
 		jPanel.add(zhuLiuAndTimesPanel);
@@ -436,7 +472,7 @@ public class MainWindow {
 			String type = typeJF.getText();
 			String typeTwo = typeTwoJF.getText();
 			String output = inputFunction.getNumber(globalVariable.tickets,globalVariable.alllistNo,globalVariable.ticketsNo,
-					serialNumber,type,typeTwo,inputPrice,times,globalVariable.functionType);
+					serialNumber,type,typeTwo,inputPrice,times,globalVariable.functionType,globalVariable.filePath);
 			if(output == null || output.equals("fail")){
 				warmWindow.warmWindow("请输入有效数字",fontEnum.warmInfoFont);
 			}else {
@@ -453,12 +489,18 @@ public class MainWindow {
 			}
 		});
 
+		autoRecognition.addActionListener(e -> {
+			globalVariable.functionType = FunctionType.AUTO.getLabel();
+			confirm.doClick();
+		});
 		showTodaySummary.addActionListener(e -> {
 			SimpleDateFormat sf= new SimpleDateFormat("yyyy-MM-dd");
 			Date date = new Date();
-			String fileName = sf.format(date)+".xlsx";
-			if(!titleJF.getText().equals("")){
-				fileName = sf.format(date) + " " + titleJF.getText()+".xlsx";
+			String fileName;
+			if(titleJF.getText().equals("")){
+				fileName = sf.format(date)+".xlsx";
+			}else{
+				fileName = titleJF.getText()+".xlsx";
 			}
 			List<ShowSummaryList> showSummaryLists = inputFunction.readTodayExcel(globalVariable.filePath,fileName);
 			if(showSummaryLists == null) {
@@ -479,7 +521,8 @@ public class MainWindow {
 					}
 				}
 				List<String> groupNumberList = inputFunction.getNumber(sdSerialNumberJTA.getText(),globalVariable.functionType);
-				inputFunction.setPrice(globalVariable,groupNumberList.get(0),priceList,priceJF);
+				if (globalVariable.functionType.equals(FunctionType.FEIZUHE.getLabel()))
+					inputFunction.setPrice(globalVariable,groupNumberList.get(0),priceList,priceJF);
 				int groupNumber = Integer.parseInt(groupNumberList.get(groupNumberList.size()-1));
 				groupNumberJF.setText(String.valueOf(groupNumber));
 				globalVariable.inputSerialNumber = sdSerialNumberJTA.getText();
@@ -567,5 +610,57 @@ public class MainWindow {
 			}
 		});
 
+		cleanNow.addActionListener(e -> {
+			globalVariable.ticketsNo.set(0);
+			globalVariable.tickets = new TicketList();
+			globalVariable.selectPrice = "";
+
+			showOneSummaryJPanel.removeAll();
+			showOneSummaryJPanel.revalidate();
+			showOneSummaryJPanel.repaint();
+
+			titlePanel.setVisible(false);
+			oneSummaryButtonPanel.setVisible(false);
+
+			globalVariable.mainFrame.revalidate();
+
+		});
+
+		titleJF.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (e.getClickCount() >= 2){
+					titleJF.setEditable(true);
+				}
+			}
+		});
+
+		titleJF.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				titleJF.setEditable(false);
+			}
+		});
+
+		recognitionInfoButton.addActionListener(e -> {
+			String warmInfo = "<html>";
+			warmInfo = warmInfo + "1.组三组六的数字要大写，不能写成组3组6" + "<br>";
+			warmInfo = warmInfo + "2.只支持输入单个打奖号码的不支持一次输入多个打奖号码，例子：“体02567组6 01389组6 各10”这种多个打奖号码的要分开输入" + "<br>";
+			warmInfo = warmInfo + "3.倍数要大写，例子：“162直五倍”可以识别，“162直5倍”识别结果不正确" + "<br>";
+			warmInfo = warmInfo + "4.单价要加上“元米块”其中一个，例子“57 福彩双飞20元”可以识别，“57 福彩双飞20”识别结果不正确" + "<br>";
+			warmInfo = warmInfo + "5.大写的金额只能识别到十以下，大小超过十要用阿拉伯数字，例子“47/45/37各40元体”可以识别，“47/45/37各四十元体”识别结果不正确";
+			if (autoWarmFlag == 0){
+				warmFrame = warmWindow.warmWindow(warmInfo,fontEnum.warmInfoFont);
+				autoWarmFlag = 1;
+			} else {
+				warmFrame.dispose();
+				warmFrame = warmWindow.warmWindow(warmInfo,fontEnum.warmInfoFont);
+				autoWarmFlag = 1;
+			}
+		});
 	}
 }

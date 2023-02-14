@@ -34,6 +34,7 @@ public enum TypeEnum {
 	ZSBM("组三八码", 0),
 	ZSJM("组三九码", 0),
 	ZSQB("组三全包", 0),
+	DZQB("对子全包", 0),
 	KD("跨度", 0),
 	KD0("跨度0", 0),
 	KD1("跨度1",0),
@@ -74,6 +75,10 @@ public enum TypeEnum {
 	HZ25("和值25",0),
 	HZ26("和值26",0),
 	HZ27("和值27",0),
+	HZDA("和值大",0),
+	HZX("和值小",0),
+	HZDAN("和值单",0),
+	HZS("和值双",0),
 	FS("复式",0),
 	FSSANM("复式三码", 0),
 	FSSIM("复式四码", 0),
@@ -130,4 +135,5 @@ public enum TypeEnum {
 		}
 		return typeEnum.getLabel();
 	}
+
 }

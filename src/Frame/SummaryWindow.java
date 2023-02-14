@@ -137,8 +137,8 @@ public class SummaryWindow {
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				for (int i = 0; i < jRadioButtonList.size(); i++) {
-					jRadioButtonList.get(i).setSelected(false);
+				for (JRadioButton jRadioButton : jRadioButtonList) {
+					jRadioButton.setSelected(false);
 				}
 				frame.dispose();
 			}

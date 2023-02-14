@@ -21,6 +21,15 @@ public class ComponentInit {
 		return panel;
 	}
 
+	public JPanel initJPanel(JPanel panel, String lable, JScrollPane jScrollPane){
+		JLabel jLabel = new JLabel(lable);
+		jLabel.setFont(font);
+		panel.add(jLabel);
+		panel.add(jScrollPane);
+		return panel;
+	}
+
+
 	public JPanel initJPanel(JPanel panel, String lable, JTextField jTextField){
 		JLabel jLabel = new JLabel(lable);
 		jLabel.setFont(font);
@@ -106,10 +115,15 @@ public class ComponentInit {
 
 	public JButton jButtonInit(JButton jButton,String label){
 		jButton.setText(label);
-		jButton.setFont(new Font("",Font.PLAIN,20));
 		jButton.setBorder(BorderFactory.createRaisedBevelBorder());
 		jButton.setContentAreaFilled(false);
-		jButton.setPreferredSize(new Dimension(label.length()*30,jButton.getPreferredSize().height));
+		if (!label.contains("<html>自动识别")){
+			jButton.setFont(new Font("",Font.PLAIN,20));
+			jButton.setPreferredSize(new Dimension(label.length()*30,jButton.getPreferredSize().height));
+		} else {
+			jButton.setFont(new Font("",Font.PLAIN,15));
+			jButton.setPreferredSize(new Dimension(label.length()*3,jButton.getPreferredSize().height));
+		}
 		return jButton;
 	}
 }

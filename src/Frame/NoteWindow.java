@@ -3,15 +3,21 @@ package Frame;
 import Bean.*;
 import Enum.*;
 import Function.ComponentInit;
+import Function.NoteFunction;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
+import java.util.Objects;
 
 public class NoteWindow {
 	private final FontEnum fontEnum = new FontEnum();
 	private final ComponentInit componentInit = new ComponentInit();
+	private final NoteFunction noteFunction = new NoteFunction();
 
 	public JFrame showNoteWindow(GlobalVariable globalVariable){
 		//备注
@@ -21,7 +27,16 @@ public class NoteWindow {
 		Button noteButton = new Button("添加备注");
 		noteButton.setFont(fontEnum.mainButtonFont);
 
+		List<String> noteList = noteFunction.readNoteExcel(globalVariable.filePath);
+		JComboBox<String> noteComboBox = new JComboBox<>();
+		noteComboBox.addItem("快速选择");
+		for (String s : noteList) {
+			noteComboBox.addItem(s);
+			noteComboBox.setFont(fontEnum.mainFont);
+		}
+
 		JPanel jPanel = componentInit.iniJPanel(new JPanel(),"备注",noteJF);
+		jPanel = componentInit.iniJPanel(jPanel,"",noteComboBox);
 		jPanel.add(noteButton);
 
 		JFrame noteFrame = new JFrame("备注");
@@ -43,6 +58,14 @@ public class NoteWindow {
 		noteButton.addActionListener(e -> {
 			globalVariable.tickets.setNote(noteJF.getText());
 			noteFrame.dispose();
+		});
+
+		noteComboBox.addItemListener(e -> noteJF.setText(Objects.requireNonNull(noteComboBox.getSelectedItem()).toString()));
+		noteComboBox.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				noteComboBox.setPopupVisible(true);
+			}
 		});
 
 		return noteFrame;

@@ -6,9 +6,14 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 public class QueryFunction {
 	private static Map<String,Float> PEIlV_MAP = new HashMap<>();
@@ -16,26 +21,19 @@ public class QueryFunction {
 	private String zuXuanType = "";
 	private Set<String> zhongJiangDuplicate = new HashSet<>();
 	private final InputFunction inputFunction = new InputFunction();
+	private static final CommonFunction commonFunction = new CommonFunction();
 
 	public Boolean filterType(String label){
-		if(label.contains(TypeEnum.ZL.getLabel()) && label.length()>2){
-			if(!label.contains("全包"))
+		if(commonFunction.quanBaoAndKD(label)){
+			return true;
+		}else {
+			if(label.contains(TypeEnum.HZ.getLabel()) && label.length()>2){
 				return true;
-		}
-		if(label.contains(TypeEnum.ZS.getLabel()) && label.length()>2){
-			if(!label.contains("全包"))
+			}
+			if(label.contains(TypeEnum.FS.getLabel()) && label.length()>2){
 				return true;
+			}
 		}
-		if(label.contains(TypeEnum.KD.getLabel()) && label.length()>2){
-			return true;
-		}
-		if(label.contains(TypeEnum.HZ.getLabel()) && label.length()>2){
-			return true;
-		}
-		if(label.contains(TypeEnum.FS.getLabel()) && label.length()>2){
-			return true;
-		}
-
 		return false;
 	}
 
@@ -47,68 +45,78 @@ public class QueryFunction {
 		for (ShowSummaryList summaryLists : showSummaryLists) {
 			for (int j = 0; j < summaryLists.getShowSummaryList().size(); j++) {
 				ShowSummary showSummary = summaryLists.getShowSummaryList().get(j);
+				String no = summaryLists.getNo();
 				String number = showSummary.getSerialNumber();
 				String excelType = showSummary.getDetail().split(",")[3];
 				String excelTypeTwo = showSummary.getDetail().split(",")[2];
 				String detail = showSummary.getDetail();
+				String note = summaryLists.getNote();
 				zhongJiangType = excelType;
 				if (excelTypeTwo.equals(typeTwo)) {
 					if (excelType.equals(type)) {
 						if (type.equals(TypeEnum.DD.getLabel())) {
-							DD(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+							DD(number, kaiJiangNumber, no, detail, note,zhongJiangNumberList);
 						} else if (type.equals(TypeEnum.ZHIXUAN.getLabel())) {
-							DW(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+							DW(number, kaiJiangNumber, no, detail, note,zhongJiangNumberList);
 						} else if (type.equals(TypeEnum.ZUXUAN.getLabel())) {
-							ZX(number, kaiJiangNumber, summaryLists.getNo(), detail, type, zhongJiangNumberList);
+							ZX(number, kaiJiangNumber, no, detail, type, note, zhongJiangNumberList);
 						} else if (type.equals(TypeEnum.YMDW.getLabel()) || type.equals(TypeEnum.EMDW.getLabel())) {
 							if (number.contains("*")) {
-								DW(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+								DW(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 							}
 						} else if (type.equals(TypeEnum.SF.getLabel())) {
-							SF(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+							SF(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 						} else if (type.equals(TypeEnum.ZS.getLabel())) {
-							ZS(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+							ZS(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 						} else if (type.equals(TypeEnum.ZL.getLabel())) {
-							ZL(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+							ZL(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 						} else if (type.equals(TypeEnum.BZQB.getLabel())) {
-							BZQB(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+							BZQB(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 						} else if (type.equals(TypeEnum.ZLQB.getLabel())) {
-							ZLQB(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+							ZLQB(number, kaiJiangNumber, no, detail, note,  zhongJiangNumberList);
 						} else if (type.equals(TypeEnum.ZSQB.getLabel())) {
-							ZSQB(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+							ZSQB(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
+						} else if (type.equals(TypeEnum.DZQB.getLabel())) {
+							DZQB(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
+						} else if (type.equals(TypeEnum.HZ.getLabel())) {
+							int sum = sumNumber(kaiJiangNumber);
+							HZ(excelType, sum, number, no, detail, note, zhongJiangNumberList);
+						} else if (type.equals(TypeEnum.KD.getLabel())) {
+							int difference = findNumber(kaiJiangNumber);
+							KD(excelType, difference, number, no, detail, note, zhongJiangNumberList);
 						}
 					} else if (type.equals(TypeEnum.ZS.getLabel())) {
 						if(excelType.contains(TypeEnum.ZS.getLabel())){
 							for (int i=TypeEnum.ZSEM.getVal();i <= TypeEnum.ZSQB.getVal();i++){
 								if(Objects.equals(TypeEnum.getLabelByVal(i), excelType)){
-									ZS(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+									ZS(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 								}
 							}
 							if(excelType.equals(TypeEnum.SFZS.getLabel())){
-								ZS(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+								ZS(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 							}
 						}else if(excelType.equals(TypeEnum.ZUXUAN.getLabel()) && allFlag==AllFlagEnum.NOTALL.getVal()){
-							ZX(number, kaiJiangNumber, summaryLists.getNo(), detail, type, zhongJiangNumberList);
+							ZX(number, kaiJiangNumber, no, detail, type, note, zhongJiangNumberList);
 						}
 					} else if (type.equals(TypeEnum.ZL.getLabel())) {
 						if(excelType.contains(TypeEnum.ZL.getLabel())){
 							for (int i=TypeEnum.ZLSM.getVal();i <= TypeEnum.ZLQB.getVal();i++){
 								if(Objects.equals(TypeEnum.getLabelByVal(i), excelType)){
-									ZL(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+									ZL(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 								}
 							}
 							if(excelType.equals(TypeEnum.SFZL.getLabel())){
-								ZL(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
+								ZL(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 							}
 						}else if(excelType.equals(TypeEnum.ZUXUAN.getLabel()) && allFlag==AllFlagEnum.NOTALL.getVal()){
-							ZX(number, kaiJiangNumber, summaryLists.getNo(), detail, type, zhongJiangNumberList);
+							ZX(number, kaiJiangNumber, no, detail, type, note, zhongJiangNumberList);
 						}
 					} else if (type.equals(TypeEnum.KD.getLabel()) && excelType.contains(TypeEnum.KD.getLabel())) {
 						int difference = findNumber(kaiJiangNumber);
-						KD(excelType, difference, number, summaryLists.getNo(), detail, zhongJiangNumberList);
+						KD(excelType, difference, number, no, detail, note, zhongJiangNumberList);
 					} else if (type.equals(TypeEnum.HZ.getLabel()) && excelType.contains(TypeEnum.HZ.getLabel())) {
 						int sum = sumNumber(kaiJiangNumber);
-						HZ(excelType, sum, number, summaryLists.getNo(), detail, zhongJiangNumberList);
+						HZ(excelType, sum, number, no, detail, note, zhongJiangNumberList);
 					}/*else if (type.equals(TypeEnum.ZUXUAN.getLabel()) && allFlag != AllFlagEnum.ALL.getVal()) {
 						if (excelType.contains(TypeEnum.ZS.getLabel())) {
 							ZS(number, kaiJiangNumber, summaryLists.getNo(), detail, zhongJiangNumberList);
@@ -142,7 +150,7 @@ public class QueryFunction {
 	}
 
 	public String[][] transformTableData(List<ZhongJiang> zhongJiangNumberList){
-		String[][] tableData = new String[zhongJiangNumberList.size()+1][4];
+		String[][] tableData = new String[zhongJiangNumberList.size()+1][5];
 		int row = 0;
 		float totalMoney = 0;
 		for (ZhongJiang zhongJiang : zhongJiangNumberList) {
@@ -158,6 +166,7 @@ public class QueryFunction {
 			}else {
 				tableData[row][3] = "赔率异常";
 			}
+			tableData[row][4] = zhongJiang.getNote().replace("备注：","");
 			totalMoney = totalMoney +  Float.parseFloat(zhongJiang.getTotalMoney());
 			row++;
 		}
@@ -166,6 +175,7 @@ public class QueryFunction {
 		tableData[row][1] = "";
 		tableData[row][2] = "";
 		tableData[row][3] = String.format("%.2f", totalMoney);
+		tableData[row][4] = "";
 		return tableData;
 	}
 
@@ -200,17 +210,19 @@ public class QueryFunction {
 		return zhongJiangType;*/
 	}
 
-	public void addNumber(String number,String no, String detail, String zhongJiangNumber, List<ZhongJiang> zhongJiangNumberList){
+	public void addNumber(String number,String no, String detail, String zhongJiangNumber, String note,
+						  List<ZhongJiang> zhongJiangNumberList){
 		ZhongJiang zhongJiang = new ZhongJiang();
 		zhongJiang.setSortNo(Integer.valueOf(no.split("序列")[1]));
 		zhongJiang.setNo(no);
 		zhongJiang.setDetail(detail);
+		zhongJiang.setNote(note);
 
 		Float price = Float.valueOf(detail.split(",")[1].replace("单价",""));
 		//String money = String.format("%.2f", price * PEIlV_MAP.get(getPeiLvType(zhongJiangNumber)));
 
 		String money = String.format("%.2f", price * PEIlV_MAP.get(inputFunction.getType(chooseType(),zhongJiangNumber)));
-		if(zhongJiangDuplicate.contains(no + " " + number)){
+		if(zhongJiangDuplicate.contains(no + " " + number + " " + detail)){
 			zhongJiang = zhongJiangNumberList.get(zhongJiangNumberList.size()-1);
 			/*zhongJiang.setSerialNumber(zhongJiang.getSerialNumber()
 					.replace(zhongJiangNumber,"<span style='color: red'>" + zhongJiangNumber + "</span>"));*/
@@ -218,7 +230,7 @@ public class QueryFunction {
 			zhongJiang.setMoney(zhongJiang.getMoney() + " + "  + money);
 			zhongJiang.setTotalMoney(String.format("%.2f", Float.parseFloat(zhongJiang.getTotalMoney()) + Float.parseFloat(money)));
 		}else{
-			zhongJiangDuplicate.add(no + " " + number);
+			zhongJiangDuplicate.add(no + " " + number + " " + detail);
 
 			if(zhongJiangNumber.equals("")){
 				zhongJiang.setSerialNumber(zhongJiangNumber);
@@ -246,19 +258,21 @@ public class QueryFunction {
 		}
 	}
 
-	public void DD(String number, String kaiJiangNumber, String no, String detail, List<ZhongJiang> zhongJiangNumberList){
+	public void DD(String number, String kaiJiangNumber, String no, String detail, String note,
+				   List<ZhongJiang> zhongJiangNumberList){
 		String[] numbers = number.split(" ");
 		for (String s : numbers) {
 			for (int j = 0; j < kaiJiangNumber.length(); j++) {
 				if (s.contains(String.valueOf(kaiJiangNumber.charAt(j)))) {
-					addNumber(number, no, detail, s, zhongJiangNumberList);
+					addNumber(number, no, detail, s, note, zhongJiangNumberList);
 					break;
 				}
 			}
 		}
 	}
 
-	public void DW(String number, String kaiJiangNumber, String no, String detail, List<ZhongJiang> zhongJiangNumberList){
+	public void DW(String number, String kaiJiangNumber, String no, String detail,  String note,
+				   List<ZhongJiang> zhongJiangNumberList){
 		String[] numbers = number.split(" ");
 		for (String num : numbers) {
 			int flag = 0;
@@ -276,12 +290,13 @@ public class QueryFunction {
 			}
 
 			if (flag == 0) {
-				addNumber(number, no, detail, num, zhongJiangNumberList);
+				addNumber(number, no, detail, num, note, zhongJiangNumberList);
 			}
 		}
 	}
 
-	public void SF(String number, String kaiJiangNumber, String no, String detail, List<ZhongJiang> zhongJiangNumberList){
+	public void SF(String number, String kaiJiangNumber, String no, String detail, String note,
+				   List<ZhongJiang> zhongJiangNumberList){
 		String[] numbers = number.split(" ");
 		for (String s : numbers) {
 			int times = 0;
@@ -295,36 +310,32 @@ public class QueryFunction {
 					}
 				}
 				if (times == 2) {
-					addNumber(number, no, detail, s, zhongJiangNumberList);
+					addNumber(number, no, detail, s, note, zhongJiangNumberList);
 					break;
 				}
 			}
 		}
 	}
 
-	public void ZX(String number, String kaiJiangNumber, String no, String detail, String type, List<ZhongJiang> zhongJiangNumberList){
+	public void ZX(String number, String kaiJiangNumber, String no, String detail, String type, String note,
+				   List<ZhongJiang> zhongJiangNumberList){
 		int a = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(0)));
 		int b = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(1)));
 		int c = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(2)));
 		if((a!=b && a!=c && b!=c) && !type.equals(TypeEnum.ZS.getLabel())){
-			ZL(number,kaiJiangNumber,no,detail,zhongJiangNumberList);
+			ZL(number,kaiJiangNumber,no,detail,note,zhongJiangNumberList);
 		}else if((a==b || a==c || b==c) && !(a==b && b==c) && !type.equals(TypeEnum.ZL.getLabel())){
-			ZS(number,kaiJiangNumber,no,detail,zhongJiangNumberList);
+			ZS(number,kaiJiangNumber,no,detail,note,zhongJiangNumberList);
 		}
 	}
 
-	public Boolean ifABC(String number){
-		int a = Integer.parseInt(String.valueOf(number.charAt(0)));
-		int b = Integer.parseInt(String.valueOf(number.charAt(1)));
-		int c = Integer.parseInt(String.valueOf(number.charAt(2)));
-		return a != b && a != c && b != c;
-	}
 
-	public void ZL(String number, String kaiJiangNumber, String no, String detail, List<ZhongJiang> zhongJiangNumberList){
+	public void ZL(String number, String kaiJiangNumber, String no, String detail, String note,
+				   List<ZhongJiang> zhongJiangNumberList){
 		int a = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(0)));
 		int b = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(1)));
 		int c = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(2)));
-		if((a==b || a==c || b==c) && !detail.contains("全包")){
+		if((a==b || a==c || b==c) || detail.contains("全包")){
 			return;
 		}
 
@@ -334,7 +345,7 @@ public class QueryFunction {
 				if(kaiJiangNumber.contains(String.valueOf(s.charAt(0))) &&
 						kaiJiangNumber.contains(String.valueOf(s.charAt(1))) ){
 					zuXuanType = TypeEnum.ZL.getLabel();
-					addNumber(number, no, detail, s, zhongJiangNumberList);
+					addNumber(number, no, detail, s, note, zhongJiangNumberList);
 				}
 			}else{
 				int times = 0;
@@ -349,7 +360,7 @@ public class QueryFunction {
 				}
 				if (times == 3) {
 					zuXuanType = TypeEnum.ZL.getLabel();
-					addNumber(number, no, detail, s, zhongJiangNumberList);
+					addNumber(number, no, detail, s, note, zhongJiangNumberList);
 				}
 			}
 		}
@@ -368,18 +379,12 @@ public class QueryFunction {
 		return result.toString();
 	}
 
-	public Boolean ifABB(String number){
-		int a = Integer.parseInt(String.valueOf(number.charAt(0)));
-		int b = Integer.parseInt(String.valueOf(number.charAt(1)));
-		int c = Integer.parseInt(String.valueOf(number.charAt(2)));
-		return (a == b || a == c || b == c) && (a != c || b != c);
-	}
-
-	public void ZS(String number, String kaiJiangNumber, String no, String detail, List<ZhongJiang> zhongJiangNumberList){
+	public void ZS(String number, String kaiJiangNumber, String no, String detail, String note,
+				   List<ZhongJiang> zhongJiangNumberList){
 		int a = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(0)));
 		int b = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(1)));
 		int c = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(2)));
-		if(((a!=b && a!=c && b!=c) || (a == c && b == c)) && !detail.contains("全包")){
+		if(((a!=b && a!=c && b!=c) || (a == c && b == c)) || detail.contains("全包")){
 			return;
 		}
 
@@ -390,7 +395,7 @@ public class QueryFunction {
 				String second = String.valueOf(s.charAt(1));
 				if(kaiJiangNumber.contains(first) && kaiJiangNumber.contains(second)){
 					zuXuanType = TypeEnum.ZS.getLabel();
-					addNumber(number, no, detail, s, zhongJiangNumberList);
+					addNumber(number, no, detail, s, note, zhongJiangNumberList);
 				}
 			}else if (s.length()==3){
 				String first = String.valueOf(s.charAt(0));
@@ -403,7 +408,7 @@ public class QueryFunction {
 					Arrays.sort(charS);
 					if(String.valueOf(charK).equals(String.valueOf(charS))){
 						zuXuanType = TypeEnum.ZS.getLabel();
-						addNumber(number, no, detail, s, zhongJiangNumberList);
+						addNumber(number, no, detail, s, note, zhongJiangNumberList);
 					}
 				}else if(!detail.contains(TypeEnum.ZUXUAN.getLabel())){
 					int times = 0;
@@ -418,7 +423,7 @@ public class QueryFunction {
 					}
 					if(times == 2){
 						zuXuanType = TypeEnum.ZS.getLabel();
-						addNumber(number, no, detail, s, zhongJiangNumberList);
+						addNumber(number, no, detail, s, note, zhongJiangNumberList);
 					}
 				}
 			}else{
@@ -436,31 +441,34 @@ public class QueryFunction {
 				}
 				if (times == 2) {
 					zuXuanType = TypeEnum.ZS.getLabel();
-					addNumber(number, no, detail, s, zhongJiangNumberList);
+					addNumber(number, no, detail, s, note, zhongJiangNumberList);
 				}
 			}
 		}
 	}
 
-	public void BZQB(String number,String kaiJiangNumber, String no, String detail, List<ZhongJiang> zhongJiangNumberList) {
+	public void BZQB(String number,String kaiJiangNumber, String no, String detail, String note,
+					 List<ZhongJiang> zhongJiangNumberList) {
 		String first = String.valueOf(kaiJiangNumber.charAt(0));
 		String second = String.valueOf(kaiJiangNumber.charAt(1));
 		String thrid = String.valueOf(kaiJiangNumber.charAt(2));
 		if(first.equals(second) && first.equals(thrid)){
-			addNumber(number,no,detail,"",zhongJiangNumberList);
+			addNumber(number,no,detail,number,note,zhongJiangNumberList);
 		}
 	}
 
-	public void ZLQB(String number,String kaiJiangNumber, String no, String detail, List<ZhongJiang> zhongJiangNumberList) {
+	public void ZLQB(String number,String kaiJiangNumber, String no, String detail, String note,
+					 List<ZhongJiang> zhongJiangNumberList) {
 		String first = String.valueOf(kaiJiangNumber.charAt(0));
 		String second = String.valueOf(kaiJiangNumber.charAt(1));
 		String thrid = String.valueOf(kaiJiangNumber.charAt(2));
 		if(!first.equals(second) && !first.equals(thrid) && !second.equals(thrid)){
-			addNumber(number,no,detail,"",zhongJiangNumberList);
+			addNumber(number,no,detail,number,note,zhongJiangNumberList);
 		}
 	}
 
-	public void ZSQB(String number,String kaiJiangNumber, String no, String detail, List<ZhongJiang> zhongJiangNumberList) {
+	public void ZSQB(String number,String kaiJiangNumber, String no, String detail, String note,
+					 List<ZhongJiang> zhongJiangNumberList) {
 		String first = String.valueOf(kaiJiangNumber.charAt(0));
 		String second = String.valueOf(kaiJiangNumber.charAt(1));
 		String thrid = String.valueOf(kaiJiangNumber.charAt(2));
@@ -470,7 +478,19 @@ public class QueryFunction {
 		if(first.equals(second) && first.equals(thrid)){
 			return;
 		}
-		addNumber(number,no,detail,"",zhongJiangNumberList);
+		addNumber(number,no,detail,number,note,zhongJiangNumberList);
+	}
+
+	public void DZQB(String number,String kaiJiangNumber, String no, String detail, String note,
+					 List<ZhongJiang> zhongJiangNumberList) {
+		String first = String.valueOf(kaiJiangNumber.charAt(0));
+		String second = String.valueOf(kaiJiangNumber.charAt(1));
+		String thrid = String.valueOf(kaiJiangNumber.charAt(2));
+		if(first.equals(second) && first.equals(thrid)){
+			BZQB(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
+		}else {
+			ZSQB(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
+		}
 	}
 
 	public Integer findNumber(String kaiJiangNumber){
@@ -493,10 +513,11 @@ public class QueryFunction {
 		return numbers.get(0) - numbers.get(1);
 	}
 
-	public void KD(String excelType, Integer difference, String number, String no, String detail, List<ZhongJiang> zhongJiangNumberList) {
-		int typeDifference = Integer.parseInt(excelType.split(TypeEnum.KD.getLabel())[1]);
+	public void KD(String excelType, Integer difference, String number, String no, String detail, String note,
+				   List<ZhongJiang> zhongJiangNumberList) {
+		int typeDifference = Integer.parseInt(number);
 		if(typeDifference == difference){
-			addNumber(number,no,detail,"",zhongJiangNumberList);
+			addNumber(number,no,detail,number,note,zhongJiangNumberList);
 		}
 	}
 
@@ -508,10 +529,25 @@ public class QueryFunction {
 		return a+b+c;
 	}
 
-	public void HZ(String excelType, Integer sum, String number, String no, String detail, List<ZhongJiang> zhongJiangNumberList) {
-		int typeSum = Integer.parseInt(excelType.split(TypeEnum.HZ.getLabel())[1]);
-		if(typeSum == sum){
-			addNumber(number,no,detail,"",zhongJiangNumberList);
+	public void HZ(String excelType, Integer sum, String number, String no, String detail, String note,
+				   List<ZhongJiang> zhongJiangNumberList) {
+		if(excelType.equals(TypeEnum.HZX.getLabel())){
+			if(sum>=0 && sum <=13)
+				addNumber(number,no,detail,"",note,zhongJiangNumberList);
+		}else if(excelType.equals((TypeEnum.HZDA.getLabel()))){
+			if(sum>=14 && sum <=27)
+				addNumber(number,no,detail,"",note,zhongJiangNumberList);
+		}else if(excelType.equals((TypeEnum.HZDAN.getLabel()))){
+			if(sum % 2 != 0)
+				addNumber(number,no,detail,"",note,zhongJiangNumberList);
+		}else if(excelType.equals((TypeEnum.HZS.getLabel()))){
+			if(sum % 2 == 0)
+				addNumber(number,no,detail,"",note,zhongJiangNumberList);
+		}else{
+			int typeSum = Integer.parseInt(number);
+			if(typeSum == sum){
+				addNumber(number,no,detail,number,note,zhongJiangNumberList);
+			}
 		}
 	}
 
@@ -540,5 +576,25 @@ public class QueryFunction {
 		}
 
 		return PEIlV_MAP;
+	}
+
+	public void copyConText(JTable jTable){
+		int row = jTable.getSelectedRow();
+		int column = jTable.getSelectedColumn();
+		String context = jTable.getValueAt(row,column).toString();
+		if(column == 3)
+			context = context.replace("<html>","").replace("</html>","");
+		if(column == 2){
+			context = context.replace("<html> ","");
+			context = context.replace("<span style='color: red'>","");
+			context = context.replace("</span>","");
+			context = context.replace("<br>","");
+			context = context.replace(" </html>","");
+			context = context.replace("<html>","");
+			context = context.replace("</html>","");
+		}
+		StringSelection contextSelection = new StringSelection(context);
+		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		clipboard.setContents(contextSelection, null);
 	}
 }
