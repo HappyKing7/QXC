@@ -1,9 +1,8 @@
 package Frame;
 
 import Enum.*;
-import Function.InputFunction;
+import Function.*;
 import Bean.*;
-import Function.ComponentInit;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +13,7 @@ import java.util.Objects;
 public class UpdateWindow {
 	private final FontEnum fontEnum = new FontEnum();
 	private final InputFunction inputFunction = new InputFunction();
-	private final ComponentInit componentInit = new ComponentInit();
+	private final CommonFunction commonFunction = new CommonFunction();
 	private final OneSummaryWindow oneSummaryWindow = new OneSummaryWindow();
 	private JPanel showOneSummaryJPanel = new JPanel();
 
@@ -37,14 +36,7 @@ public class UpdateWindow {
 		JPanel pricePanel = new JPanel();
 		ButtonGroup priceGroup = new ButtonGroup();
 		for (PriceEnum priceEnum : PriceEnum.values()) {
-			JRadioButton priceButton = new JRadioButton(String.valueOf(priceEnum.getVal()));
-			priceButton.setFont(fontEnum.mainButtonFont);
-			priceButton.addActionListener(e -> {
-				priceJF.setText(priceButton.getText());
-				globalVariable.selectPrice = priceButton.getText();
-			});
-			priceGroup.add(priceButton);
-			pricePanel.add(priceButton);
+			commonFunction.priceButtonSetting(priceEnum,priceGroup,pricePanel,priceJF,globalVariable);
 		}
 
 		//倍数
@@ -95,19 +87,12 @@ public class UpdateWindow {
 		resultJF.setDisabledTextColor(Color.BLACK);
 		resultJF.setEnabled(false);
 
+		List<JPanel> updateWindowFirstJPanelList = commonFunction.updateWindowFirstJPanel(serialNumberJF,groupNumberJF,
+				typeTwoPanel,pricePanel,priceJF,timesComboBox,typeComboBox);
 		//第一行 序列号 + 组数
-		JPanel serialNumberPanel= componentInit.initJPanel(new JPanel(),"序列号",serialNumberJF);
-		serialNumberPanel.add(groupNumberJF);
+		JPanel serialNumberPanel= updateWindowFirstJPanelList.get(0);
 		//第二行 单价 + 倍数 + 类别 + 类型
-		JPanel priceAndTypePanel= componentInit.iniJPanel(new JPanel(),"类别",typeTwoPanel);
-		priceAndTypePanel= componentInit.addSpace(priceAndTypePanel,2);
-		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"单价");
-		priceAndTypePanel.add(pricePanel);
-		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"",priceJF);
-		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"元");
-		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"倍数",timesComboBox);
-		priceAndTypePanel= componentInit.addSpace(priceAndTypePanel,2);
-		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"类型",typeComboBox);
+		JPanel priceAndTypePanel= updateWindowFirstJPanelList.get(1);
 		//第三行 按钮
 		JPanel updatePanel=new JPanel();
 		Button update = new Button("修改");

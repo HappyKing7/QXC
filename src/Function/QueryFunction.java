@@ -71,7 +71,7 @@ public class QueryFunction {
 						} else if (type.equals(TypeEnum.ZL.getLabel())) {
 							ZL(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 						} else if (type.equals(TypeEnum.BZQB.getLabel())) {
-							BZQB(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
+							BZQB(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList,0);
 						} else if (type.equals(TypeEnum.ZLQB.getLabel())) {
 							ZLQB(number, kaiJiangNumber, no, detail, note,  zhongJiangNumberList);
 						} else if (type.equals(TypeEnum.ZSQB.getLabel())) {
@@ -83,7 +83,9 @@ public class QueryFunction {
 							HZ(excelType, sum, number, no, detail, note, zhongJiangNumberList);
 						} else if (type.equals(TypeEnum.KD.getLabel())) {
 							int difference = findNumber(kaiJiangNumber);
-							KD(excelType, difference, number, no, detail, note, zhongJiangNumberList);
+							KD(difference, number, no, detail, note, zhongJiangNumberList);
+						}  else if (type.equals(TypeEnum.FS.getLabel())) {
+							FS(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 						}
 					} else if (type.equals(TypeEnum.ZS.getLabel())) {
 						if(excelType.contains(TypeEnum.ZS.getLabel())){
@@ -92,9 +94,9 @@ public class QueryFunction {
 									ZS(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 								}
 							}
-							if(excelType.equals(TypeEnum.SFZS.getLabel())){
+							/*if(excelType.equals(TypeEnum.SFZS.getLabel())){
 								ZS(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
-							}
+							}*/
 						}else if(excelType.equals(TypeEnum.ZUXUAN.getLabel()) && allFlag==AllFlagEnum.NOTALL.getVal()){
 							ZX(number, kaiJiangNumber, no, detail, type, note, zhongJiangNumberList);
 						}
@@ -105,15 +107,15 @@ public class QueryFunction {
 									ZL(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 								}
 							}
-							if(excelType.equals(TypeEnum.SFZL.getLabel())){
+							/*if(excelType.equals(TypeEnum.SFZL.getLabel())){
 								ZL(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
-							}
+							}*/
 						}else if(excelType.equals(TypeEnum.ZUXUAN.getLabel()) && allFlag==AllFlagEnum.NOTALL.getVal()){
 							ZX(number, kaiJiangNumber, no, detail, type, note, zhongJiangNumberList);
 						}
 					} else if (type.equals(TypeEnum.KD.getLabel()) && excelType.contains(TypeEnum.KD.getLabel())) {
 						int difference = findNumber(kaiJiangNumber);
-						KD(excelType, difference, number, no, detail, note, zhongJiangNumberList);
+						KD(difference, number, no, detail, note, zhongJiangNumberList);
 					} else if (type.equals(TypeEnum.HZ.getLabel()) && excelType.contains(TypeEnum.HZ.getLabel())) {
 						int sum = sumNumber(kaiJiangNumber);
 						HZ(excelType, sum, number, no, detail, note, zhongJiangNumberList);
@@ -335,18 +337,35 @@ public class QueryFunction {
 		int a = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(0)));
 		int b = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(1)));
 		int c = Integer.parseInt(String.valueOf(kaiJiangNumber.charAt(2)));
-		if((a==b || a==c || b==c) || detail.contains("全包")){
+		String[] numbers = number.split(" ");
+		if(((a==b || a==c || b==c) || detail.contains("全包")) && numbers[0].length() >= 3){
 			return;
 		}
 
-		String[] numbers = number.split(" ");
 		for (String s : numbers) {
-			if(s.length() == 2){
-				if(kaiJiangNumber.contains(String.valueOf(s.charAt(0))) &&
-						kaiJiangNumber.contains(String.valueOf(s.charAt(1))) ){
+			if (s.length() == 1){
+				if (kaiJiangNumber.contains(s)){
 					zuXuanType = TypeEnum.ZL.getLabel();
 					addNumber(number, no, detail, s, note, zhongJiangNumberList);
 				}
+			}
+			else if(s.length() == 2){
+				String first = String.valueOf(kaiJiangNumber.charAt(0));
+				String third = String.valueOf(kaiJiangNumber.charAt(2));
+				if (s.charAt(0) != s.charAt(1)){
+					if(kaiJiangNumber.contains(String.valueOf(s.charAt(0))) &&
+							kaiJiangNumber.contains(String.valueOf(s.charAt(1))) ){
+						zuXuanType = TypeEnum.ZL.getLabel();
+						addNumber(number, no, detail, s, note, zhongJiangNumberList);
+					}
+				}else {
+					if (kaiJiangNumber.contains(s) || (first.equals(String.valueOf(s.charAt(0))) &&
+							third.equals(String.valueOf(s.charAt(0))))){
+						zuXuanType = TypeEnum.ZL.getLabel();
+						addNumber(number, no, detail, s, note, zhongJiangNumberList);
+					}
+				}
+
 			}else{
 				int times = 0;
 				String rKaiJiangNumber = removeDuplicate(s);
@@ -448,12 +467,19 @@ public class QueryFunction {
 	}
 
 	public void BZQB(String number,String kaiJiangNumber, String no, String detail, String note,
-					 List<ZhongJiang> zhongJiangNumberList) {
+					 List<ZhongJiang> zhongJiangNumberList,int flag) {
 		String first = String.valueOf(kaiJiangNumber.charAt(0));
 		String second = String.valueOf(kaiJiangNumber.charAt(1));
-		String thrid = String.valueOf(kaiJiangNumber.charAt(2));
-		if(first.equals(second) && first.equals(thrid)){
-			addNumber(number,no,detail,number,note,zhongJiangNumberList);
+		String third = String.valueOf(kaiJiangNumber.charAt(2));
+		if(first.equals(second) && first.equals(third)){
+			if (flag == 0 )
+				addNumber(number,no,detail,number,note,zhongJiangNumberList);
+			else{
+				for (String s : number.split(" ")){
+					if (s.contains(String.valueOf(kaiJiangNumber.charAt(0))))
+						addNumber(number,no,detail,s,note,zhongJiangNumberList);
+				}
+			}
 		}
 	}
 
@@ -461,8 +487,8 @@ public class QueryFunction {
 					 List<ZhongJiang> zhongJiangNumberList) {
 		String first = String.valueOf(kaiJiangNumber.charAt(0));
 		String second = String.valueOf(kaiJiangNumber.charAt(1));
-		String thrid = String.valueOf(kaiJiangNumber.charAt(2));
-		if(!first.equals(second) && !first.equals(thrid) && !second.equals(thrid)){
+		String third = String.valueOf(kaiJiangNumber.charAt(2));
+		if(!first.equals(second) && !first.equals(third) && !second.equals(third)){
 			addNumber(number,no,detail,number,note,zhongJiangNumberList);
 		}
 	}
@@ -471,11 +497,11 @@ public class QueryFunction {
 					 List<ZhongJiang> zhongJiangNumberList) {
 		String first = String.valueOf(kaiJiangNumber.charAt(0));
 		String second = String.valueOf(kaiJiangNumber.charAt(1));
-		String thrid = String.valueOf(kaiJiangNumber.charAt(2));
-		if(!first.equals(second) && !first.equals(thrid) && !second.equals(thrid)){
+		String third = String.valueOf(kaiJiangNumber.charAt(2));
+		if(!first.equals(second) && !first.equals(third) && !second.equals(third)){
 			return;
 		}
-		if(first.equals(second) && first.equals(thrid)){
+		if(first.equals(second) && first.equals(third)){
 			return;
 		}
 		addNumber(number,no,detail,number,note,zhongJiangNumberList);
@@ -485,9 +511,9 @@ public class QueryFunction {
 					 List<ZhongJiang> zhongJiangNumberList) {
 		String first = String.valueOf(kaiJiangNumber.charAt(0));
 		String second = String.valueOf(kaiJiangNumber.charAt(1));
-		String thrid = String.valueOf(kaiJiangNumber.charAt(2));
-		if(first.equals(second) && first.equals(thrid)){
-			BZQB(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
+		String third = String.valueOf(kaiJiangNumber.charAt(2));
+		if(first.equals(second) && first.equals(third)){
+			BZQB(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList,0);
 		}else {
 			ZSQB(number, kaiJiangNumber, no, detail, note, zhongJiangNumberList);
 		}
@@ -513,7 +539,7 @@ public class QueryFunction {
 		return numbers.get(0) - numbers.get(1);
 	}
 
-	public void KD(String excelType, Integer difference, String number, String no, String detail, String note,
+	public void KD(Integer difference, String number, String no, String detail, String note,
 				   List<ZhongJiang> zhongJiangNumberList) {
 		int typeDifference = Integer.parseInt(number);
 		if(typeDifference == difference){
@@ -548,6 +574,20 @@ public class QueryFunction {
 			if(typeSum == sum){
 				addNumber(number,no,detail,number,note,zhongJiangNumberList);
 			}
+		}
+	}
+
+	public void FS(String number, String kaiJiangNumber, String no, String detail, String note,
+				   List<ZhongJiang> zhongJiangNumberList) {
+		String first = String.valueOf(kaiJiangNumber.charAt(0));
+		String second = String.valueOf(kaiJiangNumber.charAt(1));
+		String third = String.valueOf(kaiJiangNumber.charAt(2));
+		if (first.equals(second) && first.equals(third)){
+			BZQB(number,kaiJiangNumber,no,detail,note,zhongJiangNumberList,1);
+		} else if ((!first.equals(second) && !first.equals(third) && !second.equals(third))){
+			ZL(number,kaiJiangNumber,no,detail,note,zhongJiangNumberList);
+		} else {
+			ZS(number,kaiJiangNumber,no,detail,note,zhongJiangNumberList);
 		}
 	}
 

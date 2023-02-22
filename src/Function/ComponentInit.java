@@ -2,8 +2,14 @@ package Function;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+
+import Bean.GlobalVariable;
+import Enum.*;
 
 public class ComponentInit {
+	private final FontEnum fontEnum = new FontEnum();
+	private final NoteFunction noteFunction = new NoteFunction();
 	Font font = new Font("宋体",Font.BOLD,25);
 
 	public JPanel addSpace(JPanel panel,int num){
@@ -125,5 +131,35 @@ public class ComponentInit {
 			jButton.setPreferredSize(new Dimension(label.length()*3,jButton.getPreferredSize().height));
 		}
 		return jButton;
+	}
+
+	public void init(JTextField priceJF, JComboBox<String> timesComboBox, JTextField timesJF, JTextField typeJF,
+					 JComboBox<String> typeComboBox, List<JRadioButton> functionList,List<JRadioButton> priceList){
+		priceJF.setText(String.valueOf(PriceEnum.TOW.getVal()));
+		timesComboBox.setSelectedItem(String.valueOf(TimesEnum.ONE.getLabel()));
+		timesJF.setText(String.valueOf(TimesEnum.ONE.getVal()));
+		typeJF.setText(TypeEnum.ZHIXUAN.getLabel());
+		typeComboBox.setSelectedItem(TypeEnum.ZHIXUAN.getLabel());
+		for (JRadioButton jRadioButton : functionList){
+			if (jRadioButton.getText().equals(FunctionType.FEIZUHE.getLabel())){
+				jRadioButton.setSelected(true);
+			}
+		}
+		for (JRadioButton jRadioButton : priceList){
+			if (jRadioButton.getText().equals(String.valueOf(PriceEnum.TOW.getVal()))){
+				jRadioButton.setSelected(true);
+			}
+		}
+	}
+
+	public JComboBox<String> noteQuicklySelect(GlobalVariable globalVariable){
+		List<String> noteList = noteFunction.readNoteExcel(globalVariable.filePath);
+		JComboBox<String> noteComboBox = new JComboBox<>();
+		noteComboBox.addItem("快速选择");
+		for (String s : noteList) {
+			noteComboBox.addItem(s);
+			noteComboBox.setFont(fontEnum.mainFont);
+		}
+		return noteComboBox;
 	}
 }

@@ -14,6 +14,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SummaryWindow {
@@ -38,17 +39,18 @@ public class SummaryWindow {
 		ButtonGroup btnGroup = new ButtonGroup();
 		List<JRadioButton> jRadioButtonList = new ArrayList<>();
 		int selectNo = 1;
+		String printSpace = String.join("", Collections.nCopies(5," "));
 		for (int i = 0; i < showSummaryLists.size(); i++) {
 			ShowSummaryList ssl = showSummaryLists.get(i);
 			JPanel resultPanel = new JPanel(new GridLayout(ssl.getShowSummaryList().size(),4));
 
-			JLabel firstTotalMoneyLabel = new JLabel("     " +ssl.getTotalMoney());
+			JLabel firstTotalMoneyLabel = new JLabel(printSpace +ssl.getTotalMoney());
 			firstTotalMoneyLabel.setFont(fontEnum.todaySummaryFont);
 			for (int j = 0; j < ssl.getShowSummaryList().size(); j++) {
 				JRadioButton selectButton = new JRadioButton(i + " " + j);
 				selectButton.setFont(fontEnum.oneSummaryFont);
 				selectButton.addActionListener(e -> {
-					String[] strings = selectButton.getText().split("     ");
+					String[] strings = selectButton.getText().split(printSpace);
 					selectOneNo = String.valueOf(Integer.parseInt(strings[0].split(" ")[0])-1);
 					selectTwoNo = strings[0].split(" ")[1];
 				});
@@ -57,9 +59,9 @@ public class SummaryWindow {
 
 				ShowSummary ss = ssl.getShowSummaryList().get(j);
 				if(j==0){
-					JLabel noLabel = new JLabel(ssl.getNo() + "     " + ssl.getTotalPrice());
+					JLabel noLabel = new JLabel(ssl.getNo() + printSpace + ssl.getTotalPrice());
 					selectButton.setText((i + 1) + " " + j
-							+ "     " + ssl.getNo() + "     " + ssl.getTotalPrice());
+							+ printSpace + ssl.getNo() + printSpace + ssl.getTotalPrice());
 					noLabel.setFont(fontEnum.todaySummaryFont);
 					JLabel firstSerialNumberLabel = new JLabel();
 					if(ss.getSerialNumber().length()<= 30){
@@ -68,7 +70,7 @@ public class SummaryWindow {
 						firstSerialNumberLabel.setText(inputFunction.numberWrap(ss.getSerialNumber()," ",5));
 					}
 					firstSerialNumberLabel.setFont(fontEnum.todaySummaryFont);
-					JLabel firstDetailAndNoteLabel = new JLabel(ss.getDetail() + "     " + ssl.getNote());
+					JLabel firstDetailAndNoteLabel = new JLabel(ss.getDetail() + printSpace + ssl.getNote());
 					firstDetailAndNoteLabel.setFont(fontEnum.todaySummaryFont);
 /*					JLabel firstTotalPriceLabel = new JLabel(ssl.getTotalPrice());
 					firstTotalPriceLabel.setFont(fontEnum.todaySummaryFont);*/
@@ -97,7 +99,7 @@ public class SummaryWindow {
 					detailLabel.setFont(fontEnum.todaySummaryFont);
 
 					selectButton.setText((i + 1) + " " + j
-							+ "     " + ssl.getNo());
+							+ printSpace + ssl.getNo());
 					resultPanel.add(selectButton);
 					//resultPanel.add(new JLabel());
 					resultPanel.add(serialNumberLabel);

@@ -1,16 +1,16 @@
 package Enum;
 
 public enum ZhuLiuAndTimesEnum {
-	ZHULIUONE("组六1倍","组六","1倍",1),
-	ZHULIUWO("组六2倍","组六","2倍",2),
-	ZHULIUTHREE("组六3倍","组六","3倍",3),
-	ZHULIUFOUR("组六4倍","组六","4倍",4),
-	ZHULIUFIVE("组六5倍","组六","5倍",5),
-	ZHULIUSIX("组六6倍","组六","6倍",6),
-	ZHULIUSEVEN("组六7倍","组六","7倍",7),
-	ZHULIUEIGHT("组六8倍","组六","8倍",8),
-	ZHULIUNINE("组六9倍","组六","9倍",9),
-	ZHULIUTEN("组六10倍","组六","10倍",10);
+	ZHULIUONE("组六1倍",TypeEnum.ZL.getLabel(),TimesEnum.ONE.getLabel(),1),
+	ZHULIUWO("组六2倍",TypeEnum.ZL.getLabel(),TimesEnum.TOW.getLabel(),2),
+	ZHULIUTHREE("组六3倍",TypeEnum.ZL.getLabel(),TimesEnum.THREE.getLabel(),3),
+	ZHULIUFOUR("组六4倍",TypeEnum.ZL.getLabel(),TimesEnum.FOUR.getLabel(),4),
+	ZHULIUFIVE("组六5倍",TypeEnum.ZL.getLabel(),TimesEnum.FIVE.getLabel(),5),
+	ZHULIUSIX("组六6倍",TypeEnum.ZL.getLabel(),TimesEnum.SIX.getLabel(),6),
+	ZHULIUSEVEN("组六7倍",TypeEnum.ZL.getLabel(),TimesEnum.SEVEN.getLabel(),7),
+	ZHULIUEIGHT("组六8倍",TypeEnum.ZL.getLabel(),TimesEnum.EIGHT.getLabel(),8),
+	ZHULIUNINE("组六9倍",TypeEnum.ZL.getLabel(),TimesEnum.NINE.getLabel(),9),
+	ZHULIUTEN("组六10倍",TypeEnum.ZL.getLabel(),TimesEnum.TEN.getLabel(),10);
 
 
 	private final String desc;

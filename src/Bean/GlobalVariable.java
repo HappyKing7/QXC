@@ -15,8 +15,11 @@ public class GlobalVariable {
 	public String filePath = "";
 	public String selectPrice = "";
 	public String inputSerialNumber = "";
+	public String typeTwo = "";
 	public String functionType ="非组合";
 	public Map<String,UpdateExcel> updateExcelMap = new HashMap<>();
+	public Integer spaceSwitchMode = 1; //0关,1开
+	public Integer testSwitchMode = 1; //0关,1开
 
 	public Frame getOneFrame() {
 		return oneFrame;

@@ -11,13 +11,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 public class UpdateExcelWindow {
 	private final FontEnum fontEnum = new FontEnum();
 	private final WarmWindow warmWindow = new WarmWindow();
-	private final NoteFunction noteFunction = new NoteFunction();
 	private final InputFunction inputFunction = new InputFunction();
+	private final CommonFunction commonFunction = new CommonFunction();
 	private final SummaryWindow summaryWindow = new SummaryWindow();
 	private final ComponentInit componentInit = new ComponentInit();
 	private final UpdateExcelFunction updateExcelFunction = new UpdateExcelFunction();
@@ -51,14 +50,7 @@ public class UpdateExcelWindow {
 		JPanel pricePanel = new JPanel();
 		ButtonGroup priceGroup = new ButtonGroup();
 		for (PriceEnum priceEnum : PriceEnum.values()) {
-			JRadioButton priceButton = new JRadioButton(String.valueOf(priceEnum.getVal()));
-			priceButton.setFont(fontEnum.mainButtonFont);
-			priceButton.addActionListener(e -> {
-				priceJF.setText(priceButton.getText());
-				globalVariable.selectPrice = priceButton.getText();
-			});
-			priceGroup.add(priceButton);
-			pricePanel.add(priceButton);
+			commonFunction.priceButtonSetting(priceEnum,priceGroup,pricePanel,priceJF,globalVariable);
 		}
 
 		//倍数
@@ -108,29 +100,16 @@ public class UpdateExcelWindow {
 		JTextField noteJF=new JTextField(note.replace("备注：",""),30);
 		noteJF.setFont(fontEnum.updateFont);
 
+		List<JPanel> updateWindowFirstJPanelList = commonFunction.updateWindowFirstJPanel(serialNumberJF,groupNumberJF,
+				typeTwoPanel,pricePanel,priceJF,timesComboBox,typeComboBox);
 		//第一行 序列号 + 组数
-		JPanel serialNumberPanel= componentInit.initJPanel(new JPanel(),"序列号",serialNumberJF);
-		serialNumberPanel.add(groupNumberJF);
+		JPanel serialNumberPanel= updateWindowFirstJPanelList.get(0);
 		//第二行 单价 + 倍数 + 类别 + 类型
-		JPanel priceAndTypePanel= componentInit.iniJPanel(new JPanel(),"类别",typeTwoPanel);
-		priceAndTypePanel= componentInit.addSpace(priceAndTypePanel,2);
-		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"单价");
-		priceAndTypePanel.add(pricePanel);
-		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"",priceJF);
-		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"元");
-		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"倍数",timesComboBox);
-		priceAndTypePanel= componentInit.addSpace(priceAndTypePanel,2);
-		priceAndTypePanel= componentInit.iniJPanel(priceAndTypePanel,"类型",typeComboBox);
+		JPanel priceAndTypePanel= updateWindowFirstJPanelList.get(1);
 		//第三行 备注
 		JPanel notePanel = componentInit.iniJPanel(new JPanel(),"备注",noteJF);
 
-		List<String> noteList = noteFunction.readNoteExcel(globalVariable.filePath);
-		JComboBox<String> noteComboBox = new JComboBox<>();
-		noteComboBox.addItem("快速选择");
-		for (String s : noteList) {
-			noteComboBox.addItem(s);
-			noteComboBox.setFont(fontEnum.mainFont);
-		}
+		JComboBox<String> noteComboBox = componentInit.noteQuicklySelect(globalVariable);
 
 		//第四行 按钮
 		JPanel updatePanel=new JPanel();
@@ -166,29 +145,9 @@ public class UpdateExcelWindow {
 			}
 		});
 
-		timesComboBox.addItemListener(e -> timesJF.setText(Objects.requireNonNull(timesComboBox.getSelectedItem()).toString().replace("倍","")));
-		timesComboBox.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				timesComboBox.setPopupVisible(true);
-			}
-		});
-
-		typeComboBox.addItemListener(e -> typeJF.setText(Objects.requireNonNull(typeComboBox.getSelectedItem()).toString()));
-		typeComboBox.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				typeComboBox.setPopupVisible(true);
-			}
-		});
-
-		noteComboBox.addItemListener(e -> noteJF.setText(Objects.requireNonNull(noteComboBox.getSelectedItem()).toString()));
-		noteComboBox.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				noteComboBox.setPopupVisible(true);
-			}
-		});
+		commonFunction.comboBoxListener(timesComboBox,timesJF);
+		commonFunction.comboBoxListener(typeComboBox,typeJF);
+		commonFunction.comboBoxListener(noteComboBox,noteJF);
 
 		update.addActionListener(e -> {
 			float oldDetailPrice = inputFunction.moneyRemoveChinese(details[4],"总","元");

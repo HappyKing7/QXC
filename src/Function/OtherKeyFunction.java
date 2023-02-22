@@ -4,34 +4,52 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OtherKeyFunction {
-	public String yuan(String serialNumber){
+	private static final CommonFunction commonFunction = new CommonFunction();
+
+	public String yuan(String serialNumber,Map<String,String> otherMap){
 		int position = 0;
+		int endFlag = 0;
 		for (int i = 0; i < serialNumber.length(); i++) {
-			if (String.valueOf(serialNumber.charAt(i)).equals("元") || String.valueOf(serialNumber.charAt(i)).equals("米")
-					|| String.valueOf(serialNumber.charAt(i)).equals("块")){
-				position = i;
-				break;
+			for(Map.Entry<String,String> entry : otherMap.entrySet()){
+				if (String.valueOf(serialNumber.charAt(i)).equals(entry.getKey())) {
+					position = i;
+					endFlag = 1;
+					break;
+				}
 			}
+			if (endFlag == 1)
+				break;
 		}
 
 		StringBuilder price = new StringBuilder();
 		Map<String,String> C_NUM = getCNum();
-			for (int j = position-1; j >= 0 ; j--) {
-			if(Character.isDigit(serialNumber.charAt(j)))
+		StringBuilder cPrice = new StringBuilder();
+		for (int j = position-1; j >= 0 ; j--) {
+			if(Character.isDigit(serialNumber.charAt(j))){
 				price.append(serialNumber.charAt(j));
-			else if (C_NUM.get(String.valueOf(serialNumber.charAt(j)))!=null) {
+			}else if (C_NUM.get(String.valueOf(serialNumber.charAt(j)))!=null) {
 				if(String.valueOf(serialNumber.charAt(j)).equals("三") || String.valueOf(serialNumber.charAt(j)).equals("六")){
 					if (j - 1 >= 0 && !String.valueOf(serialNumber.charAt(j-1)).equals("组"))
 						price.append(C_NUM.get(String.valueOf(serialNumber.charAt(j))));
 				}else
-					price.append(C_NUM.get(String.valueOf(serialNumber.charAt(j))));
-			}else {
+					cPrice.append(serialNumber.charAt(j));
+			}else{
 				if(!String.valueOf(serialNumber.charAt(j)).equals("(") && !String.valueOf(serialNumber.charAt(j)).equals("（"))
 					break;
 			}
 		}
 
-		return  new StringBuilder(price.toString()).reverse().toString();
+		if (cPrice.toString().equals("")){
+			if (serialNumber.contains("角")){
+				price = new StringBuilder((price).toString()).reverse();
+				price = new StringBuilder(String.format("%.1f", Float.parseFloat(price.toString()) * 0.1));
+				return  price.toString();
+			}
+			else
+				return  new StringBuilder(price.toString()).reverse().toString();
+		}
+		else
+			return String.valueOf(commonFunction.toNumber(new StringBuilder(cPrice.toString()).reverse().toString()));
 	}
 
 	public Map<String,String> getCNum(){

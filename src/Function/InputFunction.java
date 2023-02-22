@@ -84,7 +84,7 @@ public class InputFunction {
 
 	public String getNumber(TicketList tickets, AtomicInteger alllistNo, AtomicInteger ticketsNo, String serialNumber,
 							String type, String typeTwo, String inputPrice, String times, String functionType,
-							String filePath){
+							String filePath,GlobalVariable globalVariable){
 		if (!pattern.matcher(times).matches()){
 			return "fail";
 		}
@@ -175,7 +175,8 @@ public class InputFunction {
 						KEY_MAP,keyList,valueList,ticket,tickets);
 			}*/
 			if (!serialNumber.contains("位"))
-				return showSummaryWithNumber(autoRecognition2(filePath, serialNumberBuilder,serialNumber, group,typeTwo, times, price,tickets));
+				return showSummaryWithNumber(autoRecognition2(filePath, serialNumberBuilder,serialNumber, group,typeTwo,
+						times, price,tickets,globalVariable));
 			else
 				return showSummaryWithNumber(autoRecognition3(filePath, serialNumber, typeTwo, tickets));
 		}
@@ -196,6 +197,17 @@ public class InputFunction {
 		return output.toString();
 	}
 
+	public String showSummaryCommonContext(String output,Ticket ticket){
+		output = output + ",";
+		output = output + "单价"+ticket.getUnitPrice();
+		output = output + ",";
+		output = output + ticket.getTypeTwo();
+		output = output + ",";
+		output = output + ticket.getType();
+		output = output + ",";
+		output = output + "总"+ticket.getTotalPrice()+"元";
+		return output;
+	}
 	public String showSummaryWithNumber(Ticket ticket){
 		String output = ticket.getSerialNumber();
 		if(ticket.getSerialNumber().length() <= 145){
@@ -207,14 +219,7 @@ public class InputFunction {
 		output = output + "-";
 		output = output + "(";
 		output = output + ticket.getGroupNum()+"组";
-		output = output + ",";
-		output = output + "单价"+ticket.getUnitPrice();
-		output = output + ",";
-		output = output + ticket.getTypeTwo();
-		output = output + ",";
-		output = output + ticket.getType();
-		output = output + ",";
-		output = output + "总"+ticket.getTotalPrice()+"元";
+		output = showSummaryCommonContext(output,ticket);
 		output = output + ")";
 
 		return output;
@@ -222,15 +227,26 @@ public class InputFunction {
 
 	public String showSummaryWithoutNumber(Ticket ticket){
 		String output = ticket.getGroupNum()+"组";
-		output = output + ",";
-		output = output + "单价"+ticket.getUnitPrice();
-		output = output + ",";
-		output = output + ticket.getTypeTwo();
-		output = output + ",";
-		output = output + ticket.getType();
-		output = output + ",";
-		output = output + "总"+ticket.getTotalPrice()+"元";
+		output = showSummaryCommonContext(output,ticket);
 		return output;
+	}
+
+	public WritableSheet addSheetCell(Ticket ticket,int i,WritableSheet sheet) throws WriteException {
+		Label l1 = new Label(1, i, ticket.getSerialNumber());
+		Label l2 = new Label(2, i, showSummaryWithoutNumber(ticket));
+		sheet.addCell(l1);
+		sheet.addCell(l2);
+		return sheet;
+	}
+
+	public void addSheetCell(Label l3,Label l4,Label l6,WritableSheet writableSheet, WritableWorkbook workbook)
+			throws WriteException, IOException {
+		writableSheet.addCell(l3);
+		writableSheet.addCell(l4);
+		writableSheet.addCell(l6);
+
+		workbook.write();
+		workbook.close();
 	}
 
 	public void createExcel(String filePath,TicketList tickets) throws IOException, WriteException {
@@ -242,21 +258,13 @@ public class InputFunction {
 		float totalPrice = 0;
 		for (int i = 0; i < tickets.getTicketList().size(); i++) {
 			Ticket ticket = tickets.getTicketList().get(i);
-			Label l1 = new Label(1, i, ticket.getSerialNumber());
-			Label l2 = new Label(2, i, showSummaryWithoutNumber(ticket));
+			sheet = addSheetCell(ticket,i,sheet);
 			totalPrice = totalPrice + ticket.getTotalPrice();
-			sheet.addCell(l1);
-			sheet.addCell(l2);
 		}
 		Label l3 = new Label(3,0,"总共"+ totalPrice +"元");
 		Label l4 = new Label(4,0,"备注："+ tickets.getNote());
 		Label l6 = new Label(6,0,"总计"+ totalPrice +"元");
-		sheet.addCell(l3);
-		sheet.addCell(l4);
-		sheet.addCell(l6);
-
-		workbook.write();
-		workbook.close();
+		addSheetCell(l3,l4,l6,sheet,workbook);
 		os.close();
 	}
 
@@ -288,11 +296,8 @@ public class InputFunction {
 		int ticketsNo = 0;
 		for (int i = sheetRow+1; i < sheetRow + 1 + tickets.getTicketList().size(); i++) {
 			Ticket ticket = tickets.getTicketList().get(ticketsNo);
-			Label l1 = new Label(1,i,ticket.getSerialNumber());
-			Label l2 = new Label(2,i,showSummaryWithoutNumber(ticket));
+			writableSheet = addSheetCell(ticket,i,writableSheet);
 			totalPrice = totalPrice + ticket.getTotalPrice();
-			writableSheet.addCell(l1);
-			writableSheet.addCell(l2);
 			ticketsNo = ticketsNo + 1;
 		}
 		Label l3 = new Label(3,sheetRow+1,"总共" + totalPrice +"元");
@@ -301,12 +306,7 @@ public class InputFunction {
 		totalMoney = String.valueOf((Float.parseFloat(totalMoney) + totalPrice));
 
 		Label l6 = new Label(6,0,"总计"+ totalMoney + "元");
-		writableSheet.addCell(l3);
-		writableSheet.addCell(l4);
-		writableSheet.addCell(l6);
-
-		workbook.write();
-		workbook.close();
+		addSheetCell(l3,l4,l6,writableSheet,workbook);
 		wrb.close();
 		return "成功";
 	}
@@ -433,12 +433,12 @@ public class InputFunction {
 		String number = serialNumber.split(" ")[0];
 		int typeLength = number.split(" ")[0].length();
 
-		if(type.equals(TypeEnum.ZS.getLabel())){
+		if(type.equals(TypeEnum.ZS.getLabel())){ //
 			if(typeLength==2){
 				if(number.charAt(0) == number.charAt(1)){
-					return TypeEnum.ZSEM.getLabel();
+					return TypeEnum.DZ.getLabel();
 				}else {
-					return TypeEnum.SFZS.getLabel();
+					return TypeEnum.ZSEM.getLabel();
 				}
 			}else if (typeLength==3){
 				if(number.charAt(0) != number.charAt(1) && number.charAt(0) != number.charAt(2)
@@ -451,8 +451,15 @@ public class InputFunction {
 				return TypeEnum.getLabelByVal(19 + typeLength);
 			}
 		}else if (type.equals(TypeEnum.ZL.getLabel())){
+			if (typeLength==1){
+				return TypeEnum.DD.getLabel();
+			}
 			if(typeLength==2){
-				return TypeEnum.SFZL.getLabel();
+				if(number.charAt(0) == number.charAt(1)){
+					return TypeEnum.DZ.getLabel();
+				}else {
+					return TypeEnum.SF.getLabel();
+				}
 			}else if (typeLength==3){
 				return TypeEnum.ZL.getLabel();
 			}else {
@@ -462,6 +469,8 @@ public class InputFunction {
 			return type + serialNumber.trim();
 		} else if(type.equals(TypeEnum.KD.getLabel())){
 			return type + serialNumber.trim();
+		}else if (type.equals(TypeEnum.FS.getLabel())){
+			return TypeEnum.getLabelByVal(71 + typeLength);
 		}
 		return type;
 	}
@@ -528,15 +537,30 @@ public class InputFunction {
 		return ticket;
 	}
 
-	public String otherType(String key,String serialNumber){
+	public String otherType(String key,String serialNumber,Map<String,String> otherMap){
 		if (key.equals("元"))
-			return KeyTypeEnum.TIMES.getLabel() + "--" + otherKeyFunction.yuan(serialNumber);
+			return KeyTypeEnum.TIMES.getLabel() + "--" + otherKeyFunction.yuan(serialNumber,otherMap);
 
 		return null;
 	}
 
+	public void addOtherTypeList(String inputStr,Map.Entry<String,String> entry,List<Key> otherList){
+		while(inputStr.contains(entry.getKey())){
+			Key key = new Key();
+			key.setKey(entry.getKey());
+			key.setPosition(inputStr.indexOf(entry.getKey()));
+			if (String.valueOf(inputStr.charAt(inputStr.indexOf(entry.getKey())-2)).equals("各")){
+				key = new Key();
+				key.setKey(entry.getKey());
+				key.setPosition(inputStr.indexOf(entry.getKey())-1);
+			}
+			otherList.add(key);
+			inputStr = inputStr.substring(0,key.getPosition()) + inputStr.substring(key.getPosition()+1);
+		}
+	}
+
 	public Ticket autoRecognition2(String filePath,StringBuilder stringBuilder, String input, int group, String typeTwo,
-								 String times, float price, TicketList tickets){
+								 String times, float price, TicketList tickets, GlobalVariable globalVariable){
 		List<Map<String,String>> mapList = keyFunction.readKeyExcel(filePath);
 
 		Map<String,String> typeTwoMap = mapList.get(0);
@@ -550,32 +574,60 @@ public class InputFunction {
 				Key key = new Key();
 				key.setKey(entry.getKey());
 				key.setPosition(input.indexOf(entry.getKey()));
+				if (typeTwoMap.get(entry.getKey()).equals(TypeTwoEnum.FUCAI.getLabel())){
+					if (input.contains("3D") || input.contains("3d")){
+						input = input.replace("3D","").replace("3d","");
+						String s = stringBuilder.toString();
+						group = group - 1;
+						if (s.contains("3 "))
+							s = s.replace("3 ","");
+						else
+							s = s.replace(" 3 ","");
+						stringBuilder = new StringBuilder(s);
+					}
+
+				}
 				typeTwoList.add(key);
 			}
 		}
 
+		if (typeTwoList.size()==1)
+			globalVariable.typeTwo = typeTwoMap.get(typeTwoList.get(0).getKey());
+		else if (typeTwoList.size()==2){
+			if (typeTwoMap.get(typeTwoList.get(0).getKey()).equals(typeTwoMap.get(typeTwoList.get(1).getKey())))
+				globalVariable.typeTwo = typeTwoMap.get(typeTwoList.get(0).getKey());
+		}
+
+
 		List<Key> typeList = new ArrayList<>();
 		StringBuilder typeStr = new StringBuilder();
-		int deleteFlag = 0;
 		for(Map.Entry<String,String> entry : typeMap.entrySet()){
 			if (input.contains(entry.getKey())) {
 				if(!typeStr.toString().contains(entry.getValue())){
-					if(entry.getValue().equals(TypeEnum.ZL.getLabel()) || entry.getValue().equals(TypeEnum.ZS.getLabel()))
-						deleteFlag = 1;
 					Key key = new Key();
 					key.setKey(entry.getKey());
 					key.setPosition(input.indexOf(entry.getKey()));
+					if (key.getPosition()-1 >= 0 && globalVariable.spaceSwitchMode == 1){
+						if (Character.isDigit(input.charAt(key.getPosition()-1)))
+							input = input.substring(0,key.getPosition()) + "倍" + input.substring(key.getPosition());
+					}
 					typeList.add(key);
 					typeStr.append(entry.getValue());
 				}
+				if((entry.getValue().equals(TypeEnum.ZL.getLabel()) || entry.getValue().equals(TypeEnum.ZS.getLabel()))
+						&& input.split("组").length-1 == 1 ){
+					for (int i = typeList.size()-1; i >= 0; i--) {
+						Key key = typeList.get(i);
+						if (typeMap.get(key.getKey()).equals(TypeEnum.ZUXUAN.getLabel()))
+							typeList.remove(key);
+					}
+				}
 			}
-		}
-		if(deleteFlag == 1){
-			typeList.removeIf(key -> typeMap.get(key.getKey()).equals(TypeEnum.ZUXUAN.getLabel()));
 		}
 
 		List<Key> timesList = new ArrayList<>();
 		StringBuilder timesStr = new StringBuilder();
+		List<String> tempTimesList = new ArrayList<>();
 		for(Map.Entry<String,String> entry : timesMap.entrySet()){
 			if (input.contains(entry.getKey())) {
 				if(entry.getKey().equals("三")){
@@ -594,39 +646,92 @@ public class InputFunction {
 					}
 				}
 
+
 				if(!timesStr.toString().contains(entry.getValue())){
 					Key key = new Key();
-					key.setKey(entry.getKey());
 					key.setPosition(input.indexOf(entry.getKey()));
-					timesList.add(key);
+					StringBuilder num = new StringBuilder(entry.getKey());
+					int position = key.getPosition();
+					if (commonFunction.toNumber(num.toString()) != 0){
+						for (int i = position+1; i < input.length(); i++) {
+							if (commonFunction.toNumber(String.valueOf(input.charAt(i))) == 0)
+								break;
+							num.append(input.charAt(i));
+						}
+
+
+						int bPosition = position -  1;
+						int aPosition = position + num.length();
+						if (bPosition < 0 || aPosition >= input.length()){
+							key.setKey(num.toString());
+							timesList.add(key);
+							continue;
+						}
+						if (otherMap.get(String.valueOf(input.charAt(aPosition))) != null &&
+								otherMap.get(String.valueOf(input.charAt(aPosition))).equals("元"))
+							continue;
+						if (commonFunction.toNumber(String.valueOf(input.charAt(bPosition))) == 0 && commonFunction.toNumber(String.valueOf(input.charAt(aPosition))) == 0){
+							key.setKey(num.toString());
+							timesList.add(key);
+						}
+					}else {
+						if (Character.isDigit(input.charAt(position-1)) && input.contains("倍")){
+							num = new StringBuilder(num.toString().replace("倍", ""));
+							for (int i = position - 1; i >= 0; i--) {
+								if (!Character.isDigit(input.charAt(i)))
+									break;
+								num.append(input.charAt(i));
+							}
+							key.setKey(new StringBuilder(num.toString()).reverse().toString());
+							timesList.add(key);
+							if (timesMap.get(num.toString()) == null)
+								tempTimesList.add(key.getKey());
+						}else {
+							key.setKey(num.toString());
+							timesList.add(key);
+						}
+					}
 					timesStr.append(entry.getValue());
 				}
 			}
+		}
+		if (tempTimesList.size()!=0){
+			for (String s : tempTimesList)
+				timesMap.put(s,s);
+		}
+
+
+		for (Key key : timesList){
+			if (timesMap.get(key.getKey())==null)
+				timesMap = addTimesMap(key,timesMap);
 		}
 
 		List<Key> otherList = new ArrayList<>();
 		for(Map.Entry<String,String> entry : otherMap.entrySet()){
 			if (input.contains(entry.getKey())) {
-				String inputStr = input;
-				while(inputStr.contains(entry.getKey())){
-					Key key = new Key();
-					key.setKey(entry.getKey());
-					key.setPosition(inputStr.indexOf(entry.getKey()));
-					otherList.add(key);
-					inputStr = inputStr.substring(0,key.getPosition()) + inputStr.substring(key.getPosition()+1);
-				}
+				addOtherTypeList(input,entry,otherList);
 			}
 		}
 
 		if (typeTwoList.size()!=0)
 			typeTwo = typeTwoMap.get(typeTwoList.get(0).getKey());
+		if (!globalVariable.typeTwo.equals(""))
+			typeTwo = globalVariable.typeTwo;
 
 		List<Float> priceList = new ArrayList<>();
+		int geFlag = 0;
+		int priceFlag = 0;
 		if (otherList.size()!=0){
 			if (otherList.size() == 1){
-				String result = otherType(otherMap.get(otherList.get(0).getKey()),input);
+				String result = otherType(otherMap.get(otherList.get(0).getKey()),input,otherMap);
 				if(result.split("--")[0].equals(KeyTypeEnum.TIMES.getLabel())) {
 					String money = result.split("--")[1];
+					String saveMoney = money;
+					if (money.contains(".")){
+						money = money.replace(".","");
+						int moneyTemp = Integer.parseInt(money);
+						money = String.valueOf(moneyTemp);
+					}
 					if (!otherKeyFunction.ifCNum(input)) {
 						int i = stringBuilder.indexOf(" " + money + " ");
 						int j = stringBuilder.indexOf(money + " ");
@@ -639,27 +744,35 @@ public class InputFunction {
 							group = group -1;
 						}
 					}
-					price = Float.parseFloat(money);
+					price = Float.parseFloat(saveMoney);
+					priceFlag = 1;
 				}
-			}
-			else {
+			} else {
 				String inputStr = input;
 				for (Key key : otherList){
-					String result = otherType(otherMap.get(key.getKey()),inputStr);
+					String result = otherType(otherMap.get(key.getKey()),inputStr,otherMap);
+					String money;
 					if(result.split("--")[0].equals(KeyTypeEnum.TIMES.getLabel())) {
-						String money = result.split("--")[1];
-						int i = stringBuilder.indexOf(money + " ");
-						if (i != -1) {
-							stringBuilder.delete(i, i + money.length() + 1);
-							group = group -1;
+						if (result.split("--").length == 1)
+							money = String.valueOf(priceList.get(priceList.size()-1));
+						else {
+							money = result.split("--")[1];
+							int i = stringBuilder.indexOf(money + " ");
+							if (i != -1) {
+								stringBuilder.delete(i, i + money.length() + 1);
+								group = group -1;
+							}
 						}
 						priceList.add(Float.parseFloat(money));
+					}
+					if (geFlag == 0 && String.valueOf(input.charAt(input.indexOf(key.getKey())-2)).equals("各")){
+						geFlag = 1;
+						continue;
 					}
 					int position = input.indexOf(key.getKey());
 					inputStr = input.substring(0,position) + input.substring(position+1);
 				}
 			}
-
 		}
 
 		//删除倍
@@ -674,9 +787,14 @@ public class InputFunction {
 				}
 				s = new StringBuilder(new StringBuilder(s.toString()).reverse().toString());
 				inputStr = inputStr.substring(0,inputStr.indexOf("倍")) + inputStr.substring(inputStr.indexOf("倍")+1);
-				inputStr = inputStr.substring(0,inputStr.indexOf(s.toString())) + inputStr.substring(inputStr.indexOf(s.toString())+1);
+				if (inputStr.length() - inputStr.indexOf("倍") < inputStr.length() - inputStr.lastIndexOf("倍")){
+					inputStr = inputStr.substring(0,inputStr.indexOf(s.toString())) + inputStr.substring(inputStr.indexOf(s.toString())+1);
+					p = stringBuilder.indexOf(s.toString());
+				}else{
+					inputStr = inputStr.substring(0,inputStr.lastIndexOf(s.toString())) + inputStr.substring(inputStr.lastIndexOf(s.toString()));
+					p = stringBuilder.lastIndexOf(s.toString());
+				}
 
-				p = stringBuilder.indexOf(s.toString());
 				stringBuilder.delete(p,p+s.length()+1);
 				group = group -1;
 			}
@@ -684,10 +802,35 @@ public class InputFunction {
 
 		Ticket ticket = new Ticket();
 		if (typeList.size() == 0){
-			Key key = new Key();
-			key.setKey(TypeEnum.ZHIXUAN.getLabel());
-			key.setPosition(0);
-			typeList.add(key);
+			if (stringBuilder.toString().split(" ")[0].length()==1){
+				Key key = new Key();
+				key.setKey(TypeEnum.DD.getLabel());
+				key.setPosition(0);
+				typeList.add(key);
+			}else if (stringBuilder.toString().split(" ")[0].length()==2){
+				Key key = new Key();
+				key.setKey(TypeEnum.SF.getLabel());
+				key.setPosition(0);
+				typeList.add(key);
+			}else {
+				Key key = new Key();
+				key.setKey(TypeEnum.ZHIXUAN.getLabel());
+				key.setPosition(0);
+				typeList.add(key);
+			}
+		}
+
+		if (stringBuilder.toString().split(" ")[0].length() == 3 && priceFlag == 0){
+			for (Key key : typeList){
+				String type = typeMap.get(key.getKey());
+				if (!type.equals(TypeEnum.ZHIXUAN.getLabel()) && !type.equals(TypeEnum.ZUXUAN.getLabel()) &&
+						!type.equals(TypeEnum.ZL.getLabel()))
+					price = PriceEnum.TEN.getVal();
+				else
+					price = PriceEnum.TOW.getVal();
+			}
+		}else if (stringBuilder.toString().split(" ")[0].length() != 3 && priceFlag == 0){
+			price = PriceEnum.TEN.getVal();
 		}
 
 		if(typeList.size() == 1){
@@ -750,17 +893,11 @@ public class InputFunction {
 		for(Map.Entry<String,String> entry : otherMap.entrySet()){
 			if (input.contains(entry.getKey())) {
 				inputStr = input;
-				while(inputStr.contains(entry.getKey())){
-					Key key = new Key();
-					key.setKey(entry.getKey());
-					key.setPosition(inputStr.indexOf(entry.getKey()));
-					otherList.add(key);
-					inputStr = inputStr.substring(0,key.getPosition()) + inputStr.substring(key.getPosition()+1);
-				}
+				addOtherTypeList(inputStr,entry,otherList);
 			}
 		}
 
-		String result = otherType(otherMap.get(otherList.get(0).getKey()),input);
+		String result = otherType(otherMap.get(otherList.get(0).getKey()),input,otherMap);
 		String money = result.split("--")[1];
 
 		String number = "百十个";
@@ -785,6 +922,11 @@ public class InputFunction {
 
 
 		return ticket;
+	}
+
+	public Map<String,String> addTimesMap(Key key,Map<String,String> timesMap){
+		timesMap.put(key.getKey(),String.valueOf(commonFunction.toNumber(key.getKey())));
+		return timesMap;
 	}
 		/*public List<List<String>> autoRecognitionKey(Map<String,String> KEY_MAP,String input){
 			List<List<String>> resultList = new ArrayList<>();
@@ -1000,6 +1142,4 @@ public class InputFunction {
 	public Integer getGroup(String serialNumber){
 		return serialNumber.trim().split(" ").length;
 	} */
-
-
 }

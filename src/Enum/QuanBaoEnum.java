@@ -1,10 +1,10 @@
 package Enum;
 
 public enum QuanBaoEnum {
-	BZQB("豹子全包",0),
-	ZLQB("组六全包", 1),
-	ZSQB("组三全包", 2),
-	DZQB("对子全包", 3);
+	BZQB(TypeEnum.BZQB.getLabel(),0),
+	ZLQB(TypeEnum.ZLQB.getLabel(), 1),
+	ZSQB(TypeEnum.ZSQB.getLabel(), 2),
+	DZQB(TypeEnum.DZQB.getLabel(), 3);
 
 	private final String label;
 	private final int val;
