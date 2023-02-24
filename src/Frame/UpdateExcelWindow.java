@@ -89,7 +89,7 @@ public class UpdateExcelWindow {
 
 		JComboBox<String> typeComboBox = new JComboBox<>();
 		for(TypeEnum typeEnum: TypeEnum.values()){
-			if(inputFunction.filterTpye(typeEnum.getLabel()))
+			if(inputFunction.filterType(typeEnum.getLabel()))
 				continue;
 			typeComboBox.addItem(typeEnum.getLabel());
 			typeComboBox.setFont(fontEnum.mainFont);

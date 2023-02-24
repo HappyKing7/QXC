@@ -2,6 +2,7 @@ package Function;
 
 import Bean.GlobalVariable;
 import Enum.*;
+import Start.input;
 import jxl.Sheet;
 import jxl.Workbook;
 
@@ -129,6 +130,15 @@ public class CommonFunction {
 			str = str.replace("十","");
 		}
 
+		if (str.equals("百")){
+			return 100;
+		}
+		if (str.equals("千")){
+			return 1000;
+		}
+		if (str.equals("万")){
+			return 10000;
+		}
 
 		boolean ok=process(str);
 		if(ok){
@@ -221,5 +231,15 @@ public class CommonFunction {
 		for (String s : resultList2) {
 			System.out.println(s);
 		}
+	}
+
+	public List<Integer> findKetPosition(String keywords,String input){
+		int index = 0;
+		List<Integer> indexList = new ArrayList<>();
+		while ((index = input.indexOf(keywords, index)) >= 0) {
+			indexList.add(index);
+			index = index + keywords.length();
+		}
+		return indexList;
 	}
 }

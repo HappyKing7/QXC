@@ -18,17 +18,19 @@ public class test {
 	private static final AutoPretreatmentFunction autoPretreatmentFunction = new AutoPretreatmentFunction();
 	private static final CommonFunction commonFunction = new CommonFunction();
 	public static void main(String[] args) throws IOException {
-		//手动测试 自动测试
+		//手动测试 自动测试 √ ×
+		//02双飞 20
 		String function = "自动测试";
-		String inputSerialNumber = "738 830 831 832 834 835 837 852 853 854 859 870 872 873 874 879 078 278 378 478 978 038 138 238 258 358 438 458 538 958 874 538 847 748 直5角\n" +
-				"直2快\n" +
-				"874 478 748 847 178 045";//类型和号码要加一个空格隔开 “02双飞一20元”
-		System.out.println(startTest(function,inputSerialNumber));
+		String inputSerialNumber = "体311二十一元";//类型和号码要加一个空格隔开 “02双飞-20元” ”764，4单1组“ "57 福彩双飞20"
+		Integer spaceSwitchMode = 1;//0关,1开 ，
+
+		System.out.println(startTest(function,inputSerialNumber,spaceSwitchMode));
 	}
 
-	static String startTest(String function,String inputSerialNumber) throws IOException {
+	static String startTest(String function,String inputSerialNumber,Integer spaceSwitchMode) throws IOException {
 		GlobalVariable globalVariable = new GlobalVariable();
 		globalVariable.setFilePath(INPUT_FUNCTION.readConfig(0));
+		globalVariable.setSpaceSwitchMode(spaceSwitchMode);
 		String type = "";
 		String typeTwo = "体彩";
 		String inputPrice = "2";
@@ -37,26 +39,6 @@ public class test {
 
 		List<String> resultList1 = new ArrayList<>();
 		switch (function) {
-			case "0":
-				String serialNumber = "";
-				while (!serialNumber.equals("end")) {
-					System.out.print("INPUT:");
-					Scanner scanner = new Scanner(System.in);
-					serialNumber = scanner.nextLine();
-					String[] s = serialNumber.split("\n");
-					if (s.length != 1) {
-						for (String str : s) {
-							inputFunction.getNumber(globalVariable.tickets, globalVariable.alllistNo, globalVariable.ticketsNo, str,
-									type, typeTwo, inputPrice, times, globalVariable.functionType, globalVariable.filePath, globalVariable);
-						}
-					} else {
-						inputFunction.getNumber(globalVariable.tickets, globalVariable.alllistNo, globalVariable.ticketsNo, serialNumber,
-								type, typeTwo, inputPrice, times, globalVariable.functionType, globalVariable.filePath, globalVariable);
-					}
-					printTicket(globalVariable, resultList1, function);
-					globalVariable.tickets = new TicketList();
-				}
-				return "end";
 			case "自动测试": {
 				String path = INPUT_FUNCTION.readConfig(0) + "测试.xlsx";
 				Workbook wrb;
@@ -178,11 +160,4 @@ public class test {
 			autoPretreatmentFunction.autoPretreatment(serialNumbers,globalVariable,type,typeTwo,inputPrice,times,str,otherMap,moneyKeys);
 		}
 	}
-//	String keywords = "倍";
-//	int index = 0;
-//	List<Integer> indexList = new ArrayList<>();
-//	while ((index = input.indexOf(keywords, index)) >= 0) {
-//		indexList.add(index);
-//		index = index + keywords.length();
-//	}
 }

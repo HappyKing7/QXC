@@ -19,7 +19,7 @@ public class GlobalVariable {
 	public String functionType ="非组合";
 	public Map<String,UpdateExcel> updateExcelMap = new HashMap<>();
 	public Integer spaceSwitchMode = 1; //0关,1开
-	public Integer testSwitchMode = 1; //0关,1开
+	public Integer testSwitchMode = 0; //0关,1开
 
 	public Frame getOneFrame() {
 		return oneFrame;
@@ -91,5 +91,13 @@ public class GlobalVariable {
 
 	public void setFunctionType(String functionType) {
 		this.functionType = functionType;
+	}
+
+	public Integer getSpaceSwitchMode() {
+		return spaceSwitchMode;
+	}
+
+	public void setSpaceSwitchMode(Integer spaceSwitchMode) {
+		this.spaceSwitchMode = spaceSwitchMode;
 	}
 }

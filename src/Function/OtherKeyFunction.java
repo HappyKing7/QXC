@@ -29,8 +29,9 @@ public class OtherKeyFunction {
 				price.append(serialNumber.charAt(j));
 			}else if (C_NUM.get(String.valueOf(serialNumber.charAt(j)))!=null) {
 				if(String.valueOf(serialNumber.charAt(j)).equals("三") || String.valueOf(serialNumber.charAt(j)).equals("六")){
-					if (j - 1 >= 0 && !String.valueOf(serialNumber.charAt(j-1)).equals("组"))
+					if (j - 1 >= 0 && !String.valueOf(serialNumber.charAt(j-1)).equals("组")){
 						price.append(C_NUM.get(String.valueOf(serialNumber.charAt(j))));
+					}
 				}else
 					cPrice.append(serialNumber.charAt(j));
 			}else{
@@ -48,8 +49,9 @@ public class OtherKeyFunction {
 			else
 				return  new StringBuilder(price.toString()).reverse().toString();
 		}
-		else
+		else{
 			return String.valueOf(commonFunction.toNumber(new StringBuilder(cPrice.toString()).reverse().toString()));
+		}
 	}
 
 	public Map<String,String> getCNum(){
@@ -64,6 +66,9 @@ public class OtherKeyFunction {
 		C_NUM.put("八","8");
 		C_NUM.put("九","9");
 		C_NUM.put("十","10");
+		C_NUM.put("百","100");
+		C_NUM.put("千","1000");
+		C_NUM.put("万","10000");
 		return C_NUM;
 	}
 

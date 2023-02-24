@@ -28,7 +28,7 @@ public class InputFunction {
 	private static final CommonFunction commonFunction = new CommonFunction();
 	private static final OtherKeyFunction otherKeyFunction = new OtherKeyFunction();
 
-	public Boolean filterTpye(String type){
+	public Boolean filterType(String type){
 		if(type.equals(TypeEnum.ALL.getLabel())){
 			return true;
 		}
@@ -607,9 +607,37 @@ public class InputFunction {
 					Key key = new Key();
 					key.setKey(entry.getKey());
 					key.setPosition(input.indexOf(entry.getKey()));
+
+					if (Character.isDigit(input.charAt(input.length()-1)) && !input.contains("倍")) {
+						int otherFlag = 0;
+						for(Map.Entry<String,String> entry1 : otherMap.entrySet()){
+							if (input.contains(entry1.getKey()))
+								otherFlag = 1;
+						}
+						if (otherFlag == 0)
+							input = input + "倍";
+					}
+
 					if (key.getPosition()-1 >= 0 && globalVariable.spaceSwitchMode == 1){
-						if (Character.isDigit(input.charAt(key.getPosition()-1)))
-							input = input.substring(0,key.getPosition()) + "倍" + input.substring(key.getPosition());
+						if (Character.isDigit(input.charAt(key.getPosition()-1))){
+							int savePosition = key.getPosition()-1;
+							StringBuilder n = new StringBuilder();
+							for (int i = savePosition; i >= 0; i--) {
+								if (Character.isDigit(input.charAt(i)))
+									n.append(input.charAt(i));
+								else
+									break;
+							}
+							if ((typeMap.get(entry.getKey()).equals(TypeEnum.ZHIXUAN.getLabel()) || typeMap.get(entry.getKey()).equals(TypeEnum.ZUXUAN.getLabel()))
+									&& n.length() <=2){
+								if (key.getPosition()+1 < input.length()){
+									String nextStr = String.valueOf(input.charAt(key.getPosition()+1));
+									if (typeMap.get(entry.getKey()).equals(TypeEnum.ZUXUAN.getLabel()) && (nextStr.equals("三") || nextStr.equals("六")))
+										continue;
+								}
+								input = input.substring(0,key.getPosition()) + "倍" + input.substring(key.getPosition());
+							}
+						}
 					}
 					typeList.add(key);
 					typeStr.append(entry.getValue());
@@ -653,39 +681,35 @@ public class InputFunction {
 					StringBuilder num = new StringBuilder(entry.getKey());
 					int position = key.getPosition();
 					if (commonFunction.toNumber(num.toString()) != 0){
-						for (int i = position+1; i < input.length(); i++) {
-							if (commonFunction.toNumber(String.valueOf(input.charAt(i))) == 0)
-								break;
-							num.append(input.charAt(i));
-						}
-
-
-						int bPosition = position -  1;
-						int aPosition = position + num.length();
-						if (bPosition < 0 || aPosition >= input.length()){
-							key.setKey(num.toString());
-							timesList.add(key);
-							continue;
-						}
-						if (otherMap.get(String.valueOf(input.charAt(aPosition))) != null &&
-								otherMap.get(String.valueOf(input.charAt(aPosition))).equals("元"))
-							continue;
-						if (commonFunction.toNumber(String.valueOf(input.charAt(bPosition))) == 0 && commonFunction.toNumber(String.valueOf(input.charAt(aPosition))) == 0){
-							key.setKey(num.toString());
-							timesList.add(key);
+						input = input.replace("倍","");
+						List<Integer> indexList = commonFunction.findKetPosition(entry.getKey(),input);
+						if (indexList.size() > 1){
+							for (Integer index : indexList){
+								key = new Key();
+								num = new StringBuilder(entry.getKey());
+								position = index;
+								key.setPosition(index);
+								if (addTimeList(input, otherMap, timesList, key, num, position)) break;
+							}
+						}else {
+							if (addTimeList(input, otherMap, timesList, key, num, position)) continue;
 						}
 					}else {
 						if (Character.isDigit(input.charAt(position-1)) && input.contains("倍")){
-							num = new StringBuilder(num.toString().replace("倍", ""));
-							for (int i = position - 1; i >= 0; i--) {
-								if (!Character.isDigit(input.charAt(i)))
-									break;
-								num.append(input.charAt(i));
+							List<Integer> indexList = commonFunction.findKetPosition(entry.getKey(),input);
+							if (indexList.size() > 1){
+								for (Integer index : indexList){
+									key = new Key();
+									num = new StringBuilder(entry.getKey());
+									num = new StringBuilder(num.toString().replace("倍", ""));
+									position = index;
+									key.setPosition(index);
+									addTimesList(input, timesMap, timesList, tempTimesList, key, num, position);
+								}
+							}else {
+								num = new StringBuilder(num.toString().replace("倍", ""));
+								addTimesList(input, timesMap, timesList, tempTimesList, key, num, position);
 							}
-							key.setKey(new StringBuilder(num.toString()).reverse().toString());
-							timesList.add(key);
-							if (timesMap.get(num.toString()) == null)
-								tempTimesList.add(key.getKey());
 						}else {
 							key.setKey(num.toString());
 							timesList.add(key);
@@ -781,7 +805,7 @@ public class InputFunction {
 			while (inputStr.contains("倍")){
 				StringBuilder s = new StringBuilder();
 				int p = inputStr.indexOf("倍") - 1;
-				while(Character.isDigit(inputStr.charAt(p))){
+				while(p>=0 && Character.isDigit(inputStr.charAt(p))){
 					s.append(inputStr.charAt(p));
 					p = p - 1;
 				}
@@ -802,22 +826,16 @@ public class InputFunction {
 
 		Ticket ticket = new Ticket();
 		if (typeList.size() == 0){
+			Key key = new Key();
+			key.setPosition(0);
 			if (stringBuilder.toString().split(" ")[0].length()==1){
-				Key key = new Key();
 				key.setKey(TypeEnum.DD.getLabel());
-				key.setPosition(0);
-				typeList.add(key);
 			}else if (stringBuilder.toString().split(" ")[0].length()==2){
-				Key key = new Key();
 				key.setKey(TypeEnum.SF.getLabel());
-				key.setPosition(0);
-				typeList.add(key);
 			}else {
-				Key key = new Key();
 				key.setKey(TypeEnum.ZHIXUAN.getLabel());
-				key.setPosition(0);
-				typeList.add(key);
 			}
+			typeList.add(key);
 		}
 
 		if (stringBuilder.toString().split(" ")[0].length() == 3 && priceFlag == 0){
@@ -867,6 +885,42 @@ public class InputFunction {
 			}
 		}
 		return ticket;
+	}
+
+	public void addTimesList(String input, Map<String, String> timesMap, List<Key> timesList, List<String> tempTimesList, Key key, StringBuilder num, int position) {
+		for (int i = position - 1; i >= 0; i--) {
+			if (!Character.isDigit(input.charAt(i)))
+				break;
+			num.append(input.charAt(i));
+		}
+		key.setKey(new StringBuilder(num.toString()).reverse().toString());
+		timesList.add(key);
+		if (timesMap.get(num.toString()) == null)
+			tempTimesList.add(key.getKey());
+	}
+
+	public boolean addTimeList(String input, Map<String, String> otherMap, List<Key> timesList, Key key, StringBuilder num, int position) {
+		for (int i = position + 1; i < input.length(); i++) {
+			if (commonFunction.toNumber(String.valueOf(input.charAt(i))) == 0)
+				break;
+			num.append(input.charAt(i));
+		}
+
+		int bPosition = position - 1;
+		int aPosition = position + num.length();
+		if (bPosition < 0 || aPosition >= input.length()) {
+			key.setKey(num.toString());
+			timesList.add(key);
+			return true;
+		}
+		if (otherMap.get(String.valueOf(input.charAt(aPosition))) != null &&
+				otherMap.get(String.valueOf(input.charAt(aPosition))).equals("元"))
+			return true;
+		if (commonFunction.toNumber(String.valueOf(input.charAt(bPosition))) == 0 && commonFunction.toNumber(String.valueOf(input.charAt(aPosition))) == 0) {
+			key.setKey(num.toString());
+			timesList.add(key);
+		}
+		return false;
 	}
 
 	public Ticket autoRecognition3(String filePath, String input,String typeTwo, TicketList tickets){
@@ -928,6 +982,7 @@ public class InputFunction {
 		timesMap.put(key.getKey(),String.valueOf(commonFunction.toNumber(key.getKey())));
 		return timesMap;
 	}
+
 		/*public List<List<String>> autoRecognitionKey(Map<String,String> KEY_MAP,String input){
 			List<List<String>> resultList = new ArrayList<>();
 
