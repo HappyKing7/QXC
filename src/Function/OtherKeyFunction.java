@@ -29,14 +29,18 @@ public class OtherKeyFunction {
 				price.append(serialNumber.charAt(j));
 			}else if (C_NUM.get(String.valueOf(serialNumber.charAt(j)))!=null) {
 				if(String.valueOf(serialNumber.charAt(j)).equals("三") || String.valueOf(serialNumber.charAt(j)).equals("六")){
-					if (j - 1 >= 0 && !String.valueOf(serialNumber.charAt(j-1)).equals("组")){
-						price.append(C_NUM.get(String.valueOf(serialNumber.charAt(j))));
+					if (cPrice.toString().contains("百")){
+						cPrice.append(serialNumber.charAt(j));
+					}else if (j - 1 >= 0 && !String.valueOf(serialNumber.charAt(j-1)).equals("组")){
+						if (cPrice.toString().equals(""))
+							price.append(C_NUM.get(String.valueOf(serialNumber.charAt(j))));
+						else
+							cPrice.append(serialNumber.charAt(j));
 					}
 				}else
 					cPrice.append(serialNumber.charAt(j));
 			}else{
-				if(!String.valueOf(serialNumber.charAt(j)).equals("(") && !String.valueOf(serialNumber.charAt(j)).equals("（"))
-					break;
+				break;
 			}
 		}
 
@@ -79,13 +83,15 @@ public class OtherKeyFunction {
 			return true;
 		if (serialNumber.contains("二"))
 			return true;
-		if (serialNumber.contains("三") && !String.valueOf(serialNumber.charAt(serialNumber.indexOf("三")-1)).equals("组"))
+		if (serialNumber.contains("三") && serialNumber.indexOf("三")-1 >=0 &&
+				!String.valueOf(serialNumber.charAt(serialNumber.indexOf("三")-1)).equals("组"))
 			return true;
 		if (serialNumber.contains("四"))
 			return true;
 		if (serialNumber.contains("五"))
 			return true;
-		if (serialNumber.contains("六") && !String.valueOf(serialNumber.charAt(serialNumber.indexOf("六")-1)).equals("组"))
+		if (serialNumber.contains("六") && serialNumber.indexOf("六")-1 >=0 &&
+				!String.valueOf(serialNumber.charAt(serialNumber.indexOf("六")-1)).equals("组"))
 			return true;
 		if (serialNumber.contains("七"))
 			return true;

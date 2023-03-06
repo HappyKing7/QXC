@@ -40,7 +40,7 @@ public class UpdateExcelWindow {
 		//序列号
 		JTextField serialNumberJF=new JTextField(serialNumber,50);
 		serialNumberJF.setFont(fontEnum.updateFont);
-		JTextField groupNumberJF=new JTextField(details[0].replace("组",""),5);
+		JTextField groupNumberJF=new JTextField(details[0].replace("注",""),5);
 		groupNumberJF.setFont(fontEnum.mainFont);
 
 		//单价
@@ -161,7 +161,7 @@ public class UpdateExcelWindow {
 			fssl.setTotalMoney(inputFunction.moneyAddChinese(String.format("%.2f",oldTotalMoney - oldDetailPrice + updateTotalPrice),"总计","元"));
 
 			ss.setSerialNumber(serialNumberJF.getText());
-			ss.setDetail(groupNumberJF.getText() + "组" + "," + "单价" + updateUnitPrice + "," +
+			ss.setDetail(groupNumberJF.getText() + "注" + "," + "单价" + updateUnitPrice + "," +
 					typeTwoJF.getText() + "," + typeJF.getText() + "," + inputFunction.moneyAddChinese(String.format("%.2f",updateTotalPrice),"总","元"));
 
 			UpdateExcel updateExcel = new UpdateExcel();

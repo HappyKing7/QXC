@@ -47,12 +47,12 @@ public class OneSummaryWindow {
 		showOneSummaryPanel.add(panel);
 		Button update = new Button("修改");
 		Button delete = new Button("删除");
-		Button sumbit = new Button("下单");
+		Button submit = new Button("下单");
 		JPanel buttonPanel=new JPanel();
 		buttonPanel.setFont(fontEnum.oneSummaryFont);
 		buttonPanel.add(update);
 		buttonPanel.add(delete);
-		buttonPanel.add(sumbit);
+		buttonPanel.add(submit);
 		//panel.add(buttonPanel);
 
 		showOneSummaryPanel.add(panel,BorderLayout.NORTH);

@@ -2,7 +2,6 @@ package Function;
 
 import Bean.GlobalVariable;
 import Enum.*;
-import Start.input;
 import jxl.Sheet;
 import jxl.Workbook;
 
@@ -224,12 +223,14 @@ public class CommonFunction {
 	public void printFailList(List<String> resultList,List<String> resultList2){
 		System.out.println(resultList.size());
 		System.out.println(resultList2.size());
-		for (String s : resultList) {
-			System.out.println(s);
-		}
-		System.out.println();
-		for (String s : resultList2) {
-			System.out.println(s);
+
+		for (int i = 0; i < resultList2.size(); i++) {
+			if (!resultList2.get(i).equals(resultList.get(i))){
+				System.out.println(resultList.get(i) + " " + resultList2.get(i));
+				break;
+			}else {
+				System.out.println(resultList.get(i) + " " + resultList2.get(i));
+			}
 		}
 	}
 

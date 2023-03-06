@@ -67,9 +67,8 @@ public class MainWindow {
 		//序列号
 /*		JTextField ztSerialNumberJF=new JTextField(50);
 		ztSerialNumberJF.setFont(fontEnum.mainFont);*/
-		JTextArea sdSerialNumberJTA=new JTextArea(6,50);
+		JTextArea sdSerialNumberJTA=new JTextArea(7,45);
 		sdSerialNumberJTA.setFont(fontEnum.mainFont);
-		sdSerialNumberJTA.setLineWrap(true);
 		JScrollPane sp = new JScrollPane(sdSerialNumberJTA);
 		JTextField groupNumberJF=new JTextField(5);
 		groupNumberJF.setEditable(false);
@@ -265,11 +264,11 @@ public class MainWindow {
 		JPanel sdSerialNumberPanel= new JPanel();
 		sdSerialNumberPanel.add(functionPanel);
 		sdSerialNumberPanel.add(recognitionInfoButton);
-		sdSerialNumberPanel	= componentInit.initJPanel(sdSerialNumberPanel,"序列号",sp);
+		sdSerialNumberPanel	= componentInit.initJPanel(sdSerialNumberPanel,"",sp);
 		Button reset = new Button("重置");
 		reset.setFont(fontEnum.mainFont);
 		sdSerialNumberPanel.add(groupNumberJF);
-		sdSerialNumberPanel = componentInit.iniJPanel(sdSerialNumberPanel,"组");
+		sdSerialNumberPanel = componentInit.iniJPanel(sdSerialNumberPanel,"注");
 		sdSerialNumberPanel.add(clean);
 		//sdSerialNumberPanel.add(reset);
 		//第三行 单价 + 倍数 + 类型 + 类别
@@ -312,14 +311,14 @@ public class MainWindow {
 		Button note = new Button("备注");
 		Button update = new Button("修改");
 		Button delete = new Button("删除");
-		Button sumbit = new Button("下单");
+		Button submit = new Button("下单");
 		Button cleanNow = new Button("清空当前数据");
 		JPanel oneSummaryButtonPanel=new JPanel();
 		oneSummaryButtonPanel.setFont(fontEnum.oneSummaryFont);
 		oneSummaryButtonPanel.add(note);
 		oneSummaryButtonPanel.add(update);
 		oneSummaryButtonPanel.add(delete);
-		oneSummaryButtonPanel.add(sumbit);
+		oneSummaryButtonPanel.add(submit);
 		oneSummaryButtonPanel.add(cleanNow);
 		oneSummaryButtonPanel.setVisible(false);
 
@@ -423,19 +422,16 @@ public class MainWindow {
 			String type = typeJF.getText();
 			String typeTwo = typeTwoJF.getText();
 
-			Map<String,String> otherMap = keyFunction.readKeyExcel(globalVariable.filePath).get(3);
+			List<Map<String,String>> mapList = keyFunction.readKeyExcel(globalVariable.filePath);
+			Map<String,String> typeMap = mapList.get(1);
+			Map<String, String> otherMap = mapList.get(3);
 			StringBuilder moneyKeys =  commonFunction.getMoneyKeys(otherMap);
 			serialNumber = commonFunction.dealMa(serialNumber);
 			String[] serialNumbers = serialNumber.split("\n");
 			String output = "";
-			if (serialNumbers.length == 1){
-				output = inputFunction.getNumber(globalVariable.tickets,globalVariable.alllistNo,globalVariable.ticketsNo,
-						serialNumber,type,typeTwo,inputPrice,times,globalVariable.functionType,globalVariable.filePath,
-						globalVariable);
-			}else {
-				autoPretreatmentFunction.autoPretreatment(serialNumbers,globalVariable,type,typeTwo,inputPrice,times,serialNumber,otherMap,moneyKeys);
-				globalVariable.typeTwo = "";
-			}
+			autoPretreatmentFunction.autoPretreatment(serialNumbers,globalVariable,type,typeTwo,inputPrice,times,serialNumber,
+					typeMap,otherMap,moneyKeys);
+			globalVariable.typeTwo = "";
 
 			globalVariable.typeTwo = "";
 			if(output == null || output.equals("fail")){
@@ -536,9 +532,9 @@ public class MainWindow {
 			}
 		});
 
-		sumbit.addActionListener(e -> {
+		submit.addActionListener(e -> {
 			try {
-				String result = inputFunction.sumbit(globalVariable.filePath,globalVariable.tickets,titleJF.getText());
+				String result = inputFunction.submit(globalVariable.filePath,globalVariable.tickets,titleJF.getText());
 				if(!result.equals("成功")){
 					warmWindow.warmWindow(result,fontEnum.warmInfoFont);
 				}else{
