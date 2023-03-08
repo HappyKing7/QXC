@@ -1,7 +1,10 @@
 package Function;
 
 import Bean.GlobalVariable;
+import Enum.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,8 +14,15 @@ public class AutoPretreatmentFunction {
 	private static final CommonFunction commonFunction = new CommonFunction();
 
 	public void autoPretreatment(String[] serialNumbers, GlobalVariable globalVariable, String type, String typeTwo,
-								 String inputPrice, String times, String str, Map<String,String> typeMap,
-								 Map<String, String> otherMap, StringBuilder moneyKeys){
+								 String inputPrice, String times, String str, Map<String,String> typeTwoMap,
+								 Map<String,String> typeMap, Map<String, String> otherMap, StringBuilder moneyKeys){
+		List<String> typeTwoList = findTypeTwo(str,typeTwoMap);
+		if (typeTwoList.size()==0){
+			typeTwo = TypeTwoEnum.TICAI.getLabel();
+		}else if (typeTwoList.size()==1){
+			typeTwo = typeTwoList.get(0);
+		}
+
 		StringBuilder yuan = new StringBuilder();
 
 		int flag = 0;
@@ -51,8 +61,10 @@ public class AutoPretreatmentFunction {
 		StringBuilder saveStr = new StringBuilder();
 		Pattern pattern1 = Pattern.compile("[0-9]+");
 		for (String s1 : serialNumbers) {
-			if (s1.equals(""))
+			if (s1.equals("")){
+				yuan = new StringBuilder();
 				continue;
+			}
 
 			Matcher matcher1 = pattern1.matcher(s1);
 			if (matcher1.find()) {
@@ -84,6 +96,8 @@ public class AutoPretreatmentFunction {
 					if (!matcher1.find()){
 						saveStr = new StringBuilder(s1 + " ");
 						continue;
+					}else {
+						s1 = s1.replace("3d","福彩").replace("3D","福彩");
 					}
 				}
 
@@ -157,5 +171,15 @@ public class AutoPretreatmentFunction {
 				return true;
 		}
 		return false;
+	}
+
+	public List<String> findTypeTwo(String str,Map<String,String> typeTwoMap){
+		List<String> typeTwoList = new ArrayList<>();
+		for(Map.Entry<String,String> entry : typeTwoMap.entrySet()){
+			if (str.contains(entry.getKey()) && !typeTwoList.contains(entry.getValue())){
+				typeTwoList.add(entry.getValue());
+			}
+		}
+		return typeTwoList;
 	}
 }

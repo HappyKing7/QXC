@@ -2,6 +2,8 @@ package Function;
 
 import Bean.*;
 import Enum.*;
+import Start.input;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -130,8 +132,10 @@ public class AutoRecognitionFunction {
 		List<String> tempTimesList = new ArrayList<>();
 		for(Map.Entry<String,String> entry : timesMap.entrySet()){
 			if (input.contains(entry.getKey())) {
+				int position = input.indexOf(entry.getKey());
+
 				if(entry.getKey().equals("三")){
-					int position = input.indexOf(entry.getKey());
+
 					if (position - 1 >= 0 && String.valueOf(input.charAt(position-1)).equals("组"))
 						continue;
 					if (position - 2 >= 0 && String.valueOf(input.charAt(position-1)).equals("列") &&
@@ -140,20 +144,20 @@ public class AutoRecognitionFunction {
 				}
 
 				if(entry.getKey().equals("六")){
-					int position = input.indexOf(entry.getKey());
 					if (position - 1 >= 0 && String.valueOf(input.charAt(position-1)).equals("组")){
 						continue;
 					}
 				}
 
-
 				if(!timesStr.toString().contains(entry.getValue())){
 					Key key = new Key();
 					key.setPosition(input.indexOf(entry.getKey()));
 					StringBuilder num = new StringBuilder(entry.getKey());
-					int position = key.getPosition();
+					position = key.getPosition();
+					if (position+1<input.length()-1 && otherMap.get(String.valueOf(input.charAt(position+1)))!=null){
+						continue;
+					}
 					if (commonFunction.toNumber(num.toString()) != 0){
-						input = input.replace("倍","");
 						List<Integer> indexList = commonFunction.findKetPosition(entry.getKey(),input);
 						if (indexList.size() > 1){
 							for (Integer index : indexList){
@@ -217,11 +221,34 @@ public class AutoRecognitionFunction {
 				if(result.split("--")[0].equals(KeyTypeEnum.TIMES.getLabel())) {
 					String money = result.split("--")[1];
 					String saveMoney = money;
+
+					if (money.contains("0.")){
+						int i = stringBuilder.indexOf(" " + 0 + " ");
+						int j = stringBuilder.indexOf(0 + " ");
+						if (i != -1) {
+							if (Math.abs(stringBuilder.indexOf("0") - i) < Math.abs(stringBuilder.lastIndexOf("0") - i)){
+								stringBuilder.delete(stringBuilder.indexOf("0"),stringBuilder.indexOf("0")+2);
+							}else {
+								stringBuilder.delete(stringBuilder.lastIndexOf("0"),stringBuilder.lastIndexOf("0")+2);
+							}
+							group = group -1;
+						}
+						if (j == 0){
+							if (Math.abs(stringBuilder.indexOf("0") - j) < Math.abs(stringBuilder.lastIndexOf("0") - j)){
+								stringBuilder.delete(stringBuilder.indexOf("0"),stringBuilder.indexOf("0")+2);
+							}else {
+								stringBuilder.delete(stringBuilder.lastIndexOf("0"),stringBuilder.lastIndexOf("0")+2);
+							}
+							group = group -1;
+						}
+					}
+
 					if (money.contains(".")){
 						money = money.replace(".","");
 						int moneyTemp = Integer.parseInt(money);
 						money = String.valueOf(moneyTemp);
 					}
+
 					if (!otherKeyFunction.ifCNum(input)) {
 						int i = stringBuilder.indexOf(" " + money + " ");
 						int j = stringBuilder.indexOf(money + " ");
@@ -234,6 +261,7 @@ public class AutoRecognitionFunction {
 							group = group -1;
 						}
 					}
+
 					price = Float.parseFloat(saveMoney);
 					priceFlag = 1;
 				}
@@ -283,7 +311,7 @@ public class AutoRecognitionFunction {
 			}
 			s = new StringBuilder(new StringBuilder(s.toString()).reverse().toString());
 			inputStr = inputStr.substring(0,inputStr.indexOf("倍")) + inputStr.substring(inputStr.indexOf("倍")+1);
-			if (inputStr.length() - inputStr.indexOf("倍") < inputStr.length() - inputStr.lastIndexOf("倍")){
+			if (Math.abs(inputStr.indexOf(s.toString()) - p) < Math.abs(inputStr.lastIndexOf(s.toString()) - p)){
 				inputStr = inputStr.substring(0,inputStr.indexOf(s.toString())) + inputStr.substring(inputStr.indexOf(s.toString())+1);
 				p = stringBuilder.indexOf(s.toString());
 			}else{
@@ -307,8 +335,10 @@ public class AutoRecognitionFunction {
 			key.setKey(TypeEnum.DD.getLabel());
 		}else if (stringBuilder.toString().split(" ")[0].length()==2){
 			key.setKey(TypeEnum.SF.getLabel());
-		}else {
+		}else if (stringBuilder.toString().split(" ")[0].length()==3){
 			key.setKey(TypeEnum.ZHIXUAN.getLabel());
+		}else{
+			key.setKey(TypeEnum.ZL.getLabel());
 		}
 		typeList.add(key);
 		return typeList;
@@ -357,7 +387,17 @@ public class AutoRecognitionFunction {
 				}
 			}
 		}else {
-			if (timesList.size() <= 1 || otherList.size()!=0){
+			if (timesList.size()>1 && otherList.size()!=0){
+				typeList = typeList.stream().sorted(Comparator.comparing(Key :: getPosition)).collect(Collectors.toList());
+				timesList = timesList.stream().sorted(Comparator.comparing(Key :: getPosition)).collect(Collectors.toList());
+				Float money;
+				for (int i = 0; i < typeList.size(); i++) {
+					money = price * Float.parseFloat(timesMap.get(timesList.get(i).getKey()));
+					ticket = new Ticket();
+					Key key = typeList.get(i);
+					ticket = inputFunction.addTicket(ticket,typeMap.get(key.getKey()),typeTwo,money,stringBuilder,group,times,tickets);
+				}
+			}else if (timesList.size() <= 1){
 				if (timesList.size() == 1)
 					price = price * Float.parseFloat(timesMap.get(timesList.get(0).getKey()));
 				if (priceList.size() != 0)

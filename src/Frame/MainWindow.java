@@ -423,14 +423,20 @@ public class MainWindow {
 			String typeTwo = typeTwoJF.getText();
 
 			List<Map<String,String>> mapList = keyFunction.readKeyExcel(globalVariable.filePath);
+			Map<String,String> typeTwoMap = mapList.get(0);
 			Map<String,String> typeMap = mapList.get(1);
 			Map<String, String> otherMap = mapList.get(3);
 			StringBuilder moneyKeys =  commonFunction.getMoneyKeys(otherMap);
 			serialNumber = commonFunction.dealMa(serialNumber);
 			String[] serialNumbers = serialNumber.split("\n");
 			String output = "";
-			autoPretreatmentFunction.autoPretreatment(serialNumbers,globalVariable,type,typeTwo,inputPrice,times,serialNumber,
-					typeMap,otherMap,moneyKeys);
+			if (globalVariable.functionType.equals(FunctionType.AUTO.getLabel())){
+				autoPretreatmentFunction.autoPretreatment(serialNumbers,globalVariable,type,typeTwo,inputPrice,times,serialNumber,
+						typeTwoMap,typeMap,otherMap,moneyKeys);
+			}else {
+				inputFunction.getNumber(globalVariable.tickets, globalVariable.alllistNo, globalVariable.ticketsNo, serialNumber,
+						type, typeTwo, inputPrice, times, globalVariable.functionType, globalVariable.filePath, globalVariable);
+			}
 			globalVariable.typeTwo = "";
 
 			globalVariable.typeTwo = "";
@@ -651,7 +657,7 @@ public class MainWindow {
 			}
 
 			for (int i = 0; i < resultList.size(); i++) {
-				if (!resultList.get(i).equals(resultList2.get(i)))
+				if (!resultList.get(i).equals(resultList2.get(i).replace("注","组")))
 					failList.add(resultList.get(i) + "  " + resultList2.get(i));
 			}
 

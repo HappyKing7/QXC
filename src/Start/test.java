@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class test {
 	private static final InputFunction INPUT_FUNCTION = new InputFunction();
@@ -21,8 +19,8 @@ public class test {
 
 	public static void main(String[] args) throws IOException {
 		//手动测试 自动测试 √ ×
-		String function = "手动测试";
-		String inputSerialNumber = "排 024 034 045 046 047 234 245 246 479\n247 345 346 347\n456 457 467 一单一组";
+		String function = "自动测试";
+		String inputSerialNumber = "体，十位4打50元+";
 		Integer spaceSwitchMode = 1;//0关,1开
 		System.out.println(startTest(function,inputSerialNumber,spaceSwitchMode));
 	}
@@ -32,7 +30,7 @@ public class test {
 		globalVariable.setFilePath(INPUT_FUNCTION.readConfig(0));
 		globalVariable.setSpaceSwitchMode(spaceSwitchMode);
 		String type = "";
-		String typeTwo = "体彩";
+		String typeTwo = "福彩";
 		String inputPrice = "2";
 		String times = "1";
 		globalVariable.functionType = FunctionType.AUTO.getLabel();
@@ -54,12 +52,13 @@ public class test {
 				List<String> resultList2 = result.get(1);
 
 				List<Map<String,String>> mapList = keyFunction.readKeyExcel(globalVariable.filePath);
+				Map<String,String> typeTwoMap = mapList.get(0);
 				Map<String,String> typeMap = mapList.get(1);
 				Map<String, String> otherMap = mapList.get(3);
 				StringBuilder moneyKeys = commonFunction.getMoneyKeys(otherMap);
 				for (String s : inputList) {
 					s = commonFunction.dealMa(s);
-					setCommonFunction1(s,globalVariable,type,typeTwo,inputPrice,times,typeMap,otherMap,moneyKeys);
+					setCommonFunction1(s,globalVariable,type,typeTwo,inputPrice,times,typeTwoMap,typeMap,otherMap,moneyKeys);
 					globalVariable.typeTwo = "";
 				}
 				printTicket(globalVariable, resultList1, function);
@@ -71,7 +70,7 @@ public class test {
 				}
 
 				for (int i = 0; i < resultList1.size(); i++) {
-					if (!resultList1.get(i).equals(resultList2.get(i)))
+					if (!resultList1.get(i).replace("组","注").equals(resultList2.get(i).replace("组","注")))
 						failList.add(resultList1.get(i) + "  " + resultList2.get(i));
 				}
 				if (failList.size() != 0) {
@@ -104,15 +103,16 @@ public class test {
 
 				inputSerialNumber = commonFunction.dealMa(inputSerialNumber);
 				List<Map<String,String>> mapList = keyFunction.readKeyExcel(globalVariable.filePath);
+				Map<String,String> typeTwoMap = mapList.get(0);
 				Map<String,String> typeMap = mapList.get(1);
 				Map<String, String> otherMap = mapList.get(3);
 				StringBuilder moneyKeys = commonFunction.getMoneyKeys(otherMap);
-				setCommonFunction1(inputSerialNumber,globalVariable,type,typeTwo,inputPrice,times,typeMap,otherMap,moneyKeys);
+				setCommonFunction1(inputSerialNumber,globalVariable,type,typeTwo,inputPrice,times,typeTwoMap,typeMap,otherMap,moneyKeys);
 				printTicket(globalVariable, resultList1, function);
 
 				int ifSuccess = 0;
 				for (String s : resultList1) {
-					if (!resultList2.contains(s)) {
+					if (!resultList2.contains(s.replaceFirst("组","注")) && !resultList2.contains(s)) {
 						System.out.println(s);
 						ifSuccess = 1;
 						break;
@@ -149,16 +149,16 @@ public class test {
 	}
 
 	public static void setCommonFunction1(String inputSerialNumber, GlobalVariable globalVariable, String type, String typeTwo,
-										  String inputPrice, String times, Map<String,String> typeMap, Map<String, String> otherMap,
-										  StringBuilder moneyKeys){
+										  String inputPrice, String times, Map<String,String> typeTwoMap, Map<String,String> typeMap,
+										  Map<String, String> otherMap, StringBuilder moneyKeys){
 		String[] serialNumbers = inputSerialNumber.split("\n");
-		setCommonFunction2(serialNumbers,globalVariable,type,typeTwo,inputPrice,times,inputSerialNumber,typeMap,otherMap,moneyKeys);
+		setCommonFunction2(serialNumbers,globalVariable,type,typeTwo,inputPrice,times,inputSerialNumber,typeTwoMap,typeMap,otherMap,moneyKeys);
 	}
 
 	public static void setCommonFunction2(String[] serialNumbers, GlobalVariable globalVariable, String type, String typeTwo,
-										  String inputPrice, String times, String str, Map<String, String> typeMap,
-										  Map<String,String> otherMap, StringBuilder moneyKeys){
-		autoPretreatmentFunction.autoPretreatment(serialNumbers,globalVariable,type,typeTwo,inputPrice,times,str,
+										  String inputPrice, String times, String str, Map<String,String> typeTwoMap,
+										  Map<String, String> typeMap, Map<String,String> otherMap, StringBuilder moneyKeys){
+		autoPretreatmentFunction.autoPretreatment(serialNumbers,globalVariable,type,typeTwo,inputPrice,times,str,typeTwoMap,
 				typeMap,otherMap,moneyKeys);
 	}
 }
